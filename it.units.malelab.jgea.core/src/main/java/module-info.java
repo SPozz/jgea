@@ -32,4 +32,6 @@ module it.units.malelab.jgea.core {
   requires commons.csv;
   requires java.logging;
   requires commons.math3;
+  requires packages.jpl;
+
 }
