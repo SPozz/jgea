@@ -206,7 +206,7 @@ public class PrologGraphUtils {
       Query.hasSolution("assert(" + fact + ").");
     }
 
-    // assert domainStructuralRules SWITCH WITH PARENT GRAPH?? (OK, but not enough)
+    // assert domainStructuralRules PROBLEM WHEN GRAPH EMPTY
     for (String rule : domainStructuralRules) {
       rule = rule.replace(".", "");
       rule = rule.replace(" ", "");
