@@ -198,20 +198,19 @@ public class PrologGraphUtils {
     resetPrologKnowledge();
     status = domainDefinition;
 
-
-    // assert domainStructuralRules SWITCH WITH PARENT GRAPH?? (OK, but not enough)
-    for (String rule : domainStructuralRules) {
-      rule = rule.replace(".", "");
-      rule = rule.replace(" ", "");
-      Query.hasSolution("assert((" + rule + "))");
-    }
-
     // Get parent-graph description and assert it on Prolog
     List<String> parentDescription = describeGraph(parent, domainDefinition);
     for (String fact : parentDescription) {
 //            fact = fact.replace(".", ""); //
 //            fact = fact.replace(" ", ""); // Since we built the graph description without spaces and punctuation, those two lines are removable
       Query.hasSolution("assert(" + fact + ").");
+    }
+
+    // assert domainStructuralRules SWITCH WITH PARENT GRAPH?? (OK, but not enough)
+    for (String rule : domainStructuralRules) {
+      rule = rule.replace(".", "");
+      rule = rule.replace(" ", "");
+      Query.hasSolution("assert((" + rule + "))");
     }
 
     // Apply operator
@@ -280,7 +279,6 @@ public class PrologGraphUtils {
     }
     return breakpoint;
   }
-
 
 
 }
