@@ -176,16 +176,24 @@ public class BasicGraphs {
         int randomIndex = rand.nextInt(0,operators.size());
         String randomOperator = operators.get(randomIndex);
         Instant startingInstant = Instant.now();
+        int previousDimension = graph.nodes().size()+graph.arcs().size();
         graph = PrologGraphUtils.applyOperator(randomOperator, graph, domainDefinition, structuralRules);
         Instant endInstant = Instant.now();
         observation.put("graph",i);
         observation.put("operator", operatorsLabels.get(randomIndex));
+        observation.put("dimension", previousDimension);
         observation.put("executionTime",Duration.between(startingInstant,endInstant).toNanos()/1000000000d);
 
         DataFrame.add(observation);
       }
     }
 
+    double avg = 0;
+    for (LinkedHashMap obs : DataFrame){
+      Double time = (Double) obs.get("executionTime");
+      avg += time;
+    }
+    System.out.println("Average execution time: "+(avg/(nGraphs*nOperations)));
 
     System.out.println(DataFrame);
 
