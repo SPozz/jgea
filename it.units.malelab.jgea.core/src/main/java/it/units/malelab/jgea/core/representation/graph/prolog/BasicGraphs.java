@@ -8,7 +8,7 @@ import java.util.*;
 
 public class BasicGraphs {
 
-  static PrologGraph generateGraph (int dimension, List<String> domainDefinition, List<String> structuralRules){
+  static PrologGraph generateGraph(int dimension, List<String> domainDefinition, List<String> structuralRules) {
     Random random = new Random();
 
     List<String> alphabet = Arrays.asList("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z");
@@ -71,6 +71,12 @@ public class BasicGraphs {
     return PrologGraphUtils.buildGraph(domainDefinition);
   }
 
+  static void resetProlog (List<String> factsNames) {
+    for (String fact : factsNames) {
+      Query.hasSolution("abolish(" + fact + ").");
+    }
+  }
+
   public static void main(String[] args) {
     // Operators' definition
     String operatorAddNodeWithAttribute = "gensym(nod,X), assert(node_id(X)), random(V), attribute_value(V), assert(attribute(X,V)).";
@@ -129,8 +135,13 @@ public class BasicGraphs {
 
     String operatorRemoveNode = "findall(NId,node_id(NId),Nodes),random_member(N,Nodes),\tfindall(E,edge(_,N,E),ID_in),findall(E,edge(N,_,E),ID_out),retract_list(ID_in,edge_id),retract_list(ID_out,edge_id),retractall(edge(_,N,_)),retractall(edge(N,_,_)),retract(node_id(N)).";
 
+    List<String> operators = Arrays.asList(operatorRemoveNode, operatorAddEdgeWithAttribute, operatorAddNodeWithAttribute, operatorModifyEdgeValue, operatorPerturbValue, operatorIntermediateNodeWithAttributes, operatorRemoveEdgeWithAttribute);
+    List<String> operatorsLabels = Arrays.asList("removeNode","addEdge","addNode","modifyEdgeValue","perturbNodeValue","intermediateNode","removeEdge");
+
     // Subset of the graph:
     List<String> domainDefinition = Arrays.asList(":- dynamic node_id/1.", ":- dynamic attribute/2.", ":- dynamic edge_id/1.", ":- dynamic edge/3.", ":- dynamic colour/2.");
+
+    List<String> factsNames = Arrays.asList("node_id/1","attribute/2","edge_id/1","edge/3","colour/2");
 
     List<String> structuralRules = Arrays.asList("is_valid :- true.",
             "retract_list([X | Xs], P) :- " +
@@ -145,22 +156,38 @@ public class BasicGraphs {
     );
 
 
+    int dimension = 10;
+    int nGraphs = 10;
+    int nOperations = 50;
 
 
-    PrologGraph graph = generateGraph(10,domainDefinition,structuralRules);
-    System.out.println(graph.nodes());
-    System.out.println(graph.arcs());
-
-
-    Instant startingInstant = Instant.now();
-    PrologGraphUtils.applyOperator(operatorAddNodeWithAttribute, graph,domainDefinition, structuralRules);
-    System.out.println("execution time: "+ Duration.between(startingInstant,Instant.now()).toNanos()/ 1000000000d);
-
-
-    //  TODO: Generalize and collect data
+    List<LinkedHashMap<String,Object>> DataFrame = new ArrayList<>();
 
 
 
+    PrologGraph graph = new PrologGraph();
+    for (int i = 0; i < nGraphs; ++i) {
+      resetProlog(factsNames);
+      graph = generateGraph(dimension, domainDefinition, structuralRules);
+
+      for (int j = 0; j < nOperations; ++j){
+        LinkedHashMap<String,Object> observation = new LinkedHashMap<>();
+        Random rand = new Random();
+        int randomIndex = rand.nextInt(0,operators.size());
+        String randomOperator = operators.get(randomIndex);
+        Instant startingInstant = Instant.now();
+        graph = PrologGraphUtils.applyOperator(randomOperator, graph, domainDefinition, structuralRules);
+        Instant endInstant = Instant.now();
+        observation.put("graph",i);
+        observation.put("operator", operatorsLabels.get(randomIndex));
+        observation.put("executionTime",Duration.between(startingInstant,endInstant).toNanos()/1000000000d);
+
+        DataFrame.add(observation);
+      }
+    }
+
+
+    System.out.println(DataFrame);
 
 
 
