@@ -71,10 +71,39 @@ public class BasicGraphs {
     return PrologGraphUtils.buildGraph(domainDefinition);
   }
 
-  static void resetProlog (List<String> factsNames) {
+  static void resetProlog(List<String> factsNames) {
     for (String fact : factsNames) {
       Query.hasSolution("abolish(" + fact + ").");
     }
+  }
+
+  static List<LinkedHashMap<String, Object>> analysis(int dimension, int nGraphs, int nOperations, List<String> operators, List<String> operatorsLabels, List<String> factsNames, List<String> domainDefinition, List<String> structuralRules) {
+    List<LinkedHashMap<String, Object>> DataFrame = new ArrayList<>();
+
+    PrologGraph graph;
+    for (int i = 0; i < nGraphs; ++i) {
+      resetProlog(factsNames);
+      graph = generateGraph(dimension, domainDefinition, structuralRules);
+
+      for (int j = 0; j < nOperations; ++j) {
+        LinkedHashMap<String, Object> observation = new LinkedHashMap<>();
+        Random rand = new Random();
+        int randomIndex = rand.nextInt(0, operators.size());
+        String randomOperator = operators.get(randomIndex);
+        Instant startingInstant = Instant.now();
+        int previousDimension = graph.nodes().size() + graph.arcs().size();
+        graph = PrologGraphUtils.applyOperator(randomOperator, graph, domainDefinition, structuralRules);
+        Instant endInstant = Instant.now();
+        observation.put("graph", i);
+        observation.put("operator", operatorsLabels.get(randomIndex));
+        observation.put("dimension", previousDimension);
+        observation.put("executionTime", Duration.between(startingInstant, endInstant).toNanos() / 1000000000d);
+
+        DataFrame.add(observation);
+      }
+    }
+
+    return DataFrame;
   }
 
   public static void main(String[] args) {
@@ -136,12 +165,12 @@ public class BasicGraphs {
     String operatorRemoveNode = "findall(NId,node_id(NId),Nodes),random_member(N,Nodes),\tfindall(E,edge(_,N,E),ID_in),findall(E,edge(N,_,E),ID_out),retract_list(ID_in,edge_id),retract_list(ID_out,edge_id),retractall(edge(_,N,_)),retractall(edge(N,_,_)),retract(node_id(N)).";
 
     List<String> operators = Arrays.asList(operatorRemoveNode, operatorAddEdgeWithAttribute, operatorAddNodeWithAttribute, operatorModifyEdgeValue, operatorPerturbValue, operatorIntermediateNodeWithAttributes, operatorRemoveEdgeWithAttribute);
-    List<String> operatorsLabels = Arrays.asList("removeNode","addEdge","addNode","modifyEdgeValue","perturbNodeValue","intermediateNode","removeEdge");
+    List<String> operatorsLabels = Arrays.asList("removeNode", "addEdge", "addNode", "modifyEdgeValue", "perturbNodeValue", "intermediateNode", "removeEdge");
 
     // Subset of the graph:
     List<String> domainDefinition = Arrays.asList(":- dynamic node_id/1.", ":- dynamic attribute/2.", ":- dynamic edge_id/1.", ":- dynamic edge/3.", ":- dynamic colour/2.");
 
-    List<String> factsNames = Arrays.asList("node_id/1","attribute/2","edge_id/1","edge/3","colour/2");
+    List<String> factsNames = Arrays.asList("node_id/1", "attribute/2", "edge_id/1", "edge/3", "colour/2");
 
     List<String> structuralRules = Arrays.asList("is_valid :- true.",
             "retract_list([X | Xs], P) :- " +
@@ -158,45 +187,35 @@ public class BasicGraphs {
 
     int dimension = 10;
     int nGraphs = 10;
-    int nOperations = 50;
+    int nOperations = 48;
 
-
-    List<LinkedHashMap<String,Object>> DataFrame = new ArrayList<>();
-
-
-
-    PrologGraph graph;
-    for (int i = 0; i < nGraphs; ++i) {
-      resetProlog(factsNames);
-      graph = generateGraph(dimension, domainDefinition, structuralRules);
-
-      for (int j = 0; j < nOperations; ++j){
-        LinkedHashMap<String,Object> observation = new LinkedHashMap<>();
-        Random rand = new Random();
-        int randomIndex = rand.nextInt(0,operators.size());
-        String randomOperator = operators.get(randomIndex);
-        Instant startingInstant = Instant.now();
-        int previousDimension = graph.nodes().size()+graph.arcs().size();
-        graph = PrologGraphUtils.applyOperator(randomOperator, graph, domainDefinition, structuralRules);
-        Instant endInstant = Instant.now();
-        observation.put("graph",i);
-        observation.put("operator", operatorsLabels.get(randomIndex));
-        observation.put("dimension", previousDimension);
-        observation.put("executionTime",Duration.between(startingInstant,endInstant).toNanos()/1000000000d);
-
-        DataFrame.add(observation);
-      }
-    }
+    List<LinkedHashMap<String,Object>> DataFrame10 = analysis(dimension,nGraphs,nOperations,operators,operatorsLabels,factsNames,domainDefinition,structuralRules);
 
     double avg = 0;
-    for (LinkedHashMap obs : DataFrame){
+    for (LinkedHashMap<String, Object> obs : DataFrame10) {
       Double time = (Double) obs.get("executionTime");
       avg += time;
     }
-    System.out.println("Average execution time: "+(avg/(nGraphs*nOperations)));
+    System.out.println("Average execution time with starting dimension 10: " + (avg / (nGraphs * nOperations)));
 
-    System.out.println(DataFrame);
 
+    dimension = 25;
+    List<LinkedHashMap<String,Object>> DataFrame25 = analysis(dimension,nGraphs,nOperations,operators,operatorsLabels,factsNames,domainDefinition,structuralRules);
+    avg = 0;
+    for (LinkedHashMap<String, Object> obs : DataFrame25) {
+      Double time = (Double) obs.get("executionTime");
+      avg += time;
+    }
+    System.out.println("Average execution time with starting dimension 25: " + (avg / (nGraphs * nOperations)));
+
+    dimension = 40;
+    List<LinkedHashMap<String,Object>> DataFrame40 = analysis(dimension,nGraphs,nOperations,operators,operatorsLabels,factsNames,domainDefinition,structuralRules);
+    avg = 0;
+    for (LinkedHashMap<String, Object> obs : DataFrame40) {
+      Double time = (Double) obs.get("executionTime");
+      avg += time;
+    }
+    System.out.println("Average execution time with starting dimension 40: " + (avg / (nGraphs * nOperations)));
 
 
   }
