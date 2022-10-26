@@ -2,9 +2,74 @@ package it.units.malelab.jgea.core.representation.graph.prolog;
 
 import org.jpl7.Query;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
 
 public class BasicGraphs {
+
+  static PrologGraph generateGraph (int dimension, List<String> domainDefinition, List<String> structuralRules){
+    Random random = new Random();
+
+    List<String> alphabet = Arrays.asList("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z");
+    List<String> colours = Arrays.asList("red", "blue", "yellow", "orange", "green");
+    List<String> node;
+    List<String> edge;
+    List<List<String>> allNodes = new ArrayList<>();
+    List<List<String>> allEdges = new ArrayList<>();
+    List<String> nodesIDS = new ArrayList<>();
+
+
+    double value;
+    String nodeID;
+    String source;
+    String target;
+    String edgeID;
+    String colour;
+    int nNodes = random.nextInt(dimension / 2, dimension - 1);
+
+    for (int i = 0; i < nNodes; ++i) {
+      value = random.nextDouble(0, 1);
+      nodeID = alphabet.get(random.nextInt(0, alphabet.size()));
+      node = Arrays.asList("node_id(" + nodeID + ")", "attribute(" + nodeID + "," + value + ")");
+      nodesIDS.add(nodeID);
+      allNodes.add(node);
+    }
+
+    for (int j = 0; j < (dimension - nNodes); ++j) {
+      source = nodesIDS.get(random.nextInt(0, nodesIDS.size()));
+      target = nodesIDS.get(random.nextInt(0, nodesIDS.size()));
+      edgeID = source + target;
+      colour = colours.get(random.nextInt(0, colours.size()));
+      edge = Arrays.asList("edge_id(" + edgeID + ")", "edge(" + source + "," + target + "," + edgeID + ")", "colour(" + edgeID + "," + colour + ")");
+      allEdges.add(edge);
+    }
+
+    List<String> graphDescription = new ArrayList<>();
+    for (int j = 0; j < 2; ++j) {
+      for (List<String> oneNode : allNodes) {
+        graphDescription.add(oneNode.get(j));
+      }
+    }
+
+    for (int j = 0; j < 3; ++j) {
+      for (List<String> oneEdge : allEdges) {
+        graphDescription.add(oneEdge.get(j));
+      }
+    }
+
+    for (String fact : graphDescription) {
+      Query.hasSolution("assert(" + fact + ").");
+    }
+
+    for (String rule : structuralRules) {
+      rule = rule.replace(".", "");
+      rule = rule.replace(" ", "");
+      Query.hasSolution("assert((" + rule + "))");
+    }
+
+    return PrologGraphUtils.buildGraph(domainDefinition);
+  }
 
   public static void main(String[] args) {
     // Operators' definition
@@ -67,7 +132,7 @@ public class BasicGraphs {
     // Subset of the graph:
     List<String> domainDefinition = Arrays.asList(":- dynamic node_id/1.", ":- dynamic attribute/2.", ":- dynamic edge_id/1.", ":- dynamic edge/3.", ":- dynamic colour/2.");
 
-    List<String> StructuralRules = Arrays.asList("is_valid :- true.",
+    List<String> structuralRules = Arrays.asList("is_valid :- true.",
             "retract_list([X | Xs], P) :- " +
                     "        Z =.. [P, X], retract(Z), retract_list(Xs, P).",
             "retract_list([], _) :- true.",
@@ -80,75 +145,20 @@ public class BasicGraphs {
     );
 
 
-    Random random = new Random();
-
-    List<String> alphabet = Arrays.asList("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z");
-    List<String> colours = Arrays.asList("red", "blue", "yellow", "orange", "green");
-    List<String> node;
-    List<String> edge;
-    List<List<String>> allNodes = new ArrayList<>();
-    List<List<String>> allEdges = new ArrayList<>();
-    List<String> nodesIDS = new ArrayList<>();
 
 
-    double value;
-    String nodeID;
-    String source;
-    String target;
-    String edgeID;
-    String colour;
-
-    int dimension = 10; // DIMENSION 10
-    int nNodes = random.nextInt(dimension / 2, dimension - 1);
-
-
-    // GENERATE PSEUDO_RANDOMLY A GRAPH OF A GIVEN DIMENSION
-    for (int i = 0; i < nNodes; ++i) {
-      value = random.nextDouble(0, 1);
-      nodeID = alphabet.get(random.nextInt(0, alphabet.size()));
-      node = Arrays.asList("node_id(" + nodeID + ")", "attribute(" + nodeID + "," + value + ")");
-      nodesIDS.add(nodeID);
-      allNodes.add(node);
-    }
-
-    for (int j = 0; j < (dimension - nNodes); ++j) {
-      source = nodesIDS.get(random.nextInt(0, nodesIDS.size()));
-      target = nodesIDS.get(random.nextInt(0, nodesIDS.size()));
-      edgeID = source + target;
-      colour = colours.get(random.nextInt(0, colours.size()));
-      edge = Arrays.asList("edge_id(" + edgeID + ")", "edge(" + source + "," + target + "," + edgeID + ")", "colour(" + edgeID + "," + colour + ")");
-      allEdges.add(edge);
-    }
-
-    List<String> graphDescription = new ArrayList<>();
-    for (int j = 0; j < 2; ++j) {
-      for (List<String> oneNode : allNodes) {
-        graphDescription.add(oneNode.get(j));
-      }
-    }
-
-    for (int j = 0; j < 3; ++j) {
-      for (List<String> oneEdge : allEdges) {
-        graphDescription.add(oneEdge.get(j));
-      }
-    }
-
-    System.out.println(graphDescription);
-
-    for (String fact : graphDescription) {
-      Query.hasSolution("assert(" + fact + ").");
-    }
-
-    for (String rule : StructuralRules) {
-      rule = rule.replace(".", "");
-      rule = rule.replace(" ", "");
-      Query.hasSolution("assert((" + rule + "))");
-    }
-
-    PrologGraph graph = PrologGraphUtils.buildGraph(domainDefinition);
-
+    PrologGraph graph = generateGraph(10,domainDefinition,structuralRules);
     System.out.println(graph.nodes());
     System.out.println(graph.arcs());
+
+
+    Instant startingInstant = Instant.now();
+    PrologGraphUtils.applyOperator(operatorAddNodeWithAttribute, graph,domainDefinition, structuralRules);
+    System.out.println("execution time: "+ Duration.between(startingInstant,Instant.now()).toNanos()/ 1000000000d);
+
+
+    //  TODO: Generalize and collect data
+
 
 
 
