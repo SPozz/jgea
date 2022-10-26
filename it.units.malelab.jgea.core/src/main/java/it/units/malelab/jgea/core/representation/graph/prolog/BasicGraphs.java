@@ -165,7 +165,7 @@ public class BasicGraphs {
 
 
 
-    PrologGraph graph = new PrologGraph();
+    PrologGraph graph;
     for (int i = 0; i < nGraphs; ++i) {
       resetProlog(factsNames);
       graph = generateGraph(dimension, domainDefinition, structuralRules);
