@@ -6,7 +6,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 
-public class BasicGraphs {
+public class BasicGraphsAnalysis {
 
   static PrologGraph generateGraph(int dimension, List<String> domainDefinition, List<String> structuralRules) {
     Random random = new Random();

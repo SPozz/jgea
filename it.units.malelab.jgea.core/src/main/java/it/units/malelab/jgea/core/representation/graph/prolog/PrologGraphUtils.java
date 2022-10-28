@@ -124,7 +124,8 @@ public class PrologGraphUtils {
     PrologGraph graph = new PrologGraph();
 
     // Get (Prolog) a list of node_ids
-    Query nodeIDQuery = new Query("node_id(X)");
+    Variable N = new Variable("N");
+    Query nodeIDQuery = new Query("node_id", new Term[]{N});
     if (!nodeIDQuery.hasSolution()) //if no node id => empty graph
       return graph;
     Map<String, Term>[] allNodeIDs = nodeIDQuery.allSolutions();
@@ -135,13 +136,15 @@ public class PrologGraphUtils {
     // Add nodes to graph
     LinkedHashMap<String, Object> nodeMap;
     for (Map<String, Term> nodeIDMap : allNodeIDs) { // iterating through nodeIDs
-      String oneNodeID = nodeIDMap.get("X").toString();
+      String oneNodeID = nodeIDMap.get("N").toString();
       nodeMap = new LinkedHashMap<>();
       nodeMap.put("node_id", oneNodeID);
 
+      Variable V = new Variable("V");
       for (String attribute : nodesFactsNames.subList(1, nodesFactsNames.size())) { // iterating through attributes
-        String query = attribute + "(" + oneNodeID + ",X)";
-        Object value = Query.oneSolution(query).get("X");
+        Object value = Query.oneSolution(attribute, new Term[]{new Atom(oneNodeID), V});
+//        String query = attribute + "(" + oneNodeID + ",X)";
+//        Object value = Query.oneSolution(query).get("X");
         nodeMap.put(attribute, value);
       }
       nodesCollection.add(nodeMap);
