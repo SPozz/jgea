@@ -26,11 +26,26 @@ public class BasicGraphsAnalysis {
     String target;
     String edgeID;
     String colour;
+    List<String> indexList = new ArrayList<>();
+
+    int MaxRecursion = 100;
+
     int nNodes = random.nextInt(dimension / 2, dimension - 1);
 
     for (int i = 0; i < nNodes; ++i) {
+      int index = random.nextInt(0, alphabet.size());
+      int check = 0;
+      while (indexList.contains(Integer.toString(index)) & check <= MaxRecursion) {
+        index = random.nextInt(0, alphabet.size());
+        ++check;
+      }
+      if (check == MaxRecursion) {
+        continue;
+      }
+      indexList.add(Integer.toString(index));
+      nodeID = alphabet.get(index);
+
       value = random.nextDouble(0, 1);
-      nodeID = alphabet.get(random.nextInt(0, alphabet.size()));
       node = Arrays.asList("node_id(" + nodeID + ")", "attribute(" + nodeID + "," + value + ")");
       nodesIDS.add(nodeID);
       allNodes.add(node);
@@ -189,7 +204,7 @@ public class BasicGraphsAnalysis {
     int nGraphs = 10;
     int nOperations = 48;
 
-    List<LinkedHashMap<String,Object>> DataFrame10 = analysis(dimension,nGraphs,nOperations,operators,operatorsLabels,factsNames,domainDefinition,structuralRules);
+    List<LinkedHashMap<String, Object>> DataFrame10 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
 
     double avg = 0;
     for (LinkedHashMap<String, Object> obs : DataFrame10) {
@@ -200,7 +215,7 @@ public class BasicGraphsAnalysis {
 
 
     dimension = 25;
-    List<LinkedHashMap<String,Object>> DataFrame25 = analysis(dimension,nGraphs,nOperations,operators,operatorsLabels,factsNames,domainDefinition,structuralRules);
+    List<LinkedHashMap<String, Object>> DataFrame25 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
     avg = 0;
     for (LinkedHashMap<String, Object> obs : DataFrame25) {
       Double time = (Double) obs.get("executionTime");
@@ -209,7 +224,7 @@ public class BasicGraphsAnalysis {
     System.out.println("Average execution time with starting dimension 25: " + (avg / (nGraphs * nOperations)));
 
     dimension = 40;
-    List<LinkedHashMap<String,Object>> DataFrame40 = analysis(dimension,nGraphs,nOperations,operators,operatorsLabels,factsNames,domainDefinition,structuralRules);
+    List<LinkedHashMap<String, Object>> DataFrame40 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
     avg = 0;
     for (LinkedHashMap<String, Object> obs : DataFrame40) {
       Double time = (Double) obs.get("executionTime");

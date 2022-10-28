@@ -25,17 +25,31 @@ public class TwitterAnalysis {
     String target;
     String edgeID;
     String action;
-    int nNodes = random.nextInt(dimension / 4, dimension/2);
+    int MaxRecursion = 100;
+
+    List<String> indexList = new ArrayList<>();
+
+    int nNodes = random.nextInt(dimension / 4, dimension / 2);
     for (int i = 0; i < nNodes; ++i) {
+      int check = 0;
+      int index = random.nextInt(0, alphabet.size());
+      while (indexList.contains(Integer.toString(index)) & check <= MaxRecursion) {
+        index = random.nextInt(0, alphabet.size());
+        ++check;
+      }
+      if (check == MaxRecursion) {
+        continue;
+      }
+      indexList.add(Integer.toString(index));
+      nodeID = alphabet.get(index);
       type = Arrays.asList("user", "tweet").get(random.nextInt(0, 2));
-      nodeID = alphabet.get(random.nextInt(0, alphabet.size()));
       node = Arrays.asList("node_id(" + nodeID + ")", "type(" + nodeID + "," + type + ")");
       if (type.equals("user")) {
         userIDS.add(nodeID);
       } else if (type.equals("tweet")) {
         tweetIDS.add(nodeID);
       } else
-        System.out.println("ERROR, DEBUG");
+        System.out.println("ERROR, DEBUG"); // TODO: remove debugger
       allNodes.add(node);
     }
 
@@ -60,6 +74,7 @@ public class TwitterAnalysis {
       } else if (sourceType.equals(userIDS) & targetType.equals(tweetIDS)) {
         action = "retweet";
       } else {
+        System.out.println("DEBUG: wrong random choice"); //TODO: remove debugger
         --j;
         continue;
       }
@@ -87,13 +102,12 @@ public class TwitterAnalysis {
       }
     }
 
-    System.out.println("DEBUG, GRAPH DESCRIPTION IS:\n"+graphDescription);
+    System.out.println("DEBUG, GRAPH DESCRIPTION IS:\n" + graphDescription); // TODO: remove sout
 
-    System.out.println("DEBUG");
     return new PrologGraph();
   }
 
   public static void main(String[] args) {
-    generateGraph(10);
+    generateGraph(40);
   }
 }
