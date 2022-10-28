@@ -51,10 +51,16 @@ public class BasicGraphsAnalysis {
       allNodes.add(node);
     }
 
+    List<String> edgeIDs = new ArrayList<>();
     for (int j = 0; j < (dimension - nNodes); ++j) {
       source = nodesIDS.get(random.nextInt(0, nodesIDS.size()));
       target = nodesIDS.get(random.nextInt(0, nodesIDS.size()));
       edgeID = source + target;
+      if (edgeIDs.contains(edgeID)) {
+        --j;
+        continue;
+      }
+      edgeIDs.add(edgeID);
       colour = colours.get(random.nextInt(0, colours.size()));
       edge = Arrays.asList("edge_id(" + edgeID + ")", "edge(" + source + "," + target + "," + edgeID + ")", "colour(" + edgeID + "," + colour + ")");
       allEdges.add(edge);

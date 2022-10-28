@@ -64,6 +64,7 @@ public class TwitterAnalysis {
       counter += 1;
     }
 
+    List<String> edgeIDs = new ArrayList<>();
     for (int j = 0; j < (dimension - nNodes - counter); ++j) {
       List<String> sourceType = Arrays.asList(userIDS, tweetIDS).get(random.nextInt(0, 2));
       List<String> targetType = Arrays.asList(userIDS, tweetIDS).get(random.nextInt(0, 2));
@@ -80,11 +81,16 @@ public class TwitterAnalysis {
       }
       source = sourceType.get(random.nextInt(0, sourceType.size()));
       target = targetType.get(random.nextInt(0, targetType.size()));
+      edgeID = source + target;
       if (source.equals(target)) {
         --j;
         continue;
       }
-      edgeID = source + target;
+      if (edgeIDs.contains(edgeID)) {
+        --j;
+        continue;
+      }
+      edgeIDs.add(edgeID);
       edge = Arrays.asList("edge_id(" + edgeID + ")", "edge(" + source + "," + target + "," + edgeID + ")", "action(" + edgeID + "," + action + ")");
       allEdges.add(edge);
     }
