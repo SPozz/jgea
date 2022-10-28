@@ -142,7 +142,7 @@ public class PrologGraphUtils {
 
       Variable V = new Variable("V");
       for (String attribute : nodesFactsNames.subList(1, nodesFactsNames.size())) { // iterating through attributes
-        Object value = Query.oneSolution(attribute, new Term[]{new Atom(oneNodeID), V});
+        Object value = Query.oneSolution(attribute, new Term[]{new Atom(oneNodeID), V}).get("V");
 //        String query = attribute + "(" + oneNodeID + ",X)";
 //        Object value = Query.oneSolution(query).get("X");
         nodeMap.put(attribute, value);
@@ -209,10 +209,10 @@ public class PrologGraphUtils {
       Query.hasSolution("assert(" + fact + ").");
     }
 
-    // assert domainStructuralRules PROBLEM WHEN GRAPH EMPTY
+    // assert domainStructuralRules PROBLEM WHEN GRAPH IS EMPTY
     for (String rule : domainStructuralRules) {
       rule = rule.replace(".", "");
-      rule = rule.replace(" ", "");
+//      rule = rule.replace(" ", ""); //why should I remove spaces?
       Query.hasSolution("assert((" + rule + "))");
     }
 
@@ -237,11 +237,10 @@ public class PrologGraphUtils {
     String JPLValidity = "(jpl_valid(X) :- (is_valid -> X = true; X = false) )";
     Query.hasSolution("assert(" + JPLValidity + ")");
 
-    //TODO: Error handling (WIP)
+        //TODO: Error handling (WIP)
     if (Query.oneSolution("jpl_valid(X)").get("X").toString().equals("false")) {
-      System.out.println("DEBUG: graph not valid, returning parent");
+//      System.out.println("DEBUG: graph not valid, returning parent");
       return parent;
-//      throw new UnsupportedOperationException("graph not valid");
     }
 
     return buildGraph(domainDefinition);

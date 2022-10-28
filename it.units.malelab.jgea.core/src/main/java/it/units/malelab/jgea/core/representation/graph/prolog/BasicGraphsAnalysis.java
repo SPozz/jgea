@@ -92,7 +92,7 @@ public class BasicGraphsAnalysis {
     return PrologGraphUtils.buildGraph(domainDefinition);
   }
 
-  static void resetProlog(List<String> factsNames) {
+  static public void resetProlog(List<String> factsNames) {
     for (String fact : factsNames) {
       Query.hasSolution("abolish(" + fact + ").");
     }
@@ -206,9 +206,10 @@ public class BasicGraphsAnalysis {
     );
 
 
+    // Analysis:
     int dimension = 10;
     int nGraphs = 10;
-    int nOperations = 48;
+    int nOperations = 40;
 
     List<LinkedHashMap<String, Object>> DataFrame10 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
 
