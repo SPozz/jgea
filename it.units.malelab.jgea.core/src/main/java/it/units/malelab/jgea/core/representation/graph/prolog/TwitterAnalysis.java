@@ -67,11 +67,10 @@ public class TwitterAnalysis {
       }
     }
 
-    int maxRecursion = 50;
-    int check = 0;
+    int check2 = 0;
     List<String> edgeIDs = new ArrayList<>();
     for (int j = 0; j < (dimension - nNodes - counter); ++j) {
-      if (check == MaxRecursion) {
+      if (check2 == MaxRecursion) {
         break;
       }
       List<String> sourceType = Arrays.asList(userIDS, tweetIDS).get(random.nextInt(0, 2));
@@ -83,7 +82,7 @@ public class TwitterAnalysis {
       } else if (sourceType.equals(userIDS) & targetType.equals(tweetIDS)) {
         action = "retweet";
       } else {
-        ++check;
+        ++check2;
         --j;
         continue;
       }
@@ -92,12 +91,12 @@ public class TwitterAnalysis {
       target = targetType.get(random.nextInt(0, targetType.size()));
       edgeID = source + target;
       if (source.equals(target)) {
-        ++check;
+        ++check2;
         --j;
         continue;
       }
       if (edgeIDs.contains(edgeID)) {
-        ++check;
+        ++check2;
         --j;
         continue;
       }
@@ -141,8 +140,6 @@ public class TwitterAnalysis {
       BasicGraphsAnalysis.resetProlog(factsNames);
       graph = generateGraph(dimension, domainDefinition, structuralRules);
 
-      System.out.println("DEBUG: generation of " + i + "th graph is done.");
-
       for (int j = 0; j < nOperations; ++j) {
         LinkedHashMap<String, Object> observation = new LinkedHashMap<>();
         Random rand = new Random();
@@ -165,6 +162,23 @@ public class TwitterAnalysis {
   }
 
   public static void main(String[] args) {
+//    System.out.println("TESTING");
+//
+//    System.out.println(Query.hasSolution("assert(( size([], 0) :- true ))"));
+//    System.out.println(Query.hasSolution("assert(( size([_|Xs],N) :- size(Xs,N1), N is N1 + 1 ))"));
+//    System.out.println(Query.hasSolution("assert(( tweet_indeg(T) :- findall(S, (edge(S,T,X),action(X,post)), Sources), size(Sources,N1), N1 == 1 ))"));
+//
+//    Query.hasSolution("assert(node(tt)).");
+//    Query.hasSolution("assert(type(tt,tweet)).");
+//    Query.hasSolution("assert(node(ss)).");
+//    Query.hasSolution("assert(type(ss,user)).");
+//    Query.hasSolution("assert(edge(ss,tt,sstt)).");
+//    Query.hasSolution("assert(action(sstt,post))");
+//    System.out.println("single tweet indegree: "+Query.hasSolution("tweet_indeg(tt)"));
+//    System.out.println("foreach-findall: "+Query.hasSolution("foreach(findall(T,type(T,tweet),Tweets), maplist(tweet_indeg,Tweets))"));
+//
+//    // The same code inside applyOperator function does not work. Don't know why
+
     // Twitter subset definition:
     List<String> domainDefinition = Arrays.asList(":- dynamic node_id/1.",
             ":- dynamic type/2.",
@@ -184,12 +198,12 @@ public class TwitterAnalysis {
             "follows_check(X) :- action(X,follows),edge(S,T,X), type(S,user), type(T,user), S \\== T.",
             "size([], 0) :- true.",
             "size([_|Xs],N) :- size(Xs,N1), N is N1 + 1.",
-//            "tweet_indeg(T) :- findall(S, (edge(S,T,X),action(X,post)), S), size(S,N1), N1 == 1.",
+            "tweet_indeg(T) :- findall(S, (edge(S,T,X),action(X,post)), Sources), size(Sources,N1), N1 == 1.",
             "is_valid :- foreach(findall(E,(edge_id(E),action(E,cite)),E), maplist(cite_check,E))," +
-                    "    foreach(findall(E,(edge_id(E),action(E,post)),E), maplist(post_check,E))," +
-                    "    foreach(findall(E,(edge_id(E),action(E,retweet)),E), maplist(retweet_check,E))," +
-                    "    foreach(findall(E,(edge_id(E),action(E,follows)),E), maplist(follows_check,E))." //+
-//                    "    foreach(findall(T,type(T,tweet),T), maplist(tweet_indeg,T))."
+                    "foreach(findall(E,(edge_id(E),action(E,post)),E), maplist(post_check,E))," +
+                    "foreach(findall(E,(edge_id(E),action(E,retweet)),E), maplist(retweet_check,E))," +
+                    "foreach(findall(E,(edge_id(E),action(E,follows)),E), maplist(follows_check,E))." //+
+//                    "foreach(findall(T,type(T,tweet),Tweets), maplist(tweet_indeg,Tweets))."
     );
 
     List<String> factsNames = Arrays.asList("node_id/1", "type/2", "edge_id/1", "edge/3", "action/2");
@@ -250,14 +264,45 @@ public class TwitterAnalysis {
     operators.add(addLegalEdge);
     operatorsLabels.add("addLegalEdge");
 
-    String removeNode = "";
-    String removeEdge = "";
+    // incomplete (not removing edge attribute)
+    String removeNode = "findall(NId,node_id(NId),Nodes),random_member(N,Nodes),findall(E,edge(_,N,E),ID_in),findall(E,edge(N,_,E),ID_out),retract_list(ID_in,edge_id),retract_list(ID_out,edge_id),retractall(edge(_,N,_)),retractall(edge(N,_,_)),retract(type(N,_)),retract(node_id(N)).";
+    operators.add(removeNode);
+    operatorsLabels.add("removeNode");
+
+    String removeEdge = "findall(EID,edge_id(EID),Ids)," +
+            "random_member(Removable,Ids)," +
+            "retract(edge_id(Removable))," +
+            "retract(action(Removable,_))," +
+            "retract(edge(_,_,Removable)).";
+    operators.add(removeEdge);
+    operatorsLabels.add("removeEdge");
+
+    String intermediatePublisher = "findall((S,T,I),(edge(S,T,I),action(I,post)),Edges)," +
+            "random_member((N1,N2,ID),Edges)," +
+            "retract(edge_id(ID))," +
+            "retract(edge(N1,N2,ID))," +
+            "retract(action(ID,_))," +
+            "gensym(edg,E1)," +
+            "gensym(edg,E2)," +
+            "assert(edge_id(E1))," +
+            "assert(edge_id(E2))," +
+            "assert(action(E1,follows))," +
+            "assert(action(E2,post))," +
+            "gensym(nod,N)," +
+            "assert(node_id(N))," +
+            "assert(type(N,user))," +
+            "assert(edge(N1,N,E1))," +
+            "assert(edge(N,N2,E2)).";
+    operators.add(intermediatePublisher);
+    operatorsLabels.add("intermediatePublisher");
+
 
 
     // Analysis:
+    System.out.println("Without rules for tweet's indegree");
     int dimension = 10;
     int nGraphs = 10;
-    int nOperations = 1;
+    int nOperations = 40;
 
     List<LinkedHashMap<String, Object>> DataFrame10 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
 
@@ -268,6 +313,24 @@ public class TwitterAnalysis {
     }
     System.out.println("Average execution time with starting dimension 10: " + (avg / (nGraphs * nOperations)));
 
+
+    dimension = 25;
+    List<LinkedHashMap<String, Object>> DataFrame25 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
+    avg = 0;
+    for (LinkedHashMap<String, Object> obs : DataFrame25) {
+      Double time = (Double) obs.get("executionTime");
+      avg += time;
+    }
+    System.out.println("Average execution time with starting dimension 25: " + (avg / (nGraphs * nOperations)));
+
+    dimension = 40;
+    List<LinkedHashMap<String, Object>> DataFrame40 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
+    avg = 0;
+    for (LinkedHashMap<String, Object> obs : DataFrame40) {
+      Double time = (Double) obs.get("executionTime");
+      avg += time;
+    }
+    System.out.println("Average execution time with starting dimension 40: " + (avg / (nGraphs * nOperations)));
 
   }
 }
