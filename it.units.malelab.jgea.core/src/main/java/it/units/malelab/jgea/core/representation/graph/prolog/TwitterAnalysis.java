@@ -2,15 +2,14 @@ package it.units.malelab.jgea.core.representation.graph.prolog;
 
 import org.jpl7.Query;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.*;
 
 public class TwitterAnalysis {
 
   static PrologGraph generateGraph(int dimension, List<String> domainDefinition, List<String> structuralRules) {
-    // prendo a caso m nodi, li divido in utenti e tweet e metto in liste appropriate. Poi grafi da questi nodi
+    //RMK: this is NOT error-safe, but it is ok for our purpose
     Random random = new Random();
 
     List<String> alphabet = Arrays.asList("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z");
@@ -27,11 +26,11 @@ public class TwitterAnalysis {
     String target;
     String edgeID;
     String action;
-    int MaxRecursion = 100;
+    int MaxRecursion = 50;
 
     List<String> indexList = new ArrayList<>();
 
-    int nNodes = random.nextInt(dimension / 4, dimension / 2);
+    int nNodes = random.nextInt(dimension / 3, dimension / 2);
     for (int i = 0; i < nNodes; ++i) {
       int check = 0;
       int index = random.nextInt(0, alphabet.size());
@@ -56,18 +55,25 @@ public class TwitterAnalysis {
     }
 
     int counter = 0;
-    for (String tweet : tweetIDS) {
-      source = userIDS.get(random.nextInt(0, userIDS.size()));
-      target = tweet;
-      edgeID = source + target;
-      action = "post";
-      edge = Arrays.asList("edge_id(" + edgeID + ")", "edge(" + source + "," + target + "," + edgeID + ")", "action(" + edgeID + "," + action + ")");
-      allEdges.add(edge);
-      counter += 1;
+    if (!userIDS.isEmpty()) {
+      for (String tweet : tweetIDS) {
+        source = userIDS.get(random.nextInt(0, userIDS.size()));
+        target = tweet;
+        edgeID = source + target;
+        action = "post";
+        edge = Arrays.asList("edge_id(" + edgeID + ")", "edge(" + source + "," + target + "," + edgeID + ")", "action(" + edgeID + "," + action + ")");
+        allEdges.add(edge);
+        counter += 1;
+      }
     }
 
+    int maxRecursion = 50;
+    int check = 0;
     List<String> edgeIDs = new ArrayList<>();
     for (int j = 0; j < (dimension - nNodes - counter); ++j) {
+      if (check == MaxRecursion) {
+        break;
+      }
       List<String> sourceType = Arrays.asList(userIDS, tweetIDS).get(random.nextInt(0, 2));
       List<String> targetType = Arrays.asList(userIDS, tweetIDS).get(random.nextInt(0, 2));
       if (sourceType.equals(userIDS) & targetType.equals(userIDS)) {
@@ -77,17 +83,21 @@ public class TwitterAnalysis {
       } else if (sourceType.equals(userIDS) & targetType.equals(tweetIDS)) {
         action = "retweet";
       } else {
+        ++check;
         --j;
         continue;
       }
+
       source = sourceType.get(random.nextInt(0, sourceType.size()));
       target = targetType.get(random.nextInt(0, targetType.size()));
       edgeID = source + target;
       if (source.equals(target)) {
+        ++check;
         --j;
         continue;
       }
       if (edgeIDs.contains(edgeID)) {
+        ++check;
         --j;
         continue;
       }
@@ -113,6 +123,7 @@ public class TwitterAnalysis {
       Query.hasSolution("assert(" + fact + ").");
     }
 
+
     for (String rule : structuralRules) {
       rule = rule.replace(".", "");
       rule = rule.replace(" ", "");
@@ -122,8 +133,39 @@ public class TwitterAnalysis {
     return PrologGraphUtils.buildGraph(domainDefinition);
   }
 
-  public static void main(String[] args) {
+  static List<LinkedHashMap<String, Object>> analysis(int dimension, int nGraphs, int nOperations, List<String> operators, List<String> operatorsLabels, List<String> factsNames, List<String> domainDefinition, List<String> structuralRules) {
+    List<LinkedHashMap<String, Object>> DataFrame = new ArrayList<>();
 
+    PrologGraph graph;
+    for (int i = 0; i < nGraphs; ++i) {
+      BasicGraphsAnalysis.resetProlog(factsNames);
+      graph = generateGraph(dimension, domainDefinition, structuralRules);
+
+      System.out.println("DEBUG: generation of " + i + "th graph is done.");
+
+      for (int j = 0; j < nOperations; ++j) {
+        LinkedHashMap<String, Object> observation = new LinkedHashMap<>();
+        Random rand = new Random();
+        int randomIndex = rand.nextInt(0, operators.size());
+        String randomOperator = operators.get(randomIndex);
+        Instant startingInstant = Instant.now();
+        int previousDimension = graph.nodes().size() + graph.arcs().size();
+        graph = PrologGraphUtils.applyOperator(randomOperator, graph, domainDefinition, structuralRules);
+        Instant endInstant = Instant.now();
+        observation.put("graph", i);
+        observation.put("operator", operatorsLabels.get(randomIndex));
+        observation.put("dimension", previousDimension);
+        observation.put("executionTime", Duration.between(startingInstant, endInstant).toNanos() / 1000000000d);
+
+        DataFrame.add(observation);
+      }
+    }
+
+    return DataFrame;
+  }
+
+  public static void main(String[] args) {
+    // Twitter subset definition:
     List<String> domainDefinition = Arrays.asList(":- dynamic node_id/1.",
             ":- dynamic type/2.",
             ":- dynamic edge_id/1.",
@@ -140,16 +182,92 @@ public class TwitterAnalysis {
             "post_check(X) :- action(X,post),edge(S,T,X), type(S,user), type(T,tweet).",
             "retweet_check(X) :- action(X,retweet),edge(S,T,X), type(S,user), type(T,tweet).",
             "follows_check(X) :- action(X,follows),edge(S,T,X), type(S,user), type(T,user), S \\== T.",
-            "size([], 0).",
-            "size([_|Xs], N) :- size(Xs, N1), N is N1 + 1.",
-            "tweet_indeg(T) :- findall(S, (edge(S,T,X),action(X,post)), S), size(S,N1), N1 == 1.",
+            "size([], 0) :- true.",
+            "size([_|Xs],N) :- size(Xs,N1), N is N1 + 1.",
+//            "tweet_indeg(T) :- findall(S, (edge(S,T,X),action(X,post)), S), size(S,N1), N1 == 1.",
             "is_valid :- foreach(findall(E,(edge_id(E),action(E,cite)),E), maplist(cite_check,E))," +
                     "    foreach(findall(E,(edge_id(E),action(E,post)),E), maplist(post_check,E))," +
                     "    foreach(findall(E,(edge_id(E),action(E,retweet)),E), maplist(retweet_check,E))," +
-                    "    foreach(findall(E,(edge_id(E),action(E,follows)),E), maplist(follows_check,E))," +
-                    "    foreach(findall(T,type(T,tweet),T), maplist(tweet_indeg,T))."
+                    "    foreach(findall(E,(edge_id(E),action(E,follows)),E), maplist(follows_check,E))." //+
+//                    "    foreach(findall(T,type(T,tweet),T), maplist(tweet_indeg,T))."
     );
 
-    generateGraph(40, domainDefinition, structuralRules);
+    List<String> factsNames = Arrays.asList("node_id/1", "type/2", "edge_id/1", "edge/3", "action/2");
+
+    // Operators:
+    List<String> operators = new ArrayList<>();
+    List<String> operatorsLabels = new ArrayList<>();
+
+    String addUser = "gensym(nod,X)," +
+            "assert(node_id(X))," +
+            "assert(type(X,user)).";
+    operators.add(addUser);
+    operatorsLabels.add("addUser");
+
+    String addLegalTweet = "findall(N,type(N,user),UsersID)," +
+            "random_member(Y,UsersID)," +
+            "gensym(nod,X)," +
+            "assert(node_id(X))," +
+            "assert(type(X,tweet))," +
+            "gensym(edg,E)," +
+            "assert(edge_id(E))," +
+            "assert(edge(Y,X,E))," +
+            "assert(action(E,post)).";
+    operators.add(addLegalTweet);
+    operatorsLabels.add("addLegalTweet");
+
+    String addRandomNode = "gensym(nod,X)," +
+            "assert(node_id(X))," +
+            "(maybe -> assert(type(X,user));" +
+            "  assert(type(X,tweet))," +
+            "  findall(N,type(N,user),UsersID)," +
+            "  random_member(Y,UsersID)," +
+            "  gensym(edg,E)," +
+            "  assert(edge_id(E))," +
+            "  assert(edge(Y,X,E))," +
+            "  assert(action(E,post))" +
+            ").";
+    operators.add(addRandomNode);
+    operatorsLabels.add("addRandomNode");
+
+    String addLegalEdge = "findall(Z,node_id(Z),N)," +
+            "random_member(X,N)," +
+            "random_member(Y,N)," +
+            "(edge(X,Y,_) ->  true; " +
+            "    gensym(edge,E)," +
+            "    assert(edge_id(E))," +
+            "    assert(edge(X,Y,E))," +
+            "    (type(X,user),type(Y,user),X \\==Y -> " +
+            "            assert(action(E,follows)) ;" +
+            "    type(X,tweet),type(Y,user) ->" +
+            "        assert(action(E,cite)) ;" +
+            "    type(X,user),type(Y,tweet) -> " +
+            "       assert(action(E,retweet));" +
+            "    retract(edge_id(E))," +
+            "    retract(edge(X,Y,E))" +
+            "    )" +
+            ").";
+    operators.add(addLegalEdge);
+    operatorsLabels.add("addLegalEdge");
+
+    String removeNode = "";
+    String removeEdge = "";
+
+
+    // Analysis:
+    int dimension = 10;
+    int nGraphs = 10;
+    int nOperations = 1;
+
+    List<LinkedHashMap<String, Object>> DataFrame10 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
+
+    double avg = 0;
+    for (LinkedHashMap<String, Object> obs : DataFrame10) {
+      Double time = (Double) obs.get("executionTime");
+      avg += time;
+    }
+    System.out.println("Average execution time with starting dimension 10: " + (avg / (nGraphs * nOperations)));
+
+
   }
 }
