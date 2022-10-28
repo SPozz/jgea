@@ -1,5 +1,7 @@
 package it.units.malelab.jgea.core.representation.graph.prolog;
 
+import org.jpl7.Query;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -7,7 +9,7 @@ import java.util.Random;
 
 public class TwitterAnalysis {
 
-  static PrologGraph generateGraph(int dimension) {//List<String> domainDefinition, List<String> structuralRules
+  static PrologGraph generateGraph(int dimension, List<String> domainDefinition, List<String> structuralRules) {
     // prendo a caso m nodi, li divido in utenti e tweet e metto in liste appropriate. Poi grafi da questi nodi
     Random random = new Random();
 
@@ -49,7 +51,7 @@ public class TwitterAnalysis {
       } else if (type.equals("tweet")) {
         tweetIDS.add(nodeID);
       } else
-        System.out.println("ERROR, DEBUG"); // TODO: remove debugger
+        throw new RuntimeException("something wrong");
       allNodes.add(node);
     }
 
@@ -75,7 +77,6 @@ public class TwitterAnalysis {
       } else if (sourceType.equals(userIDS) & targetType.equals(tweetIDS)) {
         action = "retweet";
       } else {
-        System.out.println("DEBUG: wrong random choice"); //TODO: remove debugger
         --j;
         continue;
       }
@@ -108,12 +109,47 @@ public class TwitterAnalysis {
       }
     }
 
-    System.out.println("DEBUG, GRAPH DESCRIPTION IS:\n" + graphDescription); // TODO: remove sout
+    for (String fact : graphDescription) {
+      Query.hasSolution("assert(" + fact + ").");
+    }
 
-    return new PrologGraph();
+    for (String rule : structuralRules) {
+      rule = rule.replace(".", "");
+      rule = rule.replace(" ", "");
+      Query.hasSolution("assert((" + rule + "))");
+    }
+
+    return PrologGraphUtils.buildGraph(domainDefinition);
   }
 
   public static void main(String[] args) {
-    generateGraph(40);
+
+    List<String> domainDefinition = Arrays.asList(":- dynamic node_id/1.",
+            ":- dynamic type/2.",
+            ":- dynamic edge_id/1.",
+            ":- dynamic edge/3.",
+            ":- dynamic action/2.");
+
+    List<String> structuralRules = Arrays.asList("action_value(retweet).",
+            "action_value(post).",
+            "action_value(cite).",
+            "action_value(follows).",
+            "type_value(user).",
+            "type_value(tweet).",
+            "cite_check(X) :- action(X,cite),edge(S,T,X), type(S,tweet), type(T,user).",
+            "post_check(X) :- action(X,post),edge(S,T,X), type(S,user), type(T,tweet).",
+            "retweet_check(X) :- action(X,retweet),edge(S,T,X), type(S,user), type(T,tweet).",
+            "follows_check(X) :- action(X,follows),edge(S,T,X), type(S,user), type(T,user), S \\== T.",
+            "size([], 0).",
+            "size([_|Xs], N) :- size(Xs, N1), N is N1 + 1.",
+            "tweet_indeg(T) :- findall(S, (edge(S,T,X),action(X,post)), S), size(S,N1), N1 == 1.",
+            "is_valid :- foreach(findall(E,(edge_id(E),action(E,cite)),E), maplist(cite_check,E))," +
+                    "    foreach(findall(E,(edge_id(E),action(E,post)),E), maplist(post_check,E))," +
+                    "    foreach(findall(E,(edge_id(E),action(E,retweet)),E), maplist(retweet_check,E))," +
+                    "    foreach(findall(E,(edge_id(E),action(E,follows)),E), maplist(follows_check,E))," +
+                    "    foreach(findall(T,type(T,tweet),T), maplist(tweet_indeg,T))."
+    );
+
+    generateGraph(40, domainDefinition, structuralRules);
   }
 }
