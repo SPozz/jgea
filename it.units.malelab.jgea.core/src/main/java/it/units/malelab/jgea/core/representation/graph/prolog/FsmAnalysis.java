@@ -2,10 +2,9 @@ package it.units.malelab.jgea.core.representation.graph.prolog;
 
 import org.jpl7.Query;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.*;
 
 public class FsmAnalysis {
 
@@ -102,6 +101,35 @@ public class FsmAnalysis {
     return PrologGraphUtils.buildGraph(domainDefinition);
   }
 
+  static List<LinkedHashMap<String, Object>> analysis(int dimension, int nGraphs, int nOperations, List<String> operators, List<String> operatorsLabels, List<String> factsNames, List<String> domainDefinition, List<String> structuralRules) {
+    List<LinkedHashMap<String, Object>> DataFrame = new ArrayList<>();
+
+    PrologGraph graph;
+    for (int i = 0; i < nGraphs; ++i) {
+      BasicGraphsAnalysis.resetProlog(factsNames);
+      graph = generateGraph(dimension, domainDefinition, structuralRules);
+
+      for (int j = 0; j < nOperations; ++j) {
+        LinkedHashMap<String, Object> observation = new LinkedHashMap<>();
+        Random rand = new Random();
+        int randomIndex = rand.nextInt(0, operators.size());
+        String randomOperator = operators.get(randomIndex);
+        Instant startingInstant = Instant.now();
+        int previousDimension = graph.nodes().size() + graph.arcs().size();
+        graph = PrologGraphUtils.applyOperator(randomOperator, graph, domainDefinition, structuralRules);
+        Instant endInstant = Instant.now();
+        observation.put("graph", i);
+        observation.put("operator", operatorsLabels.get(randomIndex));
+        observation.put("dimension", previousDimension);
+        observation.put("executionTime", Duration.between(startingInstant, endInstant).toNanos() / 1000000000d);
+
+        DataFrame.add(observation);
+      }
+    }
+
+    return DataFrame;
+  }
+
   public static void main(String[] args) {
     // Subset definition:
     List<String> domainDefinition = Arrays.asList(":- dynamic node_id/1.",
@@ -111,19 +139,59 @@ public class FsmAnalysis {
             ":- dynamic edge/3.",
             ":- dynamic input/2.");
 
+    List<String> factsNames = Arrays.asList("node_id/1", "start/2","accepting/2", "edge_id/1", "edge/3", "input/2");
+
     List<String> structuralRules = Arrays.asList("n_input(2).",
             "input_domain(X) :- n_input(MAX), integer(X), X =< MAX -1, X >= 0.",
             "accepting_domain(X) :- integer(X), X =< 1, X >= 0.",
             "start_domain(X) :- integer(X), X =< 1, X >= 0.",
-            "size([], 0).",
+            "size([], 0) :- true.",
             "size([_|Xs], N) :- size(Xs, N1), N is N1 + 1.",
             "check_start :- findall(N,start(N,1), N), size(N,N1), N1 == 1.",
             "check_out(S) :- findall(S,edge(S,_,_),RES), size(RES,N), N == 2.",
             "is_valid :- check_start, foreach(findall(N,node_id(N),N), maplist(check_out,N))."
     );
 
-    PrologGraph grafo = generateGraph(9, domainDefinition, structuralRules);
-    System.out.println(grafo.nodes());
+    // Operators:
+    List<String> operators = new ArrayList<>();
+    List<String> operatorsLabels = new ArrayList<>();
+
+    String addLegalNode = "gensym(nod,N)," +
+            "assert(node_id(N))," +
+            "random_between(0,1,INT)," +
+            "assert(accepting(N,INT))," +
+            "assert(start(N,0))," +
+            "n_input(N_inp)," +
+            "M is N_inp -1," +
+            "findall(X,node_id(X), IDs)," +
+            "(between(0,M,X), " +
+            "  random_member(S,IDs)," +
+            "  gensym(edge,E), " +
+            "  assert(edge_id(E))," +
+            "  assert(edge(N,S,E))," +
+            "  assert(input(E,X))" +
+            ").";
+    operatorsLabels.add("addLegalNode");
+    operators.add(addLegalNode);
+
+    String changeStart = "findall(N,start(N,0),NonStartBefore)," +
+            "findall(O,start(O,1),StartBefore)," +
+            "random_member(X,NonStartBefore)," +
+            "random_member(Y,StartBefore)," +
+            "retract(start(Y,1))," +
+            "assert(start(Y,0))," +
+            "retract(start(X,0))," +
+            "assert(start(X,1)).";
+    operatorsLabels.add("changeStart");
+    operators.add(changeStart);
+
+
+    // Analysis:
+    int nGraphs = 10;
+    int nOperations = 40;
+
+    int dimension = 10;
+    List<LinkedHashMap<String, Object>> DataFrame10 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
 
 
   }
