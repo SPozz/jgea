@@ -203,9 +203,20 @@ public class FsmAnalysis {
             "(   edge(S,M,_) ->   true;" +
             "retract(edge(S,_,F))," +
             "assert(edge(S,M,F))" +
-            "    )";
+            "    ).";
     operatorsLabels.add("changeTarget");
     operators.add(changeTarget);
+
+    String changeInputOrder = "findall(M,node_id(M),NodeIDs)," +
+            "random_member(N,NodeIDs)," +
+            "edge(N,T0,ID0), input(ID0,0)," +
+            "edge(N,T1,ID1), input(ID1,1)," +
+            "retract(input(ID0,0))," +
+            "retract(input(ID1,1))," +
+            "assert(input(ID0,1))," +
+            "assert(input(ID1,0)).";
+    operatorsLabels.add("changeInputOrder");
+    operators.add(changeInputOrder);
 
 
 
