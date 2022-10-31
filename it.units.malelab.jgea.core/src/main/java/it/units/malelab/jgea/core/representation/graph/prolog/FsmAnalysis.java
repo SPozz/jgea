@@ -1,7 +1,13 @@
 package it.units.malelab.jgea.core.representation.graph.prolog;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
 import org.jpl7.Query;
 
+import java.io.IOException;
+import java.io.Writer;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
@@ -139,7 +145,7 @@ public class FsmAnalysis {
             ":- dynamic edge/3.",
             ":- dynamic input/2.");
 
-    List<String> factsNames = Arrays.asList("node_id/1", "start/2","accepting/2", "edge_id/1", "edge/3", "input/2");
+    List<String> factsNames = Arrays.asList("node_id/1", "start/2", "accepting/2", "edge_id/1", "edge/3", "input/2");
 
     List<String> structuralRules = Arrays.asList("n_input(2).",
             "input_domain(X) :- n_input(MAX), integer(X), X =< MAX -1, X >= 0.",
@@ -219,13 +225,52 @@ public class FsmAnalysis {
     operators.add(changeInputOrder);
 
 
-
     // Analysis:
     int nGraphs = 1;
     int nOperations = 5;
 
     int dimension = 10;
     List<LinkedHashMap<String, Object>> DataFrame10 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
+
+    dimension = 25;
+    List<LinkedHashMap<String, Object>> DataFrame25 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
+
+    dimension = 40;
+    List<LinkedHashMap<String, Object>> DataFrame40 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
+
+
+    // EXPORT CSV
+    String[] files = {"Dataframe10.csv", "Dataframe25.csv", "Dataframe40.csv"};
+    List<List<LinkedHashMap<String, Object>>> dfCollection = new ArrayList<>();
+    dfCollection.add(DataFrame10);
+    dfCollection.add(DataFrame25);
+    dfCollection.add(DataFrame40);
+
+    for (int i = 0; i < 3; ++i) {
+      String fileName = "FSM" + files[i];
+      List<LinkedHashMap<String, Object>> df = dfCollection.get(i);
+
+      try {
+        // create a writer
+        Writer writer = Files.newBufferedWriter(Paths.get("C:\\Users\\Simone\\Desktop\\GitHub_Tesi\\jgea_data\\" + fileName));
+
+        // write CSV file
+        CSVPrinter printer = CSVFormat.DEFAULT.withHeader("graph", "operator", "dimension", "executionTime").print(writer);
+
+        for (LinkedHashMap<String, Object> map : df) {
+          printer.printRecord(map.get("graph"), map.get("operator"), map.get("dimension"), map.get("executionTime"));
+        }
+
+        // flush the stream
+        printer.flush();
+
+        // close the writer
+        writer.close();
+
+      } catch (IOException ex) {
+        ex.printStackTrace();
+      }
+    }
 
 
   }
