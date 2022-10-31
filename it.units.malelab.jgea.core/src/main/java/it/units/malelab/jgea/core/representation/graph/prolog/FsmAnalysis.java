@@ -146,7 +146,7 @@ public class FsmAnalysis {
             "accepting_domain(X) :- integer(X), X =< 1, X >= 0.",
             "start_domain(X) :- integer(X), X =< 1, X >= 0.",
             "size([], 0) :- true.",
-            "size([_|Xs], N) :- size(Xs, N1), N is N1 + 1.",
+            "size([_|Xs], N) :- size(Xs, N1), plus(N1,1,N).",
             "check_start :- findall(N,start(N,1), N), size(N,N1), N1 == 1.",
             "check_out(S) :- findall(S,edge(S,_,_),RES), size(RES,N), N == 2.",
             "is_valid :- check_start, foreach(findall(N,node_id(N),N), maplist(check_out,N))."
@@ -156,21 +156,23 @@ public class FsmAnalysis {
     List<String> operators = new ArrayList<>();
     List<String> operatorsLabels = new ArrayList<>();
 
-    String addLegalNode = "gensym(nod,N)," +
+    String addLegalNode = "gensym(nod,N)," + //Changed from general case
             "assert(node_id(N))," +
             "random_between(0,1,INT)," +
             "assert(accepting(N,INT))," +
             "assert(start(N,0))," +
-            "n_input(N_inp)," +
-            "M is N_inp -1," +
             "findall(X,node_id(X), IDs)," +
-            "(between(0,M,X), " +
             "  random_member(S,IDs)," +
             "  gensym(edge,E), " +
             "  assert(edge_id(E))," +
             "  assert(edge(N,S,E))," +
             "  assert(input(E,X))" +
-            ").";
+            "  random_member(S,IDs)," +
+            "  gensym(edge,E), " +
+            "  assert(edge_id(E))," +
+            "  assert(edge(N,S,E))," +
+            "  assert(input(E,X))" +
+            ".";
     operatorsLabels.add("addLegalNode");
     operators.add(addLegalNode);
 
@@ -185,10 +187,31 @@ public class FsmAnalysis {
     operatorsLabels.add("changeStart");
     operators.add(changeStart);
 
+    String changeAcceptingValue = "findall(N,node_id(N), Nodes)," +
+            "random_member(M,Nodes)," +
+            "retract(accepting(M,_))," +
+            "random_between(0,1,V)," +
+            "assert(accepting(M,V))";
+    operatorsLabels.add("changeAcceptingValue");
+    operators.add(changeAcceptingValue);
+
+    String changeTarget = "findall(E,edge_id(E),EdgeIDs)," +
+            "random_member(F,EdgeIDs)," +
+            "findall(N,node_id(N),NodeIDs)," +
+            "random_member(M,NodeIDs)," +
+            "edge(S,_,F)," +
+            "(   edge(S,M,_) ->   true;" +
+            "retract(edge(S,_,F))," +
+            "assert(edge(S,M,F))" +
+            "    )";
+    operatorsLabels.add("changeTarget");
+    operators.add(changeTarget);
+
+
 
     // Analysis:
-    int nGraphs = 10;
-    int nOperations = 40;
+    int nGraphs = 1;
+    int nOperations = 5;
 
     int dimension = 10;
     List<LinkedHashMap<String, Object>> DataFrame10 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
