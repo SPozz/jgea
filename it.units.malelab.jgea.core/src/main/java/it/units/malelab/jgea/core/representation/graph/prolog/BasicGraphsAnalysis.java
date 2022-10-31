@@ -213,8 +213,8 @@ public class BasicGraphsAnalysis {
 
 
     // Analysis:
-    int nGraphs = 10;
-    int nOperations = 40;
+    int nGraphs = 1;
+    int nOperations = 1;
 
     int dimension = 10;
     List<LinkedHashMap<String, Object>> DataFrame10 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
@@ -225,7 +225,7 @@ public class BasicGraphsAnalysis {
     dimension = 40;
     List<LinkedHashMap<String, Object>> DataFrame40 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
 
-    String[] files = {"Dataframe10.csv", "Dataframe25.csv", "Dataframe40.csv"};
+    String[] files = {"Dataframe10.csv","Dataframe25.csv","Dataframe40.csv"};
     List<List<LinkedHashMap<String, Object>>> dfCollection = new ArrayList<>();
     dfCollection.add(DataFrame10);
     dfCollection.add(DataFrame25);
