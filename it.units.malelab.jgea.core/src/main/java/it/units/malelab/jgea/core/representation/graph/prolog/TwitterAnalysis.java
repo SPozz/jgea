@@ -1,7 +1,13 @@
 package it.units.malelab.jgea.core.representation.graph.prolog;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
 import org.jpl7.Query;
 
+import java.io.IOException;
+import java.io.Writer;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
@@ -297,7 +303,6 @@ public class TwitterAnalysis {
     operatorsLabels.add("intermediatePublisher");
 
 
-
     // Analysis:
     System.out.println("Without rules for tweet's indegree");
     int dimension = 10;
@@ -306,31 +311,67 @@ public class TwitterAnalysis {
 
     List<LinkedHashMap<String, Object>> DataFrame10 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
 
-    double avg = 0;
-    for (LinkedHashMap<String, Object> obs : DataFrame10) {
-      Double time = (Double) obs.get("executionTime");
-      avg += time;
-    }
-    System.out.println("Average execution time with starting dimension 10: " + (avg / (nGraphs * nOperations)));
+//    double avg = 0;
+//    for (LinkedHashMap<String, Object> obs : DataFrame10) {
+//      Double time = (Double) obs.get("executionTime");
+//      avg += time;
+//    }
+//    System.out.println("Average execution time with starting dimension 10: " + (avg / (nGraphs * nOperations)));
 
 
     dimension = 25;
     List<LinkedHashMap<String, Object>> DataFrame25 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
-    avg = 0;
-    for (LinkedHashMap<String, Object> obs : DataFrame25) {
-      Double time = (Double) obs.get("executionTime");
-      avg += time;
-    }
-    System.out.println("Average execution time with starting dimension 25: " + (avg / (nGraphs * nOperations)));
+//    avg = 0;
+//    for (LinkedHashMap<String, Object> obs : DataFrame25) {
+//      Double time = (Double) obs.get("executionTime");
+//      avg += time;
+//    }
+//    System.out.println("Average execution time with starting dimension 25: " + (avg / (nGraphs * nOperations)));
 
     dimension = 40;
     List<LinkedHashMap<String, Object>> DataFrame40 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
-    avg = 0;
-    for (LinkedHashMap<String, Object> obs : DataFrame40) {
-      Double time = (Double) obs.get("executionTime");
-      avg += time;
-    }
-    System.out.println("Average execution time with starting dimension 40: " + (avg / (nGraphs * nOperations)));
+//    avg = 0;
+//    for (LinkedHashMap<String, Object> obs : DataFrame40) {
+//      Double time = (Double) obs.get("executionTime");
+//      avg += time;
+//    }
+//    System.out.println("Average execution time with starting dimension 40: " + (avg / (nGraphs * nOperations)));
 
+
+    // EXPORT CSV
+    String[] files = {"Dataframe10.csv", "Dataframe25.csv", "Dataframe40.csv"};
+    List<List<LinkedHashMap<String, Object>>> dfCollection = new ArrayList<>();
+    dfCollection.add(DataFrame10);
+    dfCollection.add(DataFrame25);
+    dfCollection.add(DataFrame40);
+
+
+    for (int i = 0; i < 3; ++i) {
+      String fileName = "Twitter"+files[i];
+      List<LinkedHashMap<String, Object>> df = dfCollection.get(i);
+
+      try {
+        // create a writer
+        Writer writer = Files.newBufferedWriter(Paths.get("C:\\Users\\Simone\\Desktop\\GitHub_Tesi\\jgea_data\\" + fileName));
+
+        // write CSV file
+        CSVPrinter printer = CSVFormat.DEFAULT.withHeader("graph", "operator", "dimension", "executionTime").print(writer);
+
+        for (LinkedHashMap<String, Object> map : df) {
+          printer.printRecord(map.get("graph"), map.get("operator"), map.get("dimension"), map.get("executionTime"));
+        }
+
+
+        // flush the stream
+        printer.flush();
+
+        // close the writer
+        writer.close();
+
+      } catch (IOException ex) {
+        ex.printStackTrace();
+      }
+
+    }
   }
 }

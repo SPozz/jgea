@@ -254,7 +254,7 @@ public class BasicGraphsAnalysis {
 
 
     for (int i = 0; i<3; ++i) {
-      String fileName = files[i];
+      String fileName = "Basic"+files[i];
       List<LinkedHashMap<String,Object>> df = dfCollection.get(i);
 
       try {
