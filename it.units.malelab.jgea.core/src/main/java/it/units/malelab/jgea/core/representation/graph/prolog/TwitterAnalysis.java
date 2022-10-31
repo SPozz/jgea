@@ -305,37 +305,17 @@ public class TwitterAnalysis {
 
     // Analysis:
     System.out.println("Without rules for tweet's indegree");
-    int dimension = 10;
     int nGraphs = 10;
     int nOperations = 40;
 
+    int dimension = 10;
     List<LinkedHashMap<String, Object>> DataFrame10 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
-
-//    double avg = 0;
-//    for (LinkedHashMap<String, Object> obs : DataFrame10) {
-//      Double time = (Double) obs.get("executionTime");
-//      avg += time;
-//    }
-//    System.out.println("Average execution time with starting dimension 10: " + (avg / (nGraphs * nOperations)));
-
 
     dimension = 25;
     List<LinkedHashMap<String, Object>> DataFrame25 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
-//    avg = 0;
-//    for (LinkedHashMap<String, Object> obs : DataFrame25) {
-//      Double time = (Double) obs.get("executionTime");
-//      avg += time;
-//    }
-//    System.out.println("Average execution time with starting dimension 25: " + (avg / (nGraphs * nOperations)));
 
     dimension = 40;
     List<LinkedHashMap<String, Object>> DataFrame40 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
-//    avg = 0;
-//    for (LinkedHashMap<String, Object> obs : DataFrame40) {
-//      Double time = (Double) obs.get("executionTime");
-//      avg += time;
-//    }
-//    System.out.println("Average execution time with starting dimension 40: " + (avg / (nGraphs * nOperations)));
 
 
     // EXPORT CSV
@@ -344,7 +324,6 @@ public class TwitterAnalysis {
     dfCollection.add(DataFrame10);
     dfCollection.add(DataFrame25);
     dfCollection.add(DataFrame40);
-
 
     for (int i = 0; i < 3; ++i) {
       String fileName = "Twitter"+files[i];
@@ -360,7 +339,6 @@ public class TwitterAnalysis {
         for (LinkedHashMap<String, Object> map : df) {
           printer.printRecord(map.get("graph"), map.get("operator"), map.get("dimension"), map.get("executionTime"));
         }
-
 
         // flush the stream
         printer.flush();
