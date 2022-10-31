@@ -50,6 +50,11 @@ public class TwitterAnalysis {
       indexList.add(Integer.toString(index));
       nodeID = alphabet.get(index);
       type = Arrays.asList("user", "tweet").get(random.nextInt(0, 2));
+      if (i == 0) {
+        type = "user";
+      } else if (i == 1) {
+        type = "tweet";
+      }
       node = Arrays.asList("node_id(" + nodeID + ")", "type(" + nodeID + "," + type + ")");
       if (type.equals("user")) {
         userIDS.add(nodeID);
@@ -171,7 +176,7 @@ public class TwitterAnalysis {
 //    System.out.println("TESTING");
 //
 //    System.out.println(Query.hasSolution("assert(( size([], 0) :- true ))"));
-//    System.out.println(Query.hasSolution("assert(( size([_|Xs],N) :- size(Xs,N1), N is N1 + 1 ))"));
+//    System.out.println(Query.hasSolution("assert(( size([_|Xs],N) :- size(Xs,N1), plus(N1,1,N) ))"));
 //    System.out.println(Query.hasSolution("assert(( tweet_indeg(T) :- findall(S, (edge(S,T,X),action(X,post)), Sources), size(Sources,N1), N1 == 1 ))"));
 //
 //    Query.hasSolution("assert(node(tt)).");
@@ -182,6 +187,12 @@ public class TwitterAnalysis {
 //    Query.hasSolution("assert(action(sstt,post))");
 //    System.out.println("single tweet indegree: "+Query.hasSolution("tweet_indeg(tt)"));
 //    System.out.println("foreach-findall: "+Query.hasSolution("foreach(findall(T,type(T,tweet),Tweets), maplist(tweet_indeg,Tweets))"));
+//    System.out.println("validity: " + Query.hasSolution("assert(( is_valid :- foreach(findall(E,(edge_id(E),action(E,cite)),E), maplist(cite_check,E)),\n" +
+//            "    foreach(findall(E,(edge_id(E),action(E,post)),E), maplist(post_check,E))," +
+//            "    foreach(findall(E,(edge_id(E),action(E,retweet)),E), maplist(retweet_check,E))," +
+//            "    foreach(findall(E,(edge_id(E),action(E,follows)),E), maplist(follows_check,E))," +
+//            "    foreach(findall(T,type(T,tweet),T), maplist(tweet_indeg,T))  ))."));
+//    System.out.println("validity query: "+ Query.hasSolution("is_valid"));
 //
 //    // The same code inside applyOperator function does not work. Don't know why
 
@@ -203,13 +214,14 @@ public class TwitterAnalysis {
             "retweet_check(X) :- action(X,retweet),edge(S,T,X), type(S,user), type(T,tweet).",
             "follows_check(X) :- action(X,follows),edge(S,T,X), type(S,user), type(T,user), S \\== T.",
             "size([], 0) :- true.",
-            "size([_|Xs],N) :- size(Xs,N1), N is N1 + 1.",
-            "tweet_indeg(T) :- findall(S, (edge(S,T,X),action(X,post)), Sources), size(Sources,N1), N1 == 1.",
+            "size([_|Xs], N) :- size(Xs, N1), plus(N1,1,N).", //changed here to make it work possibly
+            "tweet_indeg(T) :- findall(S, (edge(S,T,X),action(X,post)), Sources), size(Sources,1).",//chg
             "is_valid :- foreach(findall(E,(edge_id(E),action(E,cite)),E), maplist(cite_check,E))," +
-                    "foreach(findall(E,(edge_id(E),action(E,post)),E), maplist(post_check,E))," +
-                    "foreach(findall(E,(edge_id(E),action(E,retweet)),E), maplist(retweet_check,E))," +
-                    "foreach(findall(E,(edge_id(E),action(E,follows)),E), maplist(follows_check,E))." //+
-//                    "foreach(findall(T,type(T,tweet),Tweets), maplist(tweet_indeg,Tweets))."
+                    "   foreach(findall(E,(edge_id(E),action(E,post)),E), maplist(post_check,E))," +
+                    "   foreach(findall(E,(edge_id(E),action(E,retweet)),E), maplist(retweet_check,E))," +
+                    "   foreach(findall(E,(edge_id(E),action(E,follows)),E), maplist(follows_check,E))"
+//                    + "," +
+//                    "   foreach(findall(T,type(T,tweet),TweetID), maplist(tweet_indeg,TweetID))."
     );
 
     List<String> factsNames = Arrays.asList("node_id/1", "type/2", "edge_id/1", "edge/3", "action/2");
@@ -304,8 +316,8 @@ public class TwitterAnalysis {
 
 
     // Analysis:
-    System.out.println("Without rules for tweet's indegree");
-    int nGraphs = 10;
+    System.out.println("Without rules for tweet's indegree (always verified)");
+    int nGraphs = 25;
     int nOperations = 40;
 
     int dimension = 10;
@@ -326,12 +338,12 @@ public class TwitterAnalysis {
     dfCollection.add(DataFrame40);
 
     for (int i = 0; i < 3; ++i) {
-      String fileName = "Twitter"+files[i];
+      String fileName = "Twitter" + files[i];
       List<LinkedHashMap<String, Object>> df = dfCollection.get(i);
 
       try {
         // create a writer
-        Writer writer = Files.newBufferedWriter(Paths.get("C:\\Users\\Simone\\Desktop\\GitHub_Tesi\\jgea_data\\" + fileName));
+        Writer writer = Files.newBufferedWriter(Paths.get("C:\\Users\\Simone\\Desktop\\GitHub_Tesi\\jgea_data\\25x40\\" + fileName));
 
         // write CSV file
         CSVPrinter printer = CSVFormat.DEFAULT.withHeader("graph", "operator", "dimension", "executionTime").print(writer);
@@ -349,7 +361,9 @@ public class TwitterAnalysis {
       } catch (IOException ex) {
         ex.printStackTrace();
       }
-
     }
+
+
   }
+
 }
