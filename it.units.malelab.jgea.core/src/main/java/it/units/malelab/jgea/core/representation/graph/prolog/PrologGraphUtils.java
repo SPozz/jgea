@@ -200,23 +200,21 @@ public class PrologGraphUtils {
     // reset previous knowledge and change status
     resetPrologKnowledge();
     status = domainDefinition;
+    Query.hasSolution("abolish(is_valid/0).");
 
-    // Get parent-graph description and assert it on Prolog
+    // get parent-graph description and assert it on Prolog
     List<String> parentDescription = describeGraph(parent, domainDefinition);
     for (String fact : parentDescription) {
-//            fact = fact.replace(".", ""); //
-//            fact = fact.replace(" ", ""); // Since we built the graph description without spaces and punctuation, those two lines are removable
       Query.hasSolution("assert(" + fact + ").");
     }
 
-    // assert domainStructuralRules PROBLEM WHEN GRAPH IS EMPTY
+    // assert domainStructuralRules -> PROBLEM WHEN GRAPH IS EMPTY
     for (String rule : domainStructuralRules) {
       rule = rule.replace(".", "");
-//      rule = rule.replace(" ", ""); //why should I remove spaces?
       Query.hasSolution("assert((" + rule + "))");
     }
 
-    // Apply operator
+    // apply operator
     try {
       Query.hasSolution(operator);
     } catch (PrologException any) {
@@ -233,13 +231,10 @@ public class PrologGraphUtils {
     if (!rulesCheck.contains("is_valid:-"))
       Query.hasSolution("assert(( is_valid :- true )).");
 
-    // Check validity of new graph
-    String JPLValidity = "(jpl_valid(X) :- (is_valid -> X = true; X = false) )";
-    Query.hasSolution("assert(" + JPLValidity + ")");
-    if (Query.oneSolution("jpl_valid(X)").get("X").toString().equals("false")) {
+    // check validity (updated)
+    if ( !Query.hasSolution("is_valid")){
       return parent;
     }
-
     return buildGraph(domainDefinition);
   }
 
