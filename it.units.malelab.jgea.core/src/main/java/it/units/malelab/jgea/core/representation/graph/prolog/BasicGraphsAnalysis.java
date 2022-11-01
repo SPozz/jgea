@@ -117,8 +117,8 @@ public class BasicGraphsAnalysis {
         Random rand = new Random();
         int randomIndex = rand.nextInt(0, operators.size());
         String randomOperator = operators.get(randomIndex);
-        Instant startingInstant = Instant.now();
         int previousDimension = graph.nodes().size() + graph.arcs().size();
+        Instant startingInstant = Instant.now();
         graph = PrologGraphUtils.applyOperator(randomOperator, graph, domainDefinition, structuralRules);
         Instant endInstant = Instant.now();
         observation.put("graph", i);
