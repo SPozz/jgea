@@ -236,10 +236,7 @@ public class PrologGraphUtils {
     // Check validity of new graph
     String JPLValidity = "(jpl_valid(X) :- (is_valid -> X = true; X = false) )";
     Query.hasSolution("assert(" + JPLValidity + ")");
-
-        //TODO: Error handling (WIP)
     if (Query.oneSolution("jpl_valid(X)").get("X").toString().equals("false")) {
-//      System.out.println("DEBUG: graph not valid, returning parent");
       return parent;
     }
 
