@@ -200,7 +200,7 @@ public class PrologGraphUtils {
     // reset previous knowledge and change status
     resetPrologKnowledge();
     status = domainDefinition;
-    Query.hasSolution("abolish(is_valid/0).");
+    Query.hasSolution("abolish(is_valid/0)."); //not a pb even if not existing
 
     // get parent-graph description and assert it on Prolog
     List<String> parentDescription = describeGraph(parent, domainDefinition);
