@@ -168,17 +168,16 @@ public class FsmAnalysis {
             "assert(accepting(N,INT))," +
             "assert(start(N,0))," +
             "findall(X,node_id(X), IDs)," +
-            "  random_member(S,IDs)," +
-            "  gensym(edge,E), " +
-            "  assert(edge_id(E))," +
-            "  assert(edge(N,S,E))," +
-            "  assert(input(E,X))" +
-            "  random_member(S,IDs)," +
-            "  gensym(edge,E), " +
-            "  assert(edge_id(E))," +
-            "  assert(edge(N,S,E))," +
-            "  assert(input(E,X))" +
-            ".";
+            "  random_member(S1,IDs)," +
+            "  gensym(edge,E1), " +
+            "  assert(edge_id(E1))," +
+            "  assert(edge(N,S1,E1))," +
+            "  assert(input(E1,0))," +
+            "  random_member(S2,IDs)," +
+            "  gensym(edge,E2), " +
+            "  assert(edge_id(E2))," +
+            "  assert(edge(N,S2,E2))," +
+            "  assert(input(E2,1)).";
     operatorsLabels.add("addLegalNode");
     operators.add(addLegalNode);
 
@@ -197,7 +196,7 @@ public class FsmAnalysis {
             "random_member(M,Nodes)," +
             "retract(accepting(M,_))," +
             "random_between(0,1,V)," +
-            "assert(accepting(M,V))";
+            "assert(accepting(M,V)).";
     operatorsLabels.add("changeAcceptingValue");
     operators.add(changeAcceptingValue);
 
@@ -226,16 +225,16 @@ public class FsmAnalysis {
 
 
     // Analysis:
-    int nGraphs = 1;
-    int nOperations = 5;
+    int nGraphs = 25;
+    int nOperations = 40;
 
-    int dimension = 10;
+    int dimension = 9;
     List<LinkedHashMap<String, Object>> DataFrame10 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
 
-    dimension = 25;
+    dimension = 24;
     List<LinkedHashMap<String, Object>> DataFrame25 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
 
-    dimension = 40;
+    dimension = 39;
     List<LinkedHashMap<String, Object>> DataFrame40 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
 
 
@@ -252,7 +251,7 @@ public class FsmAnalysis {
 
       try {
         // create a writer
-        Writer writer = Files.newBufferedWriter(Paths.get("C:\\Users\\Simone\\Desktop\\GitHub_Tesi\\jgea_data\\" + fileName));
+        Writer writer = Files.newBufferedWriter(Paths.get("C:\\Users\\Simone\\Desktop\\GitHub_Tesi\\jgea_data\\25x40\\" + fileName));
 
         // write CSV file
         CSVPrinter printer = CSVFormat.DEFAULT.withHeader("graph", "operator", "dimension", "executionTime").print(writer);
