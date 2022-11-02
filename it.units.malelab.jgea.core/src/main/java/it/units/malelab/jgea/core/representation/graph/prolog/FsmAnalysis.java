@@ -120,10 +120,17 @@ public class FsmAnalysis {
         Random rand = new Random();
         int randomIndex = rand.nextInt(0, operators.size());
         String randomOperator = operators.get(randomIndex);
-        Instant startingInstant = Instant.now();
+
+        System.out.println( "DEBUG. "+ j +"th operation, operator is "+operatorsLabels.get(randomIndex));
+
         int previousDimension = graph.nodes().size() + graph.arcs().size();
+        Instant startingInstant = Instant.now();
         graph = PrologGraphUtils.applyOperator(randomOperator, graph, domainDefinition, structuralRules);
         Instant endInstant = Instant.now();
+
+        Query.hasSolution("abolish(check_out/1).");
+        Query.hasSolution("abolish(check_start/0).");
+
         observation.put("graph", i);
         observation.put("operator", operatorsLabels.get(randomIndex));
         observation.put("dimension", previousDimension);
@@ -151,11 +158,12 @@ public class FsmAnalysis {
             "input_domain(X) :- n_input(MAX), integer(X), X =< MAX -1, X >= 0.",
             "accepting_domain(X) :- integer(X), X =< 1, X >= 0.",
             "start_domain(X) :- integer(X), X =< 1, X >= 0.",
-            "size([], 0) :- true.",
-            "size([_|Xs], N) :- size(Xs, N1), plus(N1,1,N).",
-            "check_start :- findall(N,start(N,1), N), size(N,N1), N1 == 1.",
-            "check_out(S) :- findall(S,edge(S,_,_),RES), size(RES,N), N == 2.",
-            "is_valid :- check_start, foreach(findall(N,node_id(N),N), maplist(check_out,N))."
+//            "size([], 0) :- true.",
+//            "size([_|Xs], N) :- size(Xs, N1), plus(N1,1,N).",
+            "check_start :- findall(N,start(N,1), N), length(N,N1), N1 == 1.",
+            "check_out(S) :- findall(S,edge(S,_,_),RES), length(RES,N), N == 2.",
+            "is_valid :- check_start"
+                    +", foreach(findall(N,node_id(N),N), maplist(check_out,N))."
     );
 
     // Operators:
@@ -223,6 +231,8 @@ public class FsmAnalysis {
     operatorsLabels.add("changeInputOrder");
     operators.add(changeInputOrder);
 
+//    System.out.println("TESTING");
+//    analysis(9,1,20,operators,operatorsLabels,factsNames,domainDefinition,structuralRules);
 
     // Analysis:
     int nGraphs = 25;
