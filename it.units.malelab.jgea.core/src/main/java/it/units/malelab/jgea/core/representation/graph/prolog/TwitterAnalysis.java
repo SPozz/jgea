@@ -156,10 +156,20 @@ public class TwitterAnalysis {
         Random rand = new Random();
         int randomIndex = rand.nextInt(0, operators.size());
         String randomOperator = operators.get(randomIndex);
-        Instant startingInstant = Instant.now();
         int previousDimension = graph.nodes().size() + graph.arcs().size();
+
+        System.out.println( "DEBUG. "+ j +"th operation, operator is "+operatorsLabels.get(randomIndex));
+
+        Instant startingInstant = Instant.now();
         graph = PrologGraphUtils.applyOperator(randomOperator, graph, domainDefinition, structuralRules);
         Instant endInstant = Instant.now();
+
+        Query.hasSolution("abolish(tweet_indeg/1).");
+        Query.hasSolution("abolish(cite_check/1).");
+        Query.hasSolution("abolish(follows_check/1).");
+        Query.hasSolution("abolish(retweet_check/1).");
+        Query.hasSolution("abolish(post_check/1).");
+
         observation.put("graph", i);
         observation.put("operator", operatorsLabels.get(randomIndex));
         observation.put("dimension", previousDimension);
@@ -173,29 +183,6 @@ public class TwitterAnalysis {
   }
 
   public static void main(String[] args) {
-//    System.out.println("TESTING");
-//
-//    System.out.println(Query.hasSolution("assert(( size([], 0) :- true ))"));
-//    System.out.println(Query.hasSolution("assert(( size([_|Xs],N) :- size(Xs,N1), plus(N1,1,N) ))"));
-//    System.out.println(Query.hasSolution("assert(( tweet_indeg(T) :- findall(S, (edge(S,T,X),action(X,post)), Sources), size(Sources,N1), N1 == 1 ))"));
-//
-//    Query.hasSolution("assert(node(tt)).");
-//    Query.hasSolution("assert(type(tt,tweet)).");
-//    Query.hasSolution("assert(node(ss)).");
-//    Query.hasSolution("assert(type(ss,user)).");
-//    Query.hasSolution("assert(edge(ss,tt,sstt)).");
-//    Query.hasSolution("assert(action(sstt,post))");
-//    System.out.println("single tweet indegree: "+Query.hasSolution("tweet_indeg(tt)"));
-//    System.out.println("foreach-findall: "+Query.hasSolution("foreach(findall(T,type(T,tweet),Tweets), maplist(tweet_indeg,Tweets))"));
-//    System.out.println("validity: " + Query.hasSolution("assert(( is_valid :- foreach(findall(E,(edge_id(E),action(E,cite)),E), maplist(cite_check,E)),\n" +
-//            "    foreach(findall(E,(edge_id(E),action(E,post)),E), maplist(post_check,E))," +
-//            "    foreach(findall(E,(edge_id(E),action(E,retweet)),E), maplist(retweet_check,E))," +
-//            "    foreach(findall(E,(edge_id(E),action(E,follows)),E), maplist(follows_check,E))," +
-//            "    foreach(findall(T,type(T,tweet),T), maplist(tweet_indeg,T))  ))."));
-//    System.out.println("validity query: "+ Query.hasSolution("is_valid"));
-//
-//    // The same code inside applyOperator function does not work. Don't know why
-
     // Twitter subset definition:
     List<String> domainDefinition = Arrays.asList(":- dynamic node_id/1.",
             ":- dynamic type/2.",
@@ -213,9 +200,9 @@ public class TwitterAnalysis {
             "post_check(X) :- action(X,post),edge(S,T,X), type(S,user), type(T,tweet).",
             "retweet_check(X) :- action(X,retweet),edge(S,T,X), type(S,user), type(T,tweet).",
             "follows_check(X) :- action(X,follows),edge(S,T,X), type(S,user), type(T,user), S \\== T.",
-            "size([], 0) :- true.",
-            "size([_|Xs], N) :- size(Xs, N1), plus(N1,1,N).", //changed here to make it work possibly
-            "tweet_indeg(T) :- findall(S, (edge(S,T,X),action(X,post)), Sources), size(Sources,1).",//chg
+//            "size([], 0) :- true.",
+//            "size([_|Xs], N) :- size(Xs, N1), plus(N1,1,N).", //changed here to make it work possibly
+            "tweet_indeg(T) :- findall(S, (edge(S,T,X),action(X,post)), Sources), length(Sources,1).",//chg and length
             "is_valid :- foreach(findall(E,(edge_id(E),action(E,cite)),E), maplist(cite_check,E))," +
                     "   foreach(findall(E,(edge_id(E),action(E,post)),E), maplist(post_check,E))," +
                     "   foreach(findall(E,(edge_id(E),action(E,retweet)),E), maplist(retweet_check,E))," +
@@ -313,6 +300,10 @@ public class TwitterAnalysis {
             "assert(edge(N,N2,E2)).";
     operators.add(intermediatePublisher);
     operatorsLabels.add("intermediatePublisher");
+
+
+//    System.out.println("TESTING"); // STILL NOT WORKING ALSO WITH LENGTH
+//    analysis(9,1,10,operators,operatorsLabels,factsNames,domainDefinition,structuralRules);
 
 
     // Analysis:
