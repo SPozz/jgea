@@ -121,6 +121,12 @@ public class BasicGraphsAnalysis {
         Instant startingInstant = Instant.now();
         graph = PrologGraphUtils.applyOperator(randomOperator, graph, domainDefinition, structuralRules);
         Instant endInstant = Instant.now();
+
+        List<String> rulesNames = Arrays.asList("retract_list/2","attribute_value/1","colour_value/1");
+        for (String rule : rulesNames) {
+          Query.hasSolution("abolish("+rule+").");
+        }
+
         observation.put("graph", i);
         observation.put("operator", operatorsLabels.get(randomIndex));
         observation.put("dimension", previousDimension);
@@ -213,8 +219,8 @@ public class BasicGraphsAnalysis {
 
 
     // Analysis:
-    int nGraphs = 1;
-    int nOperations = 1;
+    int nGraphs = 25;
+    int nOperations = 40;
 
     int dimension = 10;
     List<LinkedHashMap<String, Object>> DataFrame10 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
@@ -239,7 +245,7 @@ public class BasicGraphsAnalysis {
 
       try {
         // create a writer
-        Writer writer = Files.newBufferedWriter(Paths.get("C:\\Users\\Simone\\Desktop\\GitHub_Tesi\\jgea_data\\" + fileName));
+        Writer writer = Files.newBufferedWriter(Paths.get("C:\\Users\\Simone\\Desktop\\GitHub_Tesi\\jgea_data\\25x40\\" + fileName));
 
         // write CSV file
         CSVPrinter printer = CSVFormat.DEFAULT.withHeader("graph", "operator", "dimension", "executionTime").print(writer);

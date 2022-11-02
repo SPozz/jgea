@@ -120,16 +120,15 @@ public class FsmAnalysis {
         Random rand = new Random();
         int randomIndex = rand.nextInt(0, operators.size());
         String randomOperator = operators.get(randomIndex);
-
-        System.out.println( "DEBUG. "+ j +"th operation, operator is "+operatorsLabels.get(randomIndex));
-
         int previousDimension = graph.nodes().size() + graph.arcs().size();
         Instant startingInstant = Instant.now();
         graph = PrologGraphUtils.applyOperator(randomOperator, graph, domainDefinition, structuralRules);
         Instant endInstant = Instant.now();
 
-        Query.hasSolution("abolish(check_out/1).");
-        Query.hasSolution("abolish(check_start/0).");
+        List<String> rulesNames = Arrays.asList("input_domain/1", "accepting_domain/1", "start_domain/1", "check_out/1", "check_start/0");
+        for (String rule : rulesNames) {
+          Query.hasSolution("abolish(" + rule + ").");
+        }
 
         observation.put("graph", i);
         observation.put("operator", operatorsLabels.get(randomIndex));
@@ -163,7 +162,7 @@ public class FsmAnalysis {
             "check_start :- findall(N,start(N,1), N), length(N,N1), N1 == 1.",
             "check_out(S) :- findall(S,edge(S,_,_),RES), length(RES,N), N == 2.",
             "is_valid :- check_start"
-                    +", foreach(findall(N,node_id(N),N), maplist(check_out,N))."
+                    + ", foreach(findall(N,node_id(N),N), maplist(check_out,N))."
     );
 
     // Operators:
@@ -230,9 +229,6 @@ public class FsmAnalysis {
             "assert(input(ID1,0)).";
     operatorsLabels.add("changeInputOrder");
     operators.add(changeInputOrder);
-
-//    System.out.println("TESTING");
-//    analysis(9,1,20,operators,operatorsLabels,factsNames,domainDefinition,structuralRules);
 
     // Analysis:
     int nGraphs = 25;

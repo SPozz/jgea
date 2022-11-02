@@ -157,9 +157,6 @@ public class TwitterAnalysis {
         int randomIndex = rand.nextInt(0, operators.size());
         String randomOperator = operators.get(randomIndex);
         int previousDimension = graph.nodes().size() + graph.arcs().size();
-
-        System.out.println( "DEBUG. "+ j +"th operation, operator is "+operatorsLabels.get(randomIndex));
-
         Instant startingInstant = Instant.now();
         graph = PrologGraphUtils.applyOperator(randomOperator, graph, domainDefinition, structuralRules);
         Instant endInstant = Instant.now();
@@ -169,6 +166,8 @@ public class TwitterAnalysis {
         Query.hasSolution("abolish(follows_check/1).");
         Query.hasSolution("abolish(retweet_check/1).");
         Query.hasSolution("abolish(post_check/1).");
+        Query.hasSolution("abolish(type_value/1).");
+        Query.hasSolution("abolish(action_value/1).");
 
         observation.put("graph", i);
         observation.put("operator", operatorsLabels.get(randomIndex));
@@ -300,10 +299,6 @@ public class TwitterAnalysis {
             "assert(edge(N,N2,E2)).";
     operators.add(intermediatePublisher);
     operatorsLabels.add("intermediatePublisher");
-
-
-//    System.out.println("TESTING"); // STILL NOT WORKING ALSO WITH LENGTH
-//    analysis(9,1,10,operators,operatorsLabels,factsNames,domainDefinition,structuralRules);
 
 
     // Analysis:
