@@ -124,12 +124,6 @@ public class FsmAnalysis {
         Instant startingInstant = Instant.now();
         graph = PrologGraphUtils.applyOperator(randomOperator, graph, domainDefinition, structuralRules);
         Instant endInstant = Instant.now();
-
-        List<String> rulesNames = Arrays.asList("input_domain/1", "accepting_domain/1", "start_domain/1", "check_out/1", "check_start/0");
-        for (String rule : rulesNames) {
-          Query.hasSolution("abolish(" + rule + ").");
-        }
-
         observation.put("graph", i);
         observation.put("operator", operatorsLabels.get(randomIndex));
         observation.put("dimension", previousDimension);
