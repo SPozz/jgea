@@ -147,9 +147,6 @@ public class TwitterAnalysis {
     List<LinkedHashMap<String, Object>> DataFrame = new ArrayList<>();
     PrologGraph graph;
     for (int i = 0; i < nGraphs; ++i) {
-
-      System.out.println("DEBUG: Beginning of " + i + "th graph");
-
       BasicGraphsAnalysis.resetProlog(factsNames);
       graph = generateGraph(dimension, domainDefinition, structuralRules);
 
@@ -159,9 +156,6 @@ public class TwitterAnalysis {
         int randomIndex = rand.nextInt(0, operators.size());
         String randomOperator = operators.get(randomIndex);
         int previousDimension = graph.nodes().size() + graph.arcs().size();
-
-        System.out.println("DEBUG: operation " + j + "th. Operator is " + operatorsLabels.get(randomIndex));
-
         Instant startingInstant = Instant.now();
         graph = PrologGraphUtils.applyOperator(randomOperator, graph, domainDefinition, structuralRules);
         Instant endInstant = Instant.now();
@@ -310,57 +304,52 @@ public class TwitterAnalysis {
     operatorsLabels.add("intermediatePublisher");
 
 
-    // TESTING
-    List<LinkedHashMap<String, Object>> DataFrameTest = analysis(10, 25, 5, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
-    System.out.println(DataFrameTest);
+    // Analysis:
+    int nGraphs = 25;
+    int nOperations = 40;
+
+    int dimension = 10;
+    List<LinkedHashMap<String, Object>> DataFrame10 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
+
+    dimension = 25;
+    List<LinkedHashMap<String, Object>> DataFrame25 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
+
+    dimension = 40;
+    List<LinkedHashMap<String, Object>> DataFrame40 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
 
 
-//     // Analysis:
-//    int nGraphs = 25;
-//    int nOperations = 40;
-//
-//    int dimension = 10;
-//    List<LinkedHashMap<String, Object>> DataFrame10 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
-//
-//    dimension = 25;
-//    List<LinkedHashMap<String, Object>> DataFrame25 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
-//
-//    dimension = 40;
-//    List<LinkedHashMap<String, Object>> DataFrame40 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
-//
-//
-//    // EXPORT CSV
-//    String[] files = {"Dataframe10.csv", "Dataframe25.csv", "Dataframe40.csv"};
-//    List<List<LinkedHashMap<String, Object>>> dfCollection = new ArrayList<>();
-//    dfCollection.add(DataFrame10);
-//    dfCollection.add(DataFrame25);
-//    dfCollection.add(DataFrame40);
-//
-//    for (int i = 0; i < 3; ++i) {
-//      String fileName = "Twitter" + files[i];
-//      List<LinkedHashMap<String, Object>> df = dfCollection.get(i);
-//
-//      try {
-//        // create a writer
-//        Writer writer = Files.newBufferedWriter(Paths.get("C:\\Users\\Simone\\Desktop\\GitHub_Tesi\\jgea_data\\25x40\\" + fileName));
-//
-//        // write CSV file
-//        CSVPrinter printer = CSVFormat.DEFAULT.withHeader("graph", "operator", "dimension", "executionTime").print(writer);
-//
-//        for (LinkedHashMap<String, Object> map : df) {
-//          printer.printRecord(map.get("graph"), map.get("operator"), map.get("dimension"), map.get("executionTime"));
-//        }
-//
-//        // flush the stream
-//        printer.flush();
-//
-//        // close the writer
-//        writer.close();
-//
-//      } catch (IOException ex) {
-//        ex.printStackTrace();
-//      }
-//    }
+    // EXPORT CSV
+    String[] files = {"Dataframe10.csv", "Dataframe25.csv", "Dataframe40.csv"};
+    List<List<LinkedHashMap<String, Object>>> dfCollection = new ArrayList<>();
+    dfCollection.add(DataFrame10);
+    dfCollection.add(DataFrame25);
+    dfCollection.add(DataFrame40);
+
+    for (int i = 0; i < 3; ++i) {
+      String fileName = "Twitter" + files[i];
+      List<LinkedHashMap<String, Object>> df = dfCollection.get(i);
+
+      try {
+        // create a writer
+        Writer writer = Files.newBufferedWriter(Paths.get("C:\\Users\\Simone\\Desktop\\GitHub_Tesi\\jgea_data\\25x40\\" + fileName));
+
+        // write CSV file
+        CSVPrinter printer = CSVFormat.DEFAULT.withHeader("graph", "operator", "dimension", "executionTime").print(writer);
+
+        for (LinkedHashMap<String, Object> map : df) {
+          printer.printRecord(map.get("graph"), map.get("operator"), map.get("dimension"), map.get("executionTime"));
+        }
+
+        // flush the stream
+        printer.flush();
+
+        // close the writer
+        writer.close();
+
+      } catch (IOException ex) {
+        ex.printStackTrace();
+      }
+    }
 
 
   }
