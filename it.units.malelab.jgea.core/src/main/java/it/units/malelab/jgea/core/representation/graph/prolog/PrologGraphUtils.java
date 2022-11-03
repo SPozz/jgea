@@ -237,7 +237,6 @@ public class PrologGraphUtils {
       Query.hasSolution("assert(( is_valid :- true )).");
 
 
-    System.out.println("DEBUG: PrologGraphUtils before check on validity");
     // check validity (updated)
     if (!Query.hasSolution("is_valid")) {
       return parent;
