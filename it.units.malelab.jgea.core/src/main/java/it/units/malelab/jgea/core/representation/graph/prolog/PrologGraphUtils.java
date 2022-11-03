@@ -9,6 +9,8 @@ public class PrologGraphUtils {
 
   static List<String> status = new ArrayList<>();
 
+  static List<String> domainStatus = new ArrayList<>();
+
   private final static PrologGraphUtils INSTANCE = new PrologGraphUtils();
 
   private PrologGraphUtils() {
@@ -200,7 +202,6 @@ public class PrologGraphUtils {
     // reset previous knowledge and change status
     resetPrologKnowledge();
     status = domainDefinition;
-    Query.hasSolution("abolish(is_valid/0)."); //not a pb even if not existing
 
     // get parent-graph description and assert it on Prolog
     List<String> parentDescription = describeGraph(parent, domainDefinition);
@@ -209,10 +210,14 @@ public class PrologGraphUtils {
     }
 
     // assert domainStructuralRules -> PROBLEM WHEN GRAPH IS EMPTY
-    for (String rule : domainStructuralRules) {
-      rule = rule.replace(".", "");
-      Query.hasSolution("assert((" + rule + "))");
-    }
+//    if (!domainStatus.equals(domainStructuralRules)) { // with IF it goes slower... wtf
+      retractRules(domainStatus); // retract previous ones
+      domainStatus = domainStructuralRules;
+      for (String rule : domainStructuralRules) {
+        rule = rule.replace(".", "");
+        Query.hasSolution("assert((" + rule + "))");
+      }
+//    }
 
     // apply operator
     try {
@@ -231,8 +236,10 @@ public class PrologGraphUtils {
     if (!rulesCheck.contains("is_valid:-"))
       Query.hasSolution("assert(( is_valid :- true )).");
 
+
+    System.out.println("DEBUG: PrologGraphUtils before check on validity");
     // check validity (updated)
-    if ( !Query.hasSolution("is_valid")){
+    if (!Query.hasSolution("is_valid")) {
       return parent;
     }
     return buildGraph(domainDefinition);
@@ -248,6 +255,39 @@ public class PrologGraphUtils {
       fact = fact.replace(".", ""); //remove point
       fact = fact.substring(prefix);                //extract fact name
       Query.hasSolution("abolish(" + fact + ").");
+    }
+  }
+
+  private static void retractRules(List<String> domainStructuralRules) {
+    List<String> rulesSet = new ArrayList<>();
+    for (String rule : domainStructuralRules) {
+      if (!rule.contains(".")) {
+        throw new UnsupportedOperationException("ERROR, rule defined without ending point.");
+      }
+      int arity;
+      String query = "/";
+      rule = rule.replace(" ", "");
+
+      if (rule.contains(":-")) {
+        int index = rule.indexOf(":-");
+        rule = rule.substring(0, index);
+      }
+
+      if (!rule.contains(")")) {
+        arity = 0;
+      } else {
+        int count = rule.length() - rule.replace(",", "").length(); // compute occurrences of ","
+        arity = 1 + count;
+        rule = rule.substring(0, rule.indexOf("("));
+      }
+
+      query = rule + query + arity;
+      if (!rulesSet.contains(query))
+        rulesSet.add(query);
+    }
+
+    for (String ruleAndArity : rulesSet) {
+      Query.hasSolution("abolish(" + ruleAndArity + ").");
     }
   }
 
