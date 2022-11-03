@@ -145,9 +145,11 @@ public class TwitterAnalysis {
 
   static List<LinkedHashMap<String, Object>> analysis(int dimension, int nGraphs, int nOperations, List<String> operators, List<String> operatorsLabels, List<String> factsNames, List<String> domainDefinition, List<String> structuralRules) {
     List<LinkedHashMap<String, Object>> DataFrame = new ArrayList<>();
-
     PrologGraph graph;
     for (int i = 0; i < nGraphs; ++i) {
+
+      System.out.println("DEBUG: Beginning of " + i + "th graph");
+
       BasicGraphsAnalysis.resetProlog(factsNames);
       graph = generateGraph(dimension, domainDefinition, structuralRules);
 
@@ -157,18 +159,12 @@ public class TwitterAnalysis {
         int randomIndex = rand.nextInt(0, operators.size());
         String randomOperator = operators.get(randomIndex);
         int previousDimension = graph.nodes().size() + graph.arcs().size();
+
+        System.out.println("DEBUG: operation " + j + "th. Operator is " + operatorsLabels.get(randomIndex));
+
         Instant startingInstant = Instant.now();
         graph = PrologGraphUtils.applyOperator(randomOperator, graph, domainDefinition, structuralRules);
         Instant endInstant = Instant.now();
-
-        Query.hasSolution("abolish(tweet_indeg/1).");
-        Query.hasSolution("abolish(cite_check/1).");
-        Query.hasSolution("abolish(follows_check/1).");
-        Query.hasSolution("abolish(retweet_check/1).");
-        Query.hasSolution("abolish(post_check/1).");
-        Query.hasSolution("abolish(type_value/1).");
-        Query.hasSolution("abolish(action_value/1).");
-
         observation.put("graph", i);
         observation.put("operator", operatorsLabels.get(randomIndex));
         observation.put("dimension", previousDimension);
@@ -199,15 +195,18 @@ public class TwitterAnalysis {
             "post_check(X) :- action(X,post),edge(S,T,X), type(S,user), type(T,tweet).",
             "retweet_check(X) :- action(X,retweet),edge(S,T,X), type(S,user), type(T,tweet).",
             "follows_check(X) :- action(X,follows),edge(S,T,X), type(S,user), type(T,user), S \\== T.",
-//            "size([], 0) :- true.",
-//            "size([_|Xs], N) :- size(Xs, N1), plus(N1,1,N).", //changed here to make it work possibly
+            "retract_list([X | Xs], P) :- Z =.. [P, X], retract(Z), retract_list(Xs, P).",
+            "retract_list([], _) :- true.",
+            "retract_list([X|Xs],P,S) :- Z=.. [P,X,S], retract(Z), retract_list(Xs,P,S).",
+            "retract_list([],_,S) :- true.",
             "tweet_indeg(T) :- findall(S, (edge(S,T,X),action(X,post)), Sources), length(Sources,1).",//chg and length
             "is_valid :- foreach(findall(E,(edge_id(E),action(E,cite)),E), maplist(cite_check,E))," +
                     "   foreach(findall(E,(edge_id(E),action(E,post)),E), maplist(post_check,E))," +
                     "   foreach(findall(E,(edge_id(E),action(E,retweet)),E), maplist(retweet_check,E))," +
                     "   foreach(findall(E,(edge_id(E),action(E,follows)),E), maplist(follows_check,E))"
-//                    + "," +
-//                    "   foreach(findall(T,type(T,tweet),TweetID), maplist(tweet_indeg,TweetID))."
+                    + "," +
+                    "   foreach(findall(T,type(T,tweet),TweetID), maplist(tweet_indeg,TweetID))"
+                    + "."
     );
 
     List<String> factsNames = Arrays.asList("node_id/1", "type/2", "edge_id/1", "edge/3", "action/2");
@@ -268,8 +267,18 @@ public class TwitterAnalysis {
     operators.add(addLegalEdge);
     operatorsLabels.add("addLegalEdge");
 
-    // incomplete (not removing edge attribute)
-    String removeNode = "findall(NId,node_id(NId),Nodes),random_member(N,Nodes),findall(E,edge(_,N,E),ID_in),findall(E,edge(N,_,E),ID_out),retract_list(ID_in,edge_id),retract_list(ID_out,edge_id),retractall(edge(_,N,_)),retractall(edge(N,_,_)),retract(type(N,_)),retract(node_id(N)).";
+    String removeNode = "findall(Id,node_id(Id),Nodes)," +
+            "random_member(N,Nodes)," +
+            "findall(E,edge(_,N,E),ID_in)," +
+            "findall(F,edge(N,_,F),ID_out)," +
+            "retract_list(ID_out,action,_)," +
+            "retract_list(ID_in,action,_)," +
+            "retract_list(ID_in,edge_id)," +
+            "retract_list(ID_out,edge_id)," +
+            "retractall(edge(_,N,_))," +
+            "retractall(edge(N,_,_))," +
+            "retract(type(N,_))," +
+            "retract(node_id(N)).";
     operators.add(removeNode);
     operatorsLabels.add("removeNode");
 
@@ -301,53 +310,57 @@ public class TwitterAnalysis {
     operatorsLabels.add("intermediatePublisher");
 
 
-    // Analysis:
-    System.out.println("Without rules for tweet's indegree (always verified)");
-    int nGraphs = 25;
-    int nOperations = 40;
-
-    int dimension = 10;
-    List<LinkedHashMap<String, Object>> DataFrame10 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
-
-    dimension = 25;
-    List<LinkedHashMap<String, Object>> DataFrame25 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
-
-    dimension = 40;
-    List<LinkedHashMap<String, Object>> DataFrame40 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
+    // TESTING
+    List<LinkedHashMap<String, Object>> DataFrameTest = analysis(10, 25, 5, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
+    System.out.println(DataFrameTest);
 
 
-    // EXPORT CSV
-    String[] files = {"Dataframe10.csv", "Dataframe25.csv", "Dataframe40.csv"};
-    List<List<LinkedHashMap<String, Object>>> dfCollection = new ArrayList<>();
-    dfCollection.add(DataFrame10);
-    dfCollection.add(DataFrame25);
-    dfCollection.add(DataFrame40);
-
-    for (int i = 0; i < 3; ++i) {
-      String fileName = "Twitter" + files[i];
-      List<LinkedHashMap<String, Object>> df = dfCollection.get(i);
-
-      try {
-        // create a writer
-        Writer writer = Files.newBufferedWriter(Paths.get("C:\\Users\\Simone\\Desktop\\GitHub_Tesi\\jgea_data\\25x40\\" + fileName));
-
-        // write CSV file
-        CSVPrinter printer = CSVFormat.DEFAULT.withHeader("graph", "operator", "dimension", "executionTime").print(writer);
-
-        for (LinkedHashMap<String, Object> map : df) {
-          printer.printRecord(map.get("graph"), map.get("operator"), map.get("dimension"), map.get("executionTime"));
-        }
-
-        // flush the stream
-        printer.flush();
-
-        // close the writer
-        writer.close();
-
-      } catch (IOException ex) {
-        ex.printStackTrace();
-      }
-    }
+//     // Analysis:
+//    int nGraphs = 25;
+//    int nOperations = 40;
+//
+//    int dimension = 10;
+//    List<LinkedHashMap<String, Object>> DataFrame10 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
+//
+//    dimension = 25;
+//    List<LinkedHashMap<String, Object>> DataFrame25 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
+//
+//    dimension = 40;
+//    List<LinkedHashMap<String, Object>> DataFrame40 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
+//
+//
+//    // EXPORT CSV
+//    String[] files = {"Dataframe10.csv", "Dataframe25.csv", "Dataframe40.csv"};
+//    List<List<LinkedHashMap<String, Object>>> dfCollection = new ArrayList<>();
+//    dfCollection.add(DataFrame10);
+//    dfCollection.add(DataFrame25);
+//    dfCollection.add(DataFrame40);
+//
+//    for (int i = 0; i < 3; ++i) {
+//      String fileName = "Twitter" + files[i];
+//      List<LinkedHashMap<String, Object>> df = dfCollection.get(i);
+//
+//      try {
+//        // create a writer
+//        Writer writer = Files.newBufferedWriter(Paths.get("C:\\Users\\Simone\\Desktop\\GitHub_Tesi\\jgea_data\\25x40\\" + fileName));
+//
+//        // write CSV file
+//        CSVPrinter printer = CSVFormat.DEFAULT.withHeader("graph", "operator", "dimension", "executionTime").print(writer);
+//
+//        for (LinkedHashMap<String, Object> map : df) {
+//          printer.printRecord(map.get("graph"), map.get("operator"), map.get("dimension"), map.get("executionTime"));
+//        }
+//
+//        // flush the stream
+//        printer.flush();
+//
+//        // close the writer
+//        writer.close();
+//
+//      } catch (IOException ex) {
+//        ex.printStackTrace();
+//      }
+//    }
 
 
   }
