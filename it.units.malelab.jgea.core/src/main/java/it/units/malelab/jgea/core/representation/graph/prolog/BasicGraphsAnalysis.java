@@ -203,7 +203,7 @@ public class BasicGraphsAnalysis {
             "retract(node_id(N)).";
 
 
-    List<String> operators = Arrays.asList(operatorRemoveNode);//, operatorAddEdgeWithAttribute, operatorAddNodeWithAttribute, operatorModifyEdgeValue, operatorPerturbValue, operatorIntermediateNodeWithAttributes, operatorRemoveEdgeWithAttribute);
+    List<String> operators = Arrays.asList(operatorRemoveNode, operatorAddEdgeWithAttribute, operatorAddNodeWithAttribute, operatorModifyEdgeValue, operatorPerturbValue, operatorIntermediateNodeWithAttributes, operatorRemoveEdgeWithAttribute);
     List<String> operatorsLabels = Arrays.asList("removeNode", "addEdge", "addNode", "modifyEdgeValue", "perturbNodeValue", "intermediateNode", "removeEdge");
 
     // Subset of the graph:
@@ -233,45 +233,45 @@ public class BasicGraphsAnalysis {
     int dimension = 10;
     List<LinkedHashMap<String, Object>> DataFrame10 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
 
-//    dimension = 25;
-//    List<LinkedHashMap<String, Object>> DataFrame25 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
-//
-//    dimension = 40;
-//    List<LinkedHashMap<String, Object>> DataFrame40 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
-//
-//    String[] files = {"Dataframe10.csv", "Dataframe25.csv", "Dataframe40.csv"};
-//    List<List<LinkedHashMap<String, Object>>> dfCollection = new ArrayList<>();
-//    dfCollection.add(DataFrame10);
-//    dfCollection.add(DataFrame25);
-//    dfCollection.add(DataFrame40);
+    dimension = 25;
+    List<LinkedHashMap<String, Object>> DataFrame25 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
+
+    dimension = 40;
+    List<LinkedHashMap<String, Object>> DataFrame40 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
+
+    String[] files = {"Dataframe10.csv", "Dataframe25.csv", "Dataframe40.csv"};
+    List<List<LinkedHashMap<String, Object>>> dfCollection = new ArrayList<>();
+    dfCollection.add(DataFrame10);
+    dfCollection.add(DataFrame25);
+    dfCollection.add(DataFrame40);
 
 
-//    // EXPORT CSV
-//    for (int i = 0; i < 3; ++i) {
-//      String fileName = "Basic" + files[i];
-//      List<LinkedHashMap<String, Object>> df = dfCollection.get(i);
-//
-//      try {
-//        // create a writer
-//        Writer writer = Files.newBufferedWriter(Paths.get("C:\\Users\\Simone\\Desktop\\GitHub_Tesi\\jgea_data\\25x40\\" + fileName));
-//
-//        // write CSV file
-//        CSVPrinter printer = CSVFormat.DEFAULT.withHeader("graph", "operator", "dimension", "executionTime").print(writer);
-//
-//        for (LinkedHashMap<String, Object> map : df) {
-//          printer.printRecord(map.get("graph"), map.get("operator"), map.get("dimension"), map.get("executionTime"));
-//        }
-//
-//        // flush the stream
-//        printer.flush();
-//
-//        // close the writer
-//        writer.close();
-//
-//      } catch (IOException ex) {
-//        ex.printStackTrace();
-//      }
-//    }
+    // EXPORT CSV
+    for (int i = 0; i < 3; ++i) {
+      String fileName = "Basic" + files[i];
+      List<LinkedHashMap<String, Object>> df = dfCollection.get(i);
+
+      try {
+        // create a writer
+        Writer writer = Files.newBufferedWriter(Paths.get("C:\\Users\\Simone\\Desktop\\GitHub_Tesi\\jgea_data\\25x40\\" + fileName));
+
+        // write CSV file
+        CSVPrinter printer = CSVFormat.DEFAULT.withHeader("graph", "operator", "dimension", "executionTime").print(writer);
+
+        for (LinkedHashMap<String, Object> map : df) {
+          printer.printRecord(map.get("graph"), map.get("operator"), map.get("dimension"), map.get("executionTime"));
+        }
+
+        // flush the stream
+        printer.flush();
+
+        // close the writer
+        writer.close();
+
+      } catch (IOException ex) {
+        ex.printStackTrace();
+      }
+    }
 
 
   }
