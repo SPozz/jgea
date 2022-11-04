@@ -198,10 +198,12 @@ public class TwitterAnalysis {
                     "   foreach(findall(E,(edge_id(E),action(E,post)),E), maplist(post_check,E))," +
                     "   foreach(findall(E,(edge_id(E),action(E,retweet)),E), maplist(retweet_check,E))," +
                     "   foreach(findall(E,(edge_id(E),action(E,follows)),E), maplist(follows_check,E))"
-                    + "," +
-                    "   foreach(findall(T,type(T,tweet),TweetID), maplist(tweet_indeg,TweetID))"
+//                    + "," +
+//                    "   foreach(findall(T,type(T,tweet),TweetID), maplist(tweet_indeg,TweetID))"
                     + "."
     );
+
+    System.out.println("DEBUG. Remark that last condition is not active");
 
     List<String> factsNames = Arrays.asList("node_id/1", "type/2", "edge_id/1", "edge/3", "action/2");
 
@@ -317,15 +319,17 @@ public class TwitterAnalysis {
     dimension = 40;
     List<LinkedHashMap<String, Object>> DataFrame40 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
 
+    dimension = 55;
+    List<LinkedHashMap<String, Object>> DataFrame55 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
 
-    // EXPORT CSV
-    String[] files = {"Dataframe10.csv", "Dataframe25.csv", "Dataframe40.csv"};
+    String[] files = {"Dataframe10.csv", "Dataframe25.csv", "Dataframe40.csv","Dataframe55.csv"};
     List<List<LinkedHashMap<String, Object>>> dfCollection = new ArrayList<>();
     dfCollection.add(DataFrame10);
     dfCollection.add(DataFrame25);
     dfCollection.add(DataFrame40);
+    dfCollection.add(DataFrame55);
 
-    for (int i = 0; i < 3; ++i) {
+    for (int i = 0; i < dfCollection.size(); ++i) {
       String fileName = "Twitter" + files[i];
       List<LinkedHashMap<String, Object>> df = dfCollection.get(i);
 

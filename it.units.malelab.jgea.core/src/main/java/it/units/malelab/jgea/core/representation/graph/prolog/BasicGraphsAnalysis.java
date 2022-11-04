@@ -239,15 +239,19 @@ public class BasicGraphsAnalysis {
     dimension = 40;
     List<LinkedHashMap<String, Object>> DataFrame40 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
 
-    String[] files = {"Dataframe10.csv", "Dataframe25.csv", "Dataframe40.csv"};
+    dimension = 55;
+    List<LinkedHashMap<String, Object>> DataFrame55 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
+
+    String[] files = {"Dataframe10.csv", "Dataframe25.csv", "Dataframe40.csv","Dataframe55.csv"};
     List<List<LinkedHashMap<String, Object>>> dfCollection = new ArrayList<>();
     dfCollection.add(DataFrame10);
     dfCollection.add(DataFrame25);
     dfCollection.add(DataFrame40);
+    dfCollection.add(DataFrame55);
 
 
-    // EXPORT CSV
-    for (int i = 0; i < 3; ++i) {
+     ////EXPORT CSV
+    for (int i = 0; i < dfCollection.size(); ++i) {
       String fileName = "Basic" + files[i];
       List<LinkedHashMap<String, Object>> df = dfCollection.get(i);
 
