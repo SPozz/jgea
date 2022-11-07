@@ -183,6 +183,10 @@ public class FfnnAnalysis {
                     "  layer(N,M)," +
                     "  findall(L,(layer(T,L),edge(N,T,_), L =\\= M + 1),RES)," +
                     "                                   length(RES,Z), Z == 0.",
+            "random_pair(Z1,Z2,List) :-" +
+                    "    random_member(Z1,List)," +
+                    "    random_member(Z2,List)," +
+                    "    Z1 \\== Z2.",
             "is_valid :- " +
                     "    foreach( findall(N,node_id(N),N)," +
                     "        maplist(edg_consist_from_node,N)" +
@@ -212,8 +216,8 @@ public class FfnnAnalysis {
                     "    random_between(MIN,MAX,W)," +
                     "    assert(weight(E,W))" +
                     ").";
-    operators.add(addEdge);
-    operatorsLabels.add("addEdge");
+//    operators.add(addEdge);
+//    operatorsLabels.add("addEdge");
 
     String addInitialLayer = "min_level(X)," +
             "Y is X -1," +
