@@ -216,8 +216,8 @@ public class FfnnAnalysis {
                     "    random_between(MIN,MAX,W)," +
                     "    assert(weight(E,W))" +
                     ").";
-//    operators.add(addEdge);
-//    operatorsLabels.add("addEdge");
+    operators.add(addEdge);
+    operatorsLabels.add("addEdge");
 
     String addInitialLayer = "min_level(X)," +
             "Y is X -1," +
