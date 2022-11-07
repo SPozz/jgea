@@ -1,7 +1,13 @@
 package it.units.malelab.jgea.core.representation.graph.prolog;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
 import org.jpl7.Query;
 
+import java.io.IOException;
+import java.io.Writer;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
@@ -50,7 +56,7 @@ public class FfnnAnalysis {
 
       layer = random.nextInt(0, maxLayer + 1);
 
-      if (i == 1){
+      if (i == 1) {
         layer = 1;
       }
 
@@ -210,7 +216,7 @@ public class FfnnAnalysis {
     operatorsLabels.add("addEdge");
 
     String addInitialLayer = "min_level(X)," +
-            "Y is X -1,"+
+            "Y is X -1," +
             "gensym(nod,N)," +
             "assert(node_id(N))," +
             "assert(layer(N,Y))," +
@@ -231,7 +237,7 @@ public class FfnnAnalysis {
 
 
     String addFinalLayer = "max_level(X)," +
-            "Y is X +1,"+
+            "Y is X +1," +
             "gensym(nod,N)," +
             "assert(node_id(N))," +
             "assert(layer(N,Y))," +
@@ -250,8 +256,54 @@ public class FfnnAnalysis {
     operators.add(addFinalLayer);
     operatorsLabels.add("addFinalLayer");
 
-    // Test
-    analysis(10, 25, 40, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
+    // Analysis:
+    int nGraphs = 25;
+    int nOperations = 40;
+
+    int dimension = 10;
+    List<LinkedHashMap<String, Object>> DataFrame10 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
+
+    dimension = 25;
+    List<LinkedHashMap<String, Object>> DataFrame25 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
+
+    dimension = 40;
+    List<LinkedHashMap<String, Object>> DataFrame40 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
+
+    dimension = 55;
+    List<LinkedHashMap<String, Object>> DataFrame55 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
+
+    String[] files = {"Dataframe10.csv", "Dataframe25.csv", "Dataframe40.csv", "Dataframe55.csv"};
+    List<List<LinkedHashMap<String, Object>>> dfCollection = new ArrayList<>();
+    dfCollection.add(DataFrame10);
+    dfCollection.add(DataFrame25);
+    dfCollection.add(DataFrame40);
+    dfCollection.add(DataFrame55);
+
+    for (int i = 0; i < dfCollection.size(); ++i) {
+      String fileName = "FFNN" + files[i];
+      List<LinkedHashMap<String, Object>> df = dfCollection.get(i);
+
+      try {
+        // create a writer
+        Writer writer = Files.newBufferedWriter(Paths.get("C:\\Users\\Simone\\Desktop\\GitHub_Tesi\\jgea_data\\25x40\\" + fileName));
+
+        // write CSV file
+        CSVPrinter printer = CSVFormat.DEFAULT.withHeader("graph", "operator", "dimension", "executionTime").print(writer);
+
+        for (LinkedHashMap<String, Object> map : df) {
+          printer.printRecord(map.get("graph"), map.get("operator"), map.get("dimension"), map.get("executionTime"));
+        }
+
+        // flush the stream
+        printer.flush();
+
+        // close the writer
+        writer.close();
+
+      } catch (IOException ex) {
+        ex.printStackTrace();
+      }
+    }
 
 
   }
