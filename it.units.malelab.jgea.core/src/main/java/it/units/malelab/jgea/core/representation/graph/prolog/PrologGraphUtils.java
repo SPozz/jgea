@@ -167,7 +167,7 @@ public class PrologGraphUtils {
     String source;
     String target;
     LinkedHashMap<String, Object> edgeMap;
-    for (Map<String, Term> edgeIDMap : allEdgeIDs) { // iterating through nodeIDs
+    for (Map<String, Term> edgeIDMap : allEdgeIDs) { // iterating through edgeIDs
       String oneEdgeID = edgeIDMap.get("X").toString();
       edgeMap = new LinkedHashMap<>();
 
