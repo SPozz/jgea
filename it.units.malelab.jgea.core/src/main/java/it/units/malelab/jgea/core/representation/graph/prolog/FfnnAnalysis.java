@@ -165,7 +165,7 @@ public class FfnnAnalysis {
     List<String> structuralRules = Arrays.asList(
             "max_weight(1.0).",
             "min_weight(0.0).",
-            "min_level(0).",
+            "min_level(0) :- findall(L,layer(_,L),Layers), min_list(Layers,M).",
             "max_level(M) :- findall(L,layer(_,L),Layers), max_list(Layers,M).",
             "level(X) :- " +
                     "    float(X), max_level(Max), min_level(Min), " +
@@ -209,6 +209,46 @@ public class FfnnAnalysis {
     operators.add(addEdge);
     operatorsLabels.add("addEdge");
 
+    String addInitialLayer = "min_level(X)," +
+            "Y is X -1,"+
+            "gensym(nod,N)," +
+            "assert(node_id(N))," +
+            "assert(layer(N,Y))," +
+            "findall(Nod,layer(Nod,X),Nodes)," +
+            "random_pair(M1,M2,Nodes)," +
+            "gensym(edge_id,E1)," +
+            "gensym(edge_id,E2)," +
+            "assert(edge(N,M1,E1))," +
+            "assert(edge(N,M2,E2))," +
+            "max_weight(WMax)," +
+            "min_weight(WMin)," +
+            "random(WMin,WMax,W1)," +
+            "random(WMin,WMax,W2)," +
+            "assert(weight(E1,W1))," +
+            "assert(weight(E2,W2)).";
+    operators.add(addInitialLayer);
+    operatorsLabels.add("addInitialLayer");
+
+
+    String addFinalLayer = "max_level(X)," +
+            "Y is X +1,"+
+            "gensym(nod,N)," +
+            "assert(node_id(N))," +
+            "assert(layer(N,Y))," +
+            "findall(Nod,layer(Nod,X),Nodes)," +
+            "random_pair(M1,M2,Nodes)," +
+            "gensym(edge_id,E1)," +
+            "gensym(edge_id,E2)," +
+            "assert(edge(M1,N,E1))," +
+            "assert(edge(M2,N,E2))," +
+            "max_weight(WMax)," +
+            "min_weight(WMin)," +
+            "random(WMin,WMax,W1)," +
+            "random(WMin,WMax,W2)," +
+            "assert(weight(E1,W1))," +
+            "assert(weight(E2,W2)).";
+    operators.add(addFinalLayer);
+    operatorsLabels.add("addFinalLayer");
 
     // Test
     analysis(10, 25, 40, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
