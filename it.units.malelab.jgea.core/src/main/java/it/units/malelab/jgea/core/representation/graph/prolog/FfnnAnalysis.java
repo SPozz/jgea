@@ -26,7 +26,7 @@ public class FfnnAnalysis {
 
     int MaxRecursion = 100;
 
-    int nNodes = random.nextInt(dimension / 2 - 1, dimension - 1);
+    int nNodes = random.nextInt(dimension / 3, dimension - 2);
 
     List<List<String>> nodesAndLayers = new ArrayList<>();
     for (int i = 0; i < nNodes; ++i) {
@@ -49,6 +49,11 @@ public class FfnnAnalysis {
       nodeID = alphabet.get(index);
 
       layer = random.nextInt(0, maxLayer + 1);
+
+      if (i == 1){
+        layer = 1;
+      }
+
       if (layer == maxLayer) {
         maxLayer += 1;
       }
@@ -75,8 +80,10 @@ public class FfnnAnalysis {
       String targetID;
       double weight;
 
-
-      int sourceLayer = random.nextInt(0, nodesAndLayers.size() - 1);
+      int sourceLayer = 0;
+      if (nodesAndLayers.size() > 1) {
+        sourceLayer = random.nextInt(0, nodesAndLayers.size() - 1);
+      }
 
       List<String> sourceRange = nodesAndLayers.get(sourceLayer);
       sourceID = sourceRange.get(random.nextInt(0, sourceRange.size()));
@@ -88,7 +95,6 @@ public class FfnnAnalysis {
       if (edgeIDs.contains(edgeID)) {
         edgeID = sourceID + targetID + debugger;
         debugger += 1;
-        continue;
       }
       edgeIDs.add(edgeID);
 
@@ -162,7 +168,7 @@ public class FfnnAnalysis {
             "min_level(0).",
             "max_level(M) :- findall(L,layer(_,L),Layers), max_list(Layers,M).",
             "level(X) :- " +
-                    "    float(X), max_level(Max), min_level(Min), \n" +
+                    "    float(X), max_level(Max), min_level(Min), " +
                     "                            X =< Max, X >= Min.",
             "weight_val(X) :- " +
                     "    max_weight(Max), min_weight(Min),float(X), " +
@@ -184,32 +190,28 @@ public class FfnnAnalysis {
     List<String> operators = new ArrayList<>();
     List<String> operatorsLabels = new ArrayList<>();
 
-    String addEdge = "gensym(edg,E)," +
-            "assert(edge_id(E))," +
+    String addEdge =
             "findall(ID,node_id(ID),Nodes)," +
-            "random_member(N,Nodes)," +
-            "layer(N,L)," +
-            "LL is L+1," +
-            "findall(ID2,layer(ID2,LL),NextLayerNodes)," +
-            "random_member(M,NextLayerNodes)," +
-            "( edge(N,M,_) -> retract(edge_id(E));" +
-            "    assert(edge(N,M,E))," +
-            "    min_weight(MIN)," +
-            "    max_weight(MAX)," +
-            "    random_between(MIN,MAX,W)," +
-            "    assert(weight(E,W))" +
-            ").";
+                    "random_member(N,Nodes)," +
+                    "layer(N,L)," +
+                    "LL is L+1," +
+                    "findall(ID2,layer(ID2,LL),NextLayerNodes)," +
+                    "random_member(M,NextLayerNodes)," +
+                    "( edge(N,M,_);" +
+                    "    gensym(edg,E)," +
+                    "    assert(edge_id(E))," +
+                    "    assert(edge(N,M,E))," +
+                    "    min_weight(MIN)," +
+                    "    max_weight(MAX)," +
+                    "    random_between(MIN,MAX,W)," +
+                    "    assert(weight(E,W))" +
+                    ").";
     operators.add(addEdge);
     operatorsLabels.add("addEdge");
 
 
-    // TEST
-    PrologGraph graph = generateGraph(20, domainDefinition);
-    System.out.println(graph.nodes());
-    System.out.println(graph.arcs());
-
-    analysis(10,1,25,operators,operatorsLabels,factsNames,domainDefinition,structuralRules);
-
+    // Test
+    analysis(10, 25, 40, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
 
 
   }
