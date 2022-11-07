@@ -34,7 +34,7 @@ public class TreeAnalysis {
 
     // first node
     int start = 1;
-    String type = "operand";
+    String type = "operator";
     String value = operandValue.get(random.nextInt(0, operandValue.size()));
     int index = random.nextInt(0, alphabet.size());
     indexList.add(Integer.toString(index));
@@ -62,7 +62,7 @@ public class TreeAnalysis {
       }
       indexList.add(Integer.toString(index));
 
-      type = "operand";
+      type = "operator";
       value = operandValue.get(random.nextInt(0, operandValue.size()));
       node = Arrays.asList("node_id(" + nodeID + ")", "start(" + nodeID + "," + start + ")", "type(" + nodeID + "," + type + ")", "value(" + nodeID + "," + value + ")");
 
@@ -93,7 +93,7 @@ public class TreeAnalysis {
       indexList.add(Integer.toString(index));
 
       type = typeValue.get(random.nextInt(0, typeValue.size()));
-      if (type.equals("operand")) {
+      if (type.equals("operator")) {
         invalidNodes.add(nodeID);
         value = operandValue.get(random.nextInt(0, operandValue.size()));
       } else {
@@ -246,13 +246,13 @@ public class TreeAnalysis {
             "gensym(nod,N1)," +
             "assert(node_id(N1))," +
             "assert(type(N1,variable))," +
-            "variable_val(V1Val)," +
+            "random_between(0,9,V1Val)," +
             "assert(value(N1,V1Val))," +
             "assert(start(N1,0))," +
             "gensym(nod,N2)," +
             "assert(node_id(N2))," +
             "assert(type(N2,variable))," +
-            "variable_val(V2Val)," +
+            "random_between(0,9,V2Val)," +
             "assert(value(N2,V2Val))," +
             "assert(start(N2,0))," +
             "gensym(edge,E1)," +
@@ -261,22 +261,8 @@ public class TreeAnalysis {
             "assert(edge_id(E2))," +
             "assert(edge(V,N1,E1))," +
             "assert(edge(V,N2,E2)).";
-    operators.add(subTree);
+    operators.add(subTree); //NOT WORKING
     operatorsLabels.add("subTree");
-
-//    String swapEdges = "findall(Id,edge_id(Id),Edges)," +
-//            "random_member(E1,Edges)," +
-//            "random_member(E2,Edges)," +
-//            "(E1 == E2 ; " +
-//            "    edge(S1,T1,E1)," +
-//            "    edge(S2,T2,E2)," +
-//            "    retract(edge(S1,T1,E1))," +
-//            "    retract(edge(S2,T2,E2))," +
-//            "    assert(edge(S1,T2,E1))," +
-//            "    assert(edge(S2,T1,E2))" +
-//            "    ).";
-//    operators.add(swapEdges);
-//    operatorsLabels.add("swapEdges"); //MMMM
 
     String perturbOperator = "findall(OP,type(OP,operator), Operators)," +
             "random_member(O, Operators)," +
@@ -295,66 +281,56 @@ public class TreeAnalysis {
     operators.add(perturbVariable);
     operatorsLabels.add("perturbVariable");
 
+    //// Analysis:
+    int nGraphs = 25;
+    int nOperations = 40;
 
-    for (String rule : structuralRules) {
-      rule = rule.replace(".", "");
-      Query.hasSolution("assert((" + rule + "))");
+    int dimension = 10;
+    List<LinkedHashMap<String, Object>> DataFrame10 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
+
+    dimension = 25;
+    List<LinkedHashMap<String, Object>> DataFrame25 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
+
+    dimension = 40;
+    List<LinkedHashMap<String, Object>> DataFrame40 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
+
+    dimension = 55;
+    List<LinkedHashMap<String, Object>> DataFrame55 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
+
+    String[] files = {"Dataframe10.csv", "Dataframe25.csv", "Dataframe40.csv", "Dataframe55.csv"};
+    List<List<LinkedHashMap<String, Object>>> dfCollection = new ArrayList<>();
+    dfCollection.add(DataFrame10);
+    dfCollection.add(DataFrame25);
+    dfCollection.add(DataFrame40);
+    dfCollection.add(DataFrame55);
+
+
+    //// Export CSV
+    for (int i = 0; i < dfCollection.size(); ++i) {
+      String fileName = "Tree" + files[i];
+      List<LinkedHashMap<String, Object>> df = dfCollection.get(i);
+
+      try {
+        // create a writer
+        Writer writer = Files.newBufferedWriter(Paths.get("C:\\Users\\Simone\\Desktop\\GitHub_Tesi\\jgea_data\\25x40\\" + fileName));
+
+        // write CSV file
+        CSVPrinter printer = CSVFormat.DEFAULT.withHeader("graph", "operator", "dimension", "executionTime").print(writer);
+
+        for (LinkedHashMap<String, Object> map : df) {
+          printer.printRecord(map.get("graph"), map.get("operator"), map.get("dimension"), map.get("executionTime"));
+        }
+
+        // flush the stream
+        printer.flush();
+
+        // close the writer
+        writer.close();
+
+      } catch (IOException ex) {
+        ex.printStackTrace();
+      }
     }
-
-    PrologGraph graph = generateGraph(15,domainDefinition);
-    System.out.println(Query.hasSolution("is_valid"));
-
-
-//    //// Analysis:
-//    int nGraphs = 25;
-//    int nOperations = 40;
-//
-//    int dimension = 10;
-//    List<LinkedHashMap<String, Object>> DataFrame10 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
-//
-//    dimension = 25;
-//    List<LinkedHashMap<String, Object>> DataFrame25 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
-//
-//    dimension = 40;
-//    List<LinkedHashMap<String, Object>> DataFrame40 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
-//
-//    dimension = 55;
-//    List<LinkedHashMap<String, Object>> DataFrame55 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
-//
-//    String[] files = {"Dataframe10.csv", "Dataframe25.csv", "Dataframe40.csv", "Dataframe55.csv"};
-//    List<List<LinkedHashMap<String, Object>>> dfCollection = new ArrayList<>();
-//    dfCollection.add(DataFrame10);
-//    dfCollection.add(DataFrame25);
-//    dfCollection.add(DataFrame40);
-//    dfCollection.add(DataFrame55);
-//
-//
-//    //// Export CSV
-//    for (int i = 0; i < dfCollection.size(); ++i) {
-//      String fileName = "Tree" + files[i];
-//      List<LinkedHashMap<String, Object>> df = dfCollection.get(i);
-//
-//      try {
-//        // create a writer
-//        Writer writer = Files.newBufferedWriter(Paths.get("C:\\Users\\Simone\\Desktop\\GitHub_Tesi\\jgea_data\\25x40\\" + fileName));
-//
-//        // write CSV file
-//        CSVPrinter printer = CSVFormat.DEFAULT.withHeader("graph", "operator", "dimension", "executionTime").print(writer);
-//
-//        for (LinkedHashMap<String, Object> map : df) {
-//          printer.printRecord(map.get("graph"), map.get("operator"), map.get("dimension"), map.get("executionTime"));
-//        }
-//
-//        // flush the stream
-//        printer.flush();
-//
-//        // close the writer
-//        writer.close();
-//
-//      } catch (IOException ex) {
-//        ex.printStackTrace();
-//      }
-//    }
 
 
   }
