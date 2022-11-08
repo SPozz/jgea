@@ -14,23 +14,22 @@ import java.util.*;
 
 public class FfnnAnalysis {
 
-  static PrologGraph generateGraph(int dimension, List<String> domainDefinition) {
+  static PrologGraph generateFfnnGraph(int dimension, List<String> domainDefinition) {
     Random random = new Random();
 
     List<String> alphabet = Arrays.asList("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z");
-    List<String> node;
-    List<String> edge;
     List<List<String>> allNodes = new ArrayList<>();
     List<List<String>> allEdges = new ArrayList<>();
 
-
-    int layer;
-    String nodeID;
-    String edgeID;
+    // Attributes for graph
+    int nNodeAttributes = 2; // including ID
+    int nArcAttributes = 3; // including id and edge
+    if ((nArcAttributes + nNodeAttributes) != domainDefinition.size()){
+      throw new UnsupportedOperationException("Wrong definition of number of attributes");
+    }
 
     List<String> indexList = new ArrayList<>();
-
-    int MaxRecursion = 100;
+    int debuggerID = 1;
 
     int nNodes = random.nextInt(dimension / 3, dimension - 2);
 
@@ -43,18 +42,15 @@ public class FfnnAnalysis {
 
     for (int i = 0; i < nNodes; ++i) {
       int index = random.nextInt(0, alphabet.size());
-      int check = 0;
-      while (indexList.contains(Integer.toString(index)) & check <= MaxRecursion) {
-        index = random.nextInt(0, alphabet.size());
-        ++check;
-      }
-      if (check == MaxRecursion) {
-        continue;
+      String nodeID = alphabet.get(index);
+
+      if (indexList.contains(Integer.toString(index))) {
+        nodeID += debuggerID;
+        debuggerID++;
       }
       indexList.add(Integer.toString(index));
-      nodeID = alphabet.get(index);
 
-      layer = random.nextInt(0, maxLayer + 1);
+      int layer = random.nextInt(0, maxLayer + 1);
 
       if (i == 1) {
         layer = 1;
@@ -63,10 +59,8 @@ public class FfnnAnalysis {
       if (layer == maxLayer) {
         maxLayer += 1;
       }
-      node = Arrays.asList("node_id(" + nodeID + ")", "layer(" + nodeID + "," + layer + ")");
       nodesAndLayers.get(layer).add(nodeID);
-
-      allNodes.add(node);
+      allNodes.add(Arrays.asList("node_id(" + nodeID + ")", "layer(" + nodeID + "," + layer + ")"));
     }
 
     for (int reverseIndex = nodesAndLayers.size() - 1; reverseIndex >= 0; reverseIndex--) {
@@ -82,41 +76,36 @@ public class FfnnAnalysis {
     int debugger = 1;
 
     for (int j = 0; j < (dimension - nNodes); ++j) {
-      String sourceID;
-      String targetID;
-      double weight;
-
       int sourceLayer = 0;
       if (nodesAndLayers.size() > 1) {
         sourceLayer = random.nextInt(0, nodesAndLayers.size() - 1);
       }
 
       List<String> sourceRange = nodesAndLayers.get(sourceLayer);
-      sourceID = sourceRange.get(random.nextInt(0, sourceRange.size()));
+      String sourceID = sourceRange.get(random.nextInt(0, sourceRange.size()));
 
       List<String> targetRange = nodesAndLayers.get(sourceLayer + 1);
-      targetID = targetRange.get(random.nextInt(0, targetRange.size()));
+      String targetID = targetRange.get(random.nextInt(0, targetRange.size()));
 
-      edgeID = sourceID + targetID;
+      String edgeID = sourceID + targetID;
       if (edgeIDs.contains(edgeID)) {
         edgeID = sourceID + targetID + debugger;
         debugger += 1;
       }
       edgeIDs.add(edgeID);
 
-      weight = random.nextDouble(0, 1);
-      edge = Arrays.asList("edge_id(" + edgeID + ")", "edge(" + sourceID + "," + targetID + "," + edgeID + ")", "weight(" + edgeID + "," + weight + ")");
-      allEdges.add(edge);
+      double weight = random.nextDouble(0, 1);
+      allEdges.add(Arrays.asList("edge_id(" + edgeID + ")", "edge(" + sourceID + "," + targetID + "," + edgeID + ")", "weight(" + edgeID + "," + weight + ")"));
     }
 
     List<String> graphDescription = new ArrayList<>();
-    for (int j = 0; j < 2; ++j) {
+    for (int j = 0; j < nNodeAttributes; ++j) {
       for (List<String> oneNode : allNodes) {
         graphDescription.add(oneNode.get(j));
       }
     }
 
-    for (int j = 0; j < 3; ++j) {
+    for (int j = 0; j < nArcAttributes; ++j) {
       for (List<String> oneEdge : allEdges) {
         graphDescription.add(oneEdge.get(j));
       }
@@ -134,7 +123,7 @@ public class FfnnAnalysis {
     PrologGraph graph;
     for (int i = 0; i < nGraphs; ++i) {
       BasicGraphsAnalysis.resetProlog(factsNames);
-      graph = generateGraph(dimension, domainDefinition);
+      graph = generateFfnnGraph(dimension, domainDefinition);
 
       for (int j = 0; j < nOperations; ++j) {
         LinkedHashMap<String, Object> observation = new LinkedHashMap<>();
