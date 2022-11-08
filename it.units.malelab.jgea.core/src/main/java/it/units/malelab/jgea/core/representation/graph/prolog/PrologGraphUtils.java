@@ -145,8 +145,6 @@ public class PrologGraphUtils {
       Variable V = new Variable("V");
       for (String attribute : nodesFactsNames.subList(1, nodesFactsNames.size())) { // iterating through attributes
         Object value = Query.oneSolution(attribute, new Term[]{new Atom(oneNodeID), V}).get("V");
-//        String query = attribute + "(" + oneNodeID + ",X)";
-//        Object value = Query.oneSolution(query).get("X");
         nodeMap.put(attribute, value);
       }
       nodesCollection.add(nodeMap);
@@ -210,14 +208,13 @@ public class PrologGraphUtils {
     }
 
     // assert domainStructuralRules -> PROBLEM WHEN GRAPH IS EMPTY
-//    if (!domainStatus.equals(domainStructuralRules)) { // with IF it goes slower... wtf
-      retractRules(domainStatus); // retract previous ones
-      domainStatus = domainStructuralRules;
-      for (String rule : domainStructuralRules) {
-        rule = rule.replace(".", "");
-        Query.hasSolution("assert((" + rule + "))");
-      }
-//    }
+    retractRules(domainStatus); // retract previous ones
+    domainStatus = domainStructuralRules;
+    for (String rule : domainStructuralRules) {
+      rule = rule.replace(".", "");
+      Query.hasSolution("assert((" + rule + "))");
+    }
+
 
     // apply operator
     try {
@@ -236,10 +233,15 @@ public class PrologGraphUtils {
     if (!rulesCheck.contains("is_valid:-"))
       Query.hasSolution("assert(( is_valid :- true )).");
 
-
     // check validity (updated)
     if (!Query.hasSolution("is_valid")) {
       return parent;
+    }
+    // ev. check second validity
+    if (rulesCheck.contains("is_valid2")) {
+      if (!Query.hasSolution("is_valid2")) {
+        return parent;
+      }
     }
     return buildGraph(domainDefinition);
   }

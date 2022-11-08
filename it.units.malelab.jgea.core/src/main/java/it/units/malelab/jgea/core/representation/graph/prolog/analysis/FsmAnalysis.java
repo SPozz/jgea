@@ -1,5 +1,7 @@
-package it.units.malelab.jgea.core.representation.graph.prolog;
+package it.units.malelab.jgea.core.representation.graph.prolog.analysis;
 
+import it.units.malelab.jgea.core.representation.graph.prolog.PrologGraph;
+import it.units.malelab.jgea.core.representation.graph.prolog.PrologGraphUtils;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.jpl7.Query;

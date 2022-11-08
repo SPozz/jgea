@@ -1,5 +1,7 @@
-package it.units.malelab.jgea.core.representation.graph.prolog;
+package it.units.malelab.jgea.core.representation.graph.prolog.analysis;
 
+import it.units.malelab.jgea.core.representation.graph.prolog.PrologGraph;
+import it.units.malelab.jgea.core.representation.graph.prolog.PrologGraphUtils;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.jpl7.Query;
@@ -193,32 +195,12 @@ public class TwitterAnalysis {
             "retract_list([X|Xs],P,S) :- Z=.. [P,X,S], retract(Z), retract_list(Xs,P,S).",
             "retract_list([],_,S) :- true.",
             "tweet_indeg(T) :- findall(S, (edge(S,T,X),action(X,post)), Sources), length(Sources,1).",
-
-//            "tweet_edg :- findall(T, (edge(_,T,X), type(T,tweet), action(X, post)),IndegOne), " +
-//                    "    findall(T, type(T,tweet), Tweet)," +
-//                    "    length(Tweet,L), " +
-//                    "    length(IndegOne,M)," +
-//                    "    L == M.",
-//            "is_valid_prep :- tweet_edg.",
-
-            "is_valid_prep :- foreach(findall(T,(node_id(T),type(T,tweet)),Tweets), maplist(tweet_indeg,Tweets)).",
-
             "is_valid :- foreach(findall(E,(edge_id(E),action(E,cite)),E1), maplist(cite_check,E1))," +
                     "   foreach(findall(E,(edge_id(E),action(E,post)),E2), maplist(post_check,E2))," +
                     "   foreach(findall(E,(edge_id(E),action(E,retweet)),E3), maplist(retweet_check,E3))," +
-                    "   foreach(findall(E,(edge_id(E),action(E,follows)),E4), maplist(follows_check,E4))"
-//                    + "," +
-//                    "   foreach(findall(T,(node_id(T),type(T,tweet)),Tweets), maplist(tweet_indeg,Tweets))"
-//                    "tweet_edg"
-                    + "."
-
-            // IF I SPLIT INTO TWO QUERIES IT WORKS
-            // IF I SPLIT INTO TWO VALIDITY PREDICATES AND ONE CALLING THEM, DOESN'T WORK.
-            // CHG PREDICATE DOES NOT WORK
-
+                    "   foreach(findall(E,(edge_id(E),action(E,follows)),E4), maplist(follows_check,E4)).",
+            "is_valid2 :- foreach(findall(T,(node_id(T),type(T,tweet)),Tweets), maplist(tweet_indeg,Tweets))."
     );
-
-//    System.out.println("DEBUG. Remark that last condition is not active");
 
     List<String> factsNames = Arrays.asList("node_id/1", "type/2", "edge_id/1", "edge/3", "action/2");
 
@@ -370,6 +352,8 @@ public class TwitterAnalysis {
       }
     }
 
+
   }
+
 
 }
