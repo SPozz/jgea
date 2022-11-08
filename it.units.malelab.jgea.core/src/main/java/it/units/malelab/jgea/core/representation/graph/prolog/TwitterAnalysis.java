@@ -14,57 +14,57 @@ import java.util.*;
 
 public class TwitterAnalysis {
 
-  static PrologGraph generateGraph(int dimension, List<String> domainDefinition, List<String> structuralRules) {
+  static PrologGraph generateTwitterGraph(int dimension, List<String> domainDefinition) {
     //RMK: this is NOT error-safe, but it is ok for our purpose
     Random random = new Random();
 
     List<String> alphabet = Arrays.asList("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z");
-    List<String> node;
-    List<String> edge;
     List<List<String>> allNodes = new ArrayList<>();
     List<List<String>> allEdges = new ArrayList<>();
     List<String> userIDS = new ArrayList<>();
     List<String> tweetIDS = new ArrayList<>();
 
-    String type;
-    String nodeID;
-    String source;
-    String target;
-    String edgeID;
-    String action;
-    int MaxRecursion = 50;
+    // Attributes for graph
+    int nNodeAttributes = 2; // including ID
+    int nArcAttributes = 3; // including id and edge
+    if ((nArcAttributes + nNodeAttributes) != domainDefinition.size()) {
+      throw new UnsupportedOperationException("Wrong definition of number of attributes");
+    }
 
     List<String> indexList = new ArrayList<>();
+    int debuggerID = 1;
 
     int nNodes = random.nextInt(dimension / 3, dimension / 2);
     for (int i = 0; i < nNodes; ++i) {
-      int check = 0;
       int index = random.nextInt(0, alphabet.size());
-      while (indexList.contains(Integer.toString(index)) & check <= MaxRecursion) {
-        index = random.nextInt(0, alphabet.size());
-        ++check;
-      }
-      if (check == MaxRecursion) {
-        continue;
+
+      String nodeID = alphabet.get(index);
+      if (indexList.contains(Integer.toString(index))) {
+        nodeID += debuggerID;
+        debuggerID++;
       }
       indexList.add(Integer.toString(index));
-      nodeID = alphabet.get(index);
-      type = Arrays.asList("user", "tweet").get(random.nextInt(0, 2));
+
+      String type = Arrays.asList("user", "tweet").get(random.nextInt(0, 2));
       if (i == 0) {
         type = "user";
       } else if (i == 1) {
         type = "tweet";
       }
-      node = Arrays.asList("node_id(" + nodeID + ")", "type(" + nodeID + "," + type + ")");
       if (type.equals("user")) {
         userIDS.add(nodeID);
       } else if (type.equals("tweet")) {
         tweetIDS.add(nodeID);
       } else
         throw new RuntimeException("something wrong");
-      allNodes.add(node);
+
+      allNodes.add(Arrays.asList("node_id(" + nodeID + ")", "type(" + nodeID + "," + type + ")"));
     }
 
+    String source;
+    String target;
+    String action;
+    String edgeID;
     int counter = 0;
     if (!userIDS.isEmpty()) {
       for (String tweet : tweetIDS) {
@@ -72,16 +72,16 @@ public class TwitterAnalysis {
         target = tweet;
         edgeID = source + target;
         action = "post";
-        edge = Arrays.asList("edge_id(" + edgeID + ")", "edge(" + source + "," + target + "," + edgeID + ")", "action(" + edgeID + "," + action + ")");
-        allEdges.add(edge);
+        allEdges.add(Arrays.asList("edge_id(" + edgeID + ")", "edge(" + source + "," + target + "," + edgeID + ")", "action(" + edgeID + "," + action + ")"));
         counter += 1;
       }
     }
 
-    int check2 = 0;
+    int MaxRecursion = 50;
+    int iteration = 0;
     List<String> edgeIDs = new ArrayList<>();
     for (int j = 0; j < (dimension - nNodes - counter); ++j) {
-      if (check2 == MaxRecursion) {
+      if (iteration == MaxRecursion) {
         break;
       }
       List<String> sourceType = Arrays.asList(userIDS, tweetIDS).get(random.nextInt(0, 2));
@@ -93,7 +93,7 @@ public class TwitterAnalysis {
       } else if (sourceType.equals(userIDS) & targetType.equals(tweetIDS)) {
         action = "retweet";
       } else {
-        ++check2;
+        ++iteration;
         --j;
         continue;
       }
@@ -102,28 +102,27 @@ public class TwitterAnalysis {
       target = targetType.get(random.nextInt(0, targetType.size()));
       edgeID = source + target;
       if (source.equals(target)) {
-        ++check2;
+        ++iteration;
         --j;
         continue;
       }
       if (edgeIDs.contains(edgeID)) {
-        ++check2;
+        ++iteration;
         --j;
         continue;
       }
       edgeIDs.add(edgeID);
-      edge = Arrays.asList("edge_id(" + edgeID + ")", "edge(" + source + "," + target + "," + edgeID + ")", "action(" + edgeID + "," + action + ")");
-      allEdges.add(edge);
+      allEdges.add(Arrays.asList("edge_id(" + edgeID + ")", "edge(" + source + "," + target + "," + edgeID + ")", "action(" + edgeID + "," + action + ")"));
     }
 
     List<String> graphDescription = new ArrayList<>();
-    for (int j = 0; j < 2; ++j) {
+    for (int j = 0; j < nNodeAttributes; ++j) {
       for (List<String> oneNode : allNodes) {
         graphDescription.add(oneNode.get(j));
       }
     }
 
-    for (int j = 0; j < 3; ++j) {
+    for (int j = 0; j < nArcAttributes; ++j) {
       for (List<String> oneEdge : allEdges) {
         graphDescription.add(oneEdge.get(j));
       }
@@ -133,13 +132,6 @@ public class TwitterAnalysis {
       Query.hasSolution("assert(" + fact + ").");
     }
 
-
-    for (String rule : structuralRules) {
-      rule = rule.replace(".", "");
-      rule = rule.replace(" ", "");
-      Query.hasSolution("assert((" + rule + "))");
-    }
-
     return PrologGraphUtils.buildGraph(domainDefinition);
   }
 
@@ -147,8 +139,11 @@ public class TwitterAnalysis {
     List<LinkedHashMap<String, Object>> DataFrame = new ArrayList<>();
     PrologGraph graph;
     for (int i = 0; i < nGraphs; ++i) {
+//
+//      System.out.println("DEBUG. Graph " + i);
+//
       BasicGraphsAnalysis.resetProlog(factsNames);
-      graph = generateGraph(dimension, domainDefinition, structuralRules);
+      graph = generateTwitterGraph(dimension, domainDefinition);
 
       for (int j = 0; j < nOperations; ++j) {
         LinkedHashMap<String, Object> observation = new LinkedHashMap<>();
@@ -156,6 +151,9 @@ public class TwitterAnalysis {
         int randomIndex = rand.nextInt(0, operators.size());
         String randomOperator = operators.get(randomIndex);
         int previousDimension = graph.nodes().size() + graph.arcs().size();
+//
+//        System.out.println("DEBUG: applying operator " + operatorsLabels.get(randomIndex));
+//
         Instant startingInstant = Instant.now();
         graph = PrologGraphUtils.applyOperator(randomOperator, graph, domainDefinition, structuralRules);
         Instant endInstant = Instant.now();
@@ -179,7 +177,8 @@ public class TwitterAnalysis {
             ":- dynamic edge/3.",
             ":- dynamic action/2.");
 
-    List<String> structuralRules = Arrays.asList("action_value(retweet).",
+    List<String> structuralRules = Arrays.asList(
+            "action_value(retweet).",
             "action_value(post).",
             "action_value(cite).",
             "action_value(follows).",
@@ -193,17 +192,33 @@ public class TwitterAnalysis {
             "retract_list([], _) :- true.",
             "retract_list([X|Xs],P,S) :- Z=.. [P,X,S], retract(Z), retract_list(Xs,P,S).",
             "retract_list([],_,S) :- true.",
-            "tweet_indeg(T) :- findall(S, (edge(S,T,X),action(X,post)), Sources), length(Sources,1).",//chg and length
-            "is_valid :- foreach(findall(E,(edge_id(E),action(E,cite)),E), maplist(cite_check,E))," +
-                    "   foreach(findall(E,(edge_id(E),action(E,post)),E), maplist(post_check,E))," +
-                    "   foreach(findall(E,(edge_id(E),action(E,retweet)),E), maplist(retweet_check,E))," +
-                    "   foreach(findall(E,(edge_id(E),action(E,follows)),E), maplist(follows_check,E))"
+            "tweet_indeg(T) :- findall(S, (edge(S,T,X),action(X,post)), Sources), length(Sources,1).",
+
+//            "tweet_edg :- findall(T, (edge(_,T,X), type(T,tweet), action(X, post)),IndegOne), " +
+//                    "    findall(T, type(T,tweet), Tweet)," +
+//                    "    length(Tweet,L), " +
+//                    "    length(IndegOne,M)," +
+//                    "    L == M.",
+//            "is_valid_prep :- tweet_edg.",
+
+            "is_valid_prep :- foreach(findall(T,(node_id(T),type(T,tweet)),Tweets), maplist(tweet_indeg,Tweets)).",
+
+            "is_valid :- foreach(findall(E,(edge_id(E),action(E,cite)),E1), maplist(cite_check,E1))," +
+                    "   foreach(findall(E,(edge_id(E),action(E,post)),E2), maplist(post_check,E2))," +
+                    "   foreach(findall(E,(edge_id(E),action(E,retweet)),E3), maplist(retweet_check,E3))," +
+                    "   foreach(findall(E,(edge_id(E),action(E,follows)),E4), maplist(follows_check,E4))"
 //                    + "," +
-//                    "   foreach(findall(T,type(T,tweet),TweetID), maplist(tweet_indeg,TweetID))"
+//                    "   foreach(findall(T,(node_id(T),type(T,tweet)),Tweets), maplist(tweet_indeg,Tweets))"
+//                    "tweet_edg"
                     + "."
+
+            // IF I SPLIT INTO TWO QUERIES IT WORKS
+            // IF I SPLIT INTO TWO VALIDITY PREDICATES AND ONE CALLING THEM, DOESN'T WORK.
+            // CHG PREDICATE DOES NOT WORK
+
     );
 
-    System.out.println("DEBUG. Remark that last condition is not active");
+//    System.out.println("DEBUG. Remark that last condition is not active");
 
     List<String> factsNames = Arrays.asList("node_id/1", "type/2", "edge_id/1", "edge/3", "action/2");
 
@@ -322,7 +337,7 @@ public class TwitterAnalysis {
     dimension = 55;
     List<LinkedHashMap<String, Object>> DataFrame55 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
 
-    String[] files = {"Dataframe10.csv", "Dataframe25.csv", "Dataframe40.csv","Dataframe55.csv"};
+    String[] files = {"Dataframe10.csv", "Dataframe25.csv", "Dataframe40.csv", "Dataframe55.csv"};
     List<List<LinkedHashMap<String, Object>>> dfCollection = new ArrayList<>();
     dfCollection.add(DataFrame10);
     dfCollection.add(DataFrame25);
@@ -330,7 +345,7 @@ public class TwitterAnalysis {
     dfCollection.add(DataFrame55);
 
     for (int i = 0; i < dfCollection.size(); ++i) {
-      String fileName = "Twitter" + files[i];
+      String fileName = "TwitterComplete" + files[i];
       List<LinkedHashMap<String, Object>> df = dfCollection.get(i);
 
       try {
@@ -354,7 +369,6 @@ public class TwitterAnalysis {
         ex.printStackTrace();
       }
     }
-
 
   }
 
