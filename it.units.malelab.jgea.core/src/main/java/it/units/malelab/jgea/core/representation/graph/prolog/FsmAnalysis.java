@@ -14,39 +14,35 @@ import java.util.*;
 
 public class FsmAnalysis {
 
-  static PrologGraph generateGraph(int dimension, List<String> domainDefinition, List<String> structuralRules) {
+  static PrologGraph generateFSMGraph(int dimension, List<String> domainDefinition) {
     Random random = new Random();
 
     List<String> alphabet = Arrays.asList("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z");
-    List<String> node;
-    List<String> edge;
     List<List<String>> allNodes = new ArrayList<>();
     List<List<String>> allEdges = new ArrayList<>();
     List<String> nodesIDS = new ArrayList<>();
 
+    // Attributes for graph
+    int nNodeAttributes = 3; // including ID
+    int nArcAttributes = 3; // including id and edge
+    if ((nArcAttributes + nNodeAttributes) != domainDefinition.size()){
+      throw new UnsupportedOperationException("Wrong definition of number of attributes");
+    }
 
-    String nodeID;
-    String source;
-    String target;
-    String edgeID;
     List<String> indexList = new ArrayList<>();
-
-    int MaxRecursion = 100;
+    int debuggerID = 1;
 
     int nNodes = dimension / 3;
 
     for (int i = 0; i < nNodes; ++i) {
       int index = random.nextInt(0, alphabet.size());
-      int check = 0;
-      while (indexList.contains(Integer.toString(index)) & check <= MaxRecursion) {
-        index = random.nextInt(0, alphabet.size());
-        ++check;
-      }
-      if (check == MaxRecursion) {
-        continue;
+      String nodeID = alphabet.get(index);
+
+      if (indexList.contains(Integer.toString(index))) {
+        nodeID += debuggerID;
+        debuggerID++;
       }
       indexList.add(Integer.toString(index));
-      nodeID = alphabet.get(index);
       nodesIDS.add(nodeID);
 
       int start = 0;
@@ -55,29 +51,24 @@ public class FsmAnalysis {
       }
       int accepting = random.nextInt(0, 2);
 
-      node = Arrays.asList("node_id(" + nodeID + ")", "start(" + nodeID + "," + start + ")", "accepting(" + nodeID + "," + accepting + ")");
-      allNodes.add(node);
+      allNodes.add(Arrays.asList("node_id(" + nodeID + ")", "start(" + nodeID + "," + start + ")", "accepting(" + nodeID + "," + accepting + ")"));
     }
 
     List<String> edgeIDs = new ArrayList<>();
-    for (String oneNode : nodesIDS) {
+    for (String source : nodesIDS) {
       for (int h = 0; h < 2; ++h) {
-        source = oneNode;
-        target = nodesIDS.get(random.nextInt(0, nodesIDS.size()));
-        edgeID = source + target;
+        String target = nodesIDS.get(random.nextInt(0, nodesIDS.size()));
+        String edgeID = source + target;
 
-        int iteration = 0;
-        while (edgeIDs.contains(edgeID) & iteration < MaxRecursion) {
-          target = nodesIDS.get(random.nextInt(0, nodesIDS.size()));
-          edgeID = source + target;
-          iteration++;
+        if (edgeIDs.contains(edgeID)) {
+          edgeID += debuggerID;
+          debuggerID++;
         }
-
         edgeIDs.add(edgeID);
 
         int input = random.nextInt(0, 2);
-        edge = Arrays.asList("edge_id(" + edgeID + ")", "edge(" + source + "," + target + "," + edgeID + ")", "input(" + edgeID + "," + input + ")");
-        allEdges.add(edge);
+
+        allEdges.add(Arrays.asList("edge_id(" + edgeID + ")", "edge(" + source + "," + target + "," + edgeID + ")", "input(" + edgeID + "," + input + ")"));
       }
     }
 
@@ -98,12 +89,6 @@ public class FsmAnalysis {
       Query.hasSolution("assert(" + fact + ").");
     }
 
-    for (String rule : structuralRules) {
-      rule = rule.replace(".", "");
-      rule = rule.replace(" ", "");
-      Query.hasSolution("assert((" + rule + "))");
-    }
-
     return PrologGraphUtils.buildGraph(domainDefinition);
   }
 
@@ -113,7 +98,7 @@ public class FsmAnalysis {
     PrologGraph graph;
     for (int i = 0; i < nGraphs; ++i) {
       BasicGraphsAnalysis.resetProlog(factsNames);
-      graph = generateGraph(dimension, domainDefinition, structuralRules);
+      graph = generateFSMGraph(dimension, domainDefinition);
 
       for (int j = 0; j < nOperations; ++j) {
         LinkedHashMap<String, Object> observation = new LinkedHashMap<>();
