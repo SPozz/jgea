@@ -22,13 +22,19 @@ public class TreeAnalysis {
     List<String> typeValue = Arrays.asList("operator", "variable");
     List<String> operandValue = Arrays.asList("plus", "dot", "minus");
 
-    List<String> node;
-    List<String> edge;
     List<List<String>> allNodes = new ArrayList<>();
     List<List<String>> allEdges = new ArrayList<>();
     List<String> edgeIDs = new ArrayList<>();
 
+    // Attributes for graph
+    int nNodeAttributes = 4; // including ID
+    int nArcAttributes = 2; // including id and edge
+    if ((nArcAttributes + nNodeAttributes) != domainDefinition.size()){
+      throw new UnsupportedOperationException("Wrong definition of number of attributes");
+    }
+
     List<String> indexList = new ArrayList<>();
+    int debuggerID = 1;
 
     int tmpDimension = 1;
 
@@ -39,8 +45,7 @@ public class TreeAnalysis {
     int index = random.nextInt(0, alphabet.size());
     indexList.add(Integer.toString(index));
     String nodeID = alphabet.get(index);
-    node = Arrays.asList("node_id(" + nodeID + ")", "start(" + nodeID + "," + start + ")", "type(" + nodeID + "," + type + ")", "value(" + nodeID + "," + value + ")");
-    allNodes.add(node);
+    allNodes.add(Arrays.asList("node_id(" + nodeID + ")", "start(" + nodeID + "," + start + ")", "type(" + nodeID + "," + type + ")", "value(" + nodeID + "," + value + ")"));
     tmpDimension += 1;
 
 
@@ -48,7 +53,6 @@ public class TreeAnalysis {
     invalidNodes.add(nodeID);
 
     start = 0;
-    int debugger = 1;
     while (!invalidNodes.isEmpty() && tmpDimension < dimension / 2) {
       String sourceID = invalidNodes.get(random.nextInt(0, invalidNodes.size()));
 
@@ -57,28 +61,26 @@ public class TreeAnalysis {
       nodeID = alphabet.get(index);
 
       if (indexList.contains(Integer.toString(index))) {
-        nodeID += debugger;
-        debugger++;
+        nodeID += debuggerID;
+        debuggerID++;
       }
       indexList.add(Integer.toString(index));
 
       type = "operator";
       value = operandValue.get(random.nextInt(0, operandValue.size()));
-      node = Arrays.asList("node_id(" + nodeID + ")", "start(" + nodeID + "," + start + ")", "type(" + nodeID + "," + type + ")", "value(" + nodeID + "," + value + ")");
 
-      allNodes.add(node);
+      allNodes.add(Arrays.asList("node_id(" + nodeID + ")", "start(" + nodeID + "," + start + ")", "type(" + nodeID + "," + type + ")", "value(" + nodeID + "," + value + ")"));
       tmpDimension++;
       invalidNodes.add(nodeID);
 
       // add edge
       String edgeID = sourceID + nodeID;
       if (edgeIDs.contains(edgeID)) {
-        edgeID += debugger;
-        debugger++;
+        edgeID += debuggerID;
+        debuggerID++;
       }
       edgeIDs.add(edgeID);
-      edge = Arrays.asList("edge_id(" + edgeID + ")", "edge(" + sourceID + "," + nodeID + "," + edgeID + ")");
-      allEdges.add(edge);
+      allEdges.add(Arrays.asList("edge_id(" + edgeID + ")", "edge(" + sourceID + "," + nodeID + "," + edgeID + ")"));
       tmpDimension++;
 
 
@@ -87,8 +89,8 @@ public class TreeAnalysis {
       nodeID = alphabet.get(index);
 
       if (indexList.contains(Integer.toString(index))) {
-        nodeID += debugger;
-        debugger++;
+        nodeID += debuggerID;
+        debuggerID++;
       }
       indexList.add(Integer.toString(index));
 
@@ -99,20 +101,18 @@ public class TreeAnalysis {
       } else {
         value = Integer.toString(random.nextInt(0, 10));
       }
-      node = Arrays.asList("node_id(" + nodeID + ")", "start(" + nodeID + "," + start + ")", "type(" + nodeID + "," + type + ")", "value(" + nodeID + "," + value + ")");
 
-      allNodes.add(node);
+      allNodes.add(Arrays.asList("node_id(" + nodeID + ")", "start(" + nodeID + "," + start + ")", "type(" + nodeID + "," + type + ")", "value(" + nodeID + "," + value + ")"));
       tmpDimension++;
 
       // add edge
       edgeID = sourceID + nodeID;
       if (edgeIDs.contains(edgeID)) {
-        edgeID += debugger;
-        debugger++;
+        edgeID += debuggerID;
+        debuggerID++;
       }
       edgeIDs.add(edgeID);
-      edge = Arrays.asList("edge_id(" + edgeID + ")", "edge(" + sourceID + "," + nodeID + "," + edgeID + ")");
-      allEdges.add(edge);
+      allEdges.add(Arrays.asList("edge_id(" + edgeID + ")", "edge(" + sourceID + "," + nodeID + "," + edgeID + ")"));
       tmpDimension++;
 
       invalidNodes.remove(sourceID);
@@ -141,13 +141,13 @@ public class TreeAnalysis {
     }
 
     List<String> graphDescription = new ArrayList<>();
-    for (int j = 0; j < 4; ++j) {
+    for (int j = 0; j < nNodeAttributes; ++j) {
       for (List<String> oneNode : allNodes) {
         graphDescription.add(oneNode.get(j));
       }
     }
 
-    for (int j = 0; j < 2; ++j) {
+    for (int j = 0; j < nArcAttributes; ++j) {
       for (List<String> oneEdge : allEdges) {
         graphDescription.add(oneEdge.get(j));
       }
