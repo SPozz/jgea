@@ -14,72 +14,64 @@ import java.util.*;
 
 public class BasicGraphsAnalysis {
 
-  static PrologGraph generateGraph(int dimension, List<String> domainDefinition, List<String> structuralRules) {
+  static PrologGraph generateBasicGraph(int dimension, List<String> domainDefinition) {
     Random random = new Random();
 
     List<String> alphabet = Arrays.asList("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z");
     List<String> colours = Arrays.asList("red", "blue", "yellow", "orange", "green");
-    List<String> node;
-    List<String> edge;
     List<List<String>> allNodes = new ArrayList<>();
     List<List<String>> allEdges = new ArrayList<>();
     List<String> nodesIDS = new ArrayList<>();
 
+    // Attributes for graph
+    int nNodeAttributes = 2; // including ID
+    int nArcAttributes = 3; // including id and edge
+    if ((nArcAttributes + nNodeAttributes) != domainDefinition.size()){
+      throw new UnsupportedOperationException("Wrong definition of number of attributes");
+    }
 
-    double value;
-    String nodeID;
-    String source;
-    String target;
-    String edgeID;
-    String colour;
     List<String> indexList = new ArrayList<>();
-
-    int MaxRecursion = 100;
+    int debuggerID = 1;
 
     int nNodes = random.nextInt(dimension / 2, dimension - 1);
 
     for (int i = 0; i < nNodes; ++i) {
       int index = random.nextInt(0, alphabet.size());
-      int check = 0;
-      while (indexList.contains(Integer.toString(index)) & check <= MaxRecursion) {
-        index = random.nextInt(0, alphabet.size());
-        ++check;
-      }
-      if (check == MaxRecursion) {
-        continue;
+      String nodeID = alphabet.get(index);
+
+      if (indexList.contains(Integer.toString(index))) {
+        nodeID += debuggerID;
+        debuggerID++;
       }
       indexList.add(Integer.toString(index));
-      nodeID = alphabet.get(index);
 
-      value = random.nextDouble(0, 1);
-      node = Arrays.asList("node_id(" + nodeID + ")", "attribute(" + nodeID + "," + value + ")");
+      double value = random.nextDouble(0, 1);
       nodesIDS.add(nodeID);
-      allNodes.add(node);
+      allNodes.add(Arrays.asList("node_id(" + nodeID + ")", "attribute(" + nodeID + "," + value + ")"));
     }
 
     List<String> edgeIDs = new ArrayList<>();
     for (int j = 0; j < (dimension - nNodes); ++j) {
-      source = nodesIDS.get(random.nextInt(0, nodesIDS.size()));
-      target = nodesIDS.get(random.nextInt(0, nodesIDS.size()));
-      edgeID = source + target;
+      String source = nodesIDS.get(random.nextInt(0, nodesIDS.size()));
+      String target = nodesIDS.get(random.nextInt(0, nodesIDS.size()));
+      String edgeID = source + target;
       if (edgeIDs.contains(edgeID)) {
-        --j;
-        continue;
+        edgeID += debuggerID;
+        debuggerID++;
       }
       edgeIDs.add(edgeID);
-      colour = colours.get(random.nextInt(0, colours.size()));
-      edge = Arrays.asList("edge_id(" + edgeID + ")", "edge(" + source + "," + target + "," + edgeID + ")", "colour(" + edgeID + "," + colour + ")");
-      allEdges.add(edge);
+      String colour = colours.get(random.nextInt(0, colours.size()));
+      allEdges.add(Arrays.asList("edge_id(" + edgeID + ")", "edge(" + source + "," + target + "," + edgeID + ")", "colour(" + edgeID + "," + colour + ")"));
     }
 
     List<String> graphDescription = new ArrayList<>();
-    for (int j = 0; j < 2; ++j) {
+    for (int j = 0; j < nNodeAttributes ; ++j) {
       for (List<String> oneNode : allNodes) {
         graphDescription.add(oneNode.get(j));
       }
     }
 
-    for (int j = 0; j < 3; ++j) {
+    for (int j = 0; j < nArcAttributes; ++j) {
       for (List<String> oneEdge : allEdges) {
         graphDescription.add(oneEdge.get(j));
       }
@@ -87,12 +79,6 @@ public class BasicGraphsAnalysis {
 
     for (String fact : graphDescription) {
       Query.hasSolution("assert(" + fact + ").");
-    }
-
-    for (String rule : structuralRules) {
-      rule = rule.replace(".", "");
-      rule = rule.replace(" ", "");
-      Query.hasSolution("assert((" + rule + "))");
     }
 
     return PrologGraphUtils.buildGraph(domainDefinition);
@@ -110,7 +96,7 @@ public class BasicGraphsAnalysis {
     PrologGraph graph;
     for (int i = 0; i < nGraphs; ++i) {
       resetProlog(factsNames);
-      graph = generateGraph(dimension, domainDefinition, structuralRules);
+      graph = generateBasicGraph(dimension, domainDefinition);
 
       for (int j = 0; j < nOperations; ++j) {
         LinkedHashMap<String, Object> observation = new LinkedHashMap<>();
@@ -134,6 +120,25 @@ public class BasicGraphsAnalysis {
   }
 
   public static void main(String[] args) {
+    // Subset of the graph:
+    List<String> domainDefinition = Arrays.asList(":- dynamic node_id/1.", ":- dynamic attribute/2.", ":- dynamic edge_id/1.", ":- dynamic edge/3.", ":- dynamic colour/2.");
+
+    List<String> factsNames = Arrays.asList("node_id/1", "attribute/2", "edge_id/1", "edge/3", "colour/2");
+
+    List<String> structuralRules = Arrays.asList("is_valid :- true.",
+            "retract_list([X | Xs], P) :- " +
+                    "        Z =.. [P, X], retract(Z), retract_list(Xs, P).",
+            "retract_list([], _) :- true.",
+            "retract_list([X|Xs],P,S) :- Z=.. [P,X,S], retract(Z), retract_list(Xs,P,S).",
+            "retract_list([],_,S) :- true.",
+            "attribute_value(X) :- float(X), X =< 1, X >= 0.",
+            "colour_value(red).",
+            "colour_value(blue).",
+            "colour_value(green).",
+            "colour_value(orange).",
+            "colour_value(yellow)."
+    );
+
     // Operators' definition
     String operatorAddNodeWithAttribute = "gensym(nod,X), assert(node_id(X)), random(V), attribute_value(V), assert(attribute(X,V)).";
 
@@ -199,31 +204,12 @@ public class BasicGraphsAnalysis {
             "retract_list(ID_out,edge_id)," +
             "retractall(edge(_,N,_))," +
             "retractall(edge(N,_,_))," +
-            "retract(attribute(N,_)),"+
+            "retract(attribute(N,_))," +
             "retract(node_id(N)).";
 
 
     List<String> operators = Arrays.asList(operatorRemoveNode, operatorAddEdgeWithAttribute, operatorAddNodeWithAttribute, operatorModifyEdgeValue, operatorPerturbValue, operatorIntermediateNodeWithAttributes, operatorRemoveEdgeWithAttribute);
     List<String> operatorsLabels = Arrays.asList("removeNode", "addEdge", "addNode", "modifyEdgeValue", "perturbNodeValue", "intermediateNode", "removeEdge");
-
-    // Subset of the graph:
-    List<String> domainDefinition = Arrays.asList(":- dynamic node_id/1.", ":- dynamic attribute/2.", ":- dynamic edge_id/1.", ":- dynamic edge/3.", ":- dynamic colour/2.");
-
-    List<String> factsNames = Arrays.asList("node_id/1", "attribute/2", "edge_id/1", "edge/3", "colour/2");
-
-    List<String> structuralRules = Arrays.asList("is_valid :- true.",
-            "retract_list([X | Xs], P) :- " +
-                    "        Z =.. [P, X], retract(Z), retract_list(Xs, P).",
-            "retract_list([], _) :- true.",
-            "retract_list([X|Xs],P,S) :- Z=.. [P,X,S], retract(Z), retract_list(Xs,P,S).",
-            "retract_list([],_,S) :- true.",
-            "attribute_value(X) :- float(X), X =< 1, X >= 0.",
-            "colour_value(red).",
-            "colour_value(blue).",
-            "colour_value(green).",
-            "colour_value(orange).",
-            "colour_value(yellow)."
-    );
 
 
     // Analysis:
