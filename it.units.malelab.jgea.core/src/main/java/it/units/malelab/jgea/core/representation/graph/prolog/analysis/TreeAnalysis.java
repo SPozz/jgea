@@ -17,7 +17,7 @@ import java.util.*;
 public class TreeAnalysis {
 
 
-  static PrologGraph generateGraph(int dimension, List<String> domainDefinition) {
+  static PrologGraph generateBinaryTreeGraph(int dimension, List<String> domainDefinition) {
     Random random = new Random();
 
     List<String> alphabet = Arrays.asList("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z");
@@ -174,7 +174,7 @@ public class TreeAnalysis {
     PrologGraph graph;
     for (int i = 0; i < nGraphs; ++i) {
       resetProlog(factsNames);
-      graph = generateGraph(dimension, domainDefinition);
+      graph = generateBinaryTreeGraph(dimension, domainDefinition);
 
       for (int j = 0; j < nOperations; ++j) {
         LinkedHashMap<String, Object> observation = new LinkedHashMap<>();
