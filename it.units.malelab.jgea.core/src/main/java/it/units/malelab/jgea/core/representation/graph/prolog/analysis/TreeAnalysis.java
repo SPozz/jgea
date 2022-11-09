@@ -22,7 +22,7 @@ public class TreeAnalysis {
 
     List<String> alphabet = Arrays.asList("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z");
     List<String> typeValue = Arrays.asList("operator", "variable");
-    List<String> operandValue = Arrays.asList("addition", "division", "multiplication", "subtraction");
+    List<String> operandValue = Arrays.asList("+", "/", "*", "-");
 
     List<List<String>> allNodes = new ArrayList<>();
     List<List<String>> allEdges = new ArrayList<>();
@@ -209,10 +209,10 @@ public class TreeAnalysis {
 
     List<String> structuralRules = Arrays.asList(
             "variable_val(X) :- integer(X), X>= 0, X < 10.",
-            "operator_val(addition).",
-            "operator_val(multiplication).",
-            "operator_val(subtraction).",
-            "operator_val(division).",
+            "operator_val(+).",
+            "operator_val(*).",
+            "operator_val(-).",
+            "operator_val(/).",
             "start_indegree(T) :- findall(E, edge(_,T,E), RES), length(RES,N1), N1 == 0.",
             "node_indegree(T) :- findall(E, edge(_,T,E), RES), length(RES,N1), N1 == 1.",
             "operator_outdegree(S) :- findall(E, edge(S,_,E), RES), length(RES,N1), N1 == 2.",
