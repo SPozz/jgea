@@ -22,7 +22,7 @@ public class TreeAnalysis {
 
     List<String> alphabet = Arrays.asList("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z");
     List<String> typeValue = Arrays.asList("operator", "variable");
-    List<String> operandValue = Arrays.asList("addition", "division", "multiplication","subtraction");
+    List<String> operandValue = Arrays.asList("addition", "division", "multiplication", "subtraction");
 
     List<List<String>> allNodes = new ArrayList<>();
     List<List<String>> allEdges = new ArrayList<>();
@@ -55,7 +55,7 @@ public class TreeAnalysis {
     invalidNodes.add(nodeID);
 
     start = 0;
-    while (!invalidNodes.isEmpty() && tmpDimension < dimension / 2) {
+    while (tmpDimension < dimension - 1) {
       String sourceID = invalidNodes.get(random.nextInt(0, invalidNodes.size()));
 
       // first new node
@@ -335,7 +335,6 @@ public class TreeAnalysis {
       }
     }
 
-    //Rmk: generation doesn't work properly (dimension is way lower than expected) TODO: fix dimension of generation
 
   }
 }
