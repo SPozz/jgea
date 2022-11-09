@@ -17,7 +17,7 @@ import java.util.*;
 public class TreeAnalysis {
 
 
-  static PrologGraph generateBinaryTreeGraph(int dimension, List<String> domainDefinition) {
+  static public PrologGraph generateBinaryTreeGraph(int dimension, List<String> domainDefinition) {
     Random random = new Random();
 
     List<String> alphabet = Arrays.asList("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z");
@@ -31,7 +31,7 @@ public class TreeAnalysis {
     // Attributes for graph
     int nNodeAttributes = 4; // including ID
     int nArcAttributes = 2; // including id and edge
-    if ((nArcAttributes + nNodeAttributes) != domainDefinition.size()){
+    if ((nArcAttributes + nNodeAttributes) != domainDefinition.size()) {
       throw new UnsupportedOperationException("Wrong definition of number of attributes");
     }
 
@@ -209,9 +209,10 @@ public class TreeAnalysis {
 
     List<String> structuralRules = Arrays.asList(
             "variable_val(X) :- integer(X), X>= 0, X < 10.",
-            "operator_val(plus).",
-            "operator_val(dot).",
-            "operator_val(minus).",
+            "operator_val(addition).",
+            "operator_val(multiplication).",
+            "operator_val(subtraction).",
+            "operator_val(division).",
             "start_indegree(T) :- findall(E, edge(_,T,E), RES), length(RES,N1), N1 == 0.",
             "node_indegree(T) :- findall(E, edge(_,T,E), RES), length(RES,N1), N1 == 1.",
             "operator_outdegree(S) :- findall(E, edge(S,_,E), RES), length(RES,N1), N1 == 2.",
