@@ -35,7 +35,7 @@ public class PrologFiniteAutomatonConversion {
       DeterministicFiniteAutomaton.State source = idToState.get((String) arc.getSource().get("node_id"));
       DeterministicFiniteAutomaton.State target = idToState.get((String) arc.getTarget().get("node_id"));
       String input = prologFsm.getArcValue(arc).get("input").toString();
-      Set<String> inputSet = new HashSet<>(); // multiple set can correspond to same arc in Jgea, //todo: fix according to Prolog(?)
+      Set<String> inputSet = new HashSet<>();
       inputSet.add(input);
       intermediateGraph.setArcValue(source, target, inputSet);
     }
@@ -53,8 +53,7 @@ public class PrologFiniteAutomatonConversion {
             ":- dynamic edge/3.",
             ":- dynamic input/2.");
 
-    PrologGraph fsm = FsmAnalysis.generateFSMGraph(20, domainDefinition);
-
+    PrologGraph fsm = FsmAnalysis.generateFSMGraph(10, domainDefinition);
 
     DeterministicFiniteAutomaton<String> resultingGraph = convert(fsm);
 
