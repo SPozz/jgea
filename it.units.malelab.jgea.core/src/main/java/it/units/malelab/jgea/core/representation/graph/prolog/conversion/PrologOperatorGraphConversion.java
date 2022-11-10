@@ -34,12 +34,16 @@ public class PrologOperatorGraphConversion {
         String prologOperator = node.get("value").toString();
         prologOperator = prologOperator.replace("'", "");
         tmpNode = new OperatorNode(index, baseOperators[0]);
-        for (BaseOperator operator : baseOperators) { //can be done better(?) //TODO: check if operation is not defined in possible ones
+        int debugger = 0;
+        for (BaseOperator operator : baseOperators) {
           if (operator.toString().equals(prologOperator)) {
             tmpNode = new OperatorNode(index, operator);
             break;
           }
+          debugger++;
         }
+        if (debugger >= baseOperators.length )
+          throw new UnsupportedOperationException("operator value not matching baseOperator values");
       } else if (node.get("type").toString().equals("variable")) {
 //        String valueString = node.get("value").toString();
 //        double value = Double.parseDouble(valueString);
