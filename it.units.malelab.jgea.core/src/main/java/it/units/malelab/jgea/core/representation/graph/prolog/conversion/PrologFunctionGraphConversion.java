@@ -74,9 +74,6 @@ public class PrologFunctionGraphConversion {
     FunctionGraph resultingGraph = convert(ffnn);
     System.out.println(resultingGraph);
 
-    System.out.println("correct size conversion: "+(resultingGraph.size() == ffnn.size()));
-
-
   }
 
 }
