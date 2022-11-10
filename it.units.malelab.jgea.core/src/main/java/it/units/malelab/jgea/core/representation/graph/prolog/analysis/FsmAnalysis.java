@@ -16,7 +16,7 @@ import java.util.*;
 
 public class FsmAnalysis {
 
-  static PrologGraph generateFSMGraph(int dimension, List<String> domainDefinition) {
+  public static PrologGraph generateFSMGraph(int dimension, List<String> domainDefinition) {
     Random random = new Random();
 
     List<String> alphabet = Arrays.asList("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z");
@@ -94,7 +94,7 @@ public class FsmAnalysis {
     return PrologGraphUtils.buildGraph(domainDefinition);
   }
 
-  static List<LinkedHashMap<String, Object>> analysis(int dimension, int nGraphs, int nOperations, List<String> operators, List<String> operatorsLabels, List<String> factsNames, List<String> domainDefinition, List<String> structuralRules) {
+  private static List<LinkedHashMap<String, Object>> analysis(int dimension, int nGraphs, int nOperations, List<String> operators, List<String> operatorsLabels, List<String> factsNames, List<String> domainDefinition, List<String> structuralRules) {
     List<LinkedHashMap<String, Object>> DataFrame = new ArrayList<>();
 
     PrologGraph graph;

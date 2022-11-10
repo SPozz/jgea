@@ -16,7 +16,7 @@ import java.util.*;
 
 public class TwitterAnalysis {
 
-  static PrologGraph generateTwitterGraph(int dimension, List<String> domainDefinition) {
+  public static PrologGraph generateTwitterGraph(int dimension, List<String> domainDefinition) {
     //RMK: this is NOT error-safe, but it is ok for our purpose
     Random random = new Random();
 
@@ -137,7 +137,7 @@ public class TwitterAnalysis {
     return PrologGraphUtils.buildGraph(domainDefinition);
   }
 
-  static List<LinkedHashMap<String, Object>> analysis(int dimension, int nGraphs, int nOperations, List<String> operators, List<String> operatorsLabels, List<String> factsNames, List<String> domainDefinition, List<String> structuralRules) {
+  private static List<LinkedHashMap<String, Object>> analysis(int dimension, int nGraphs, int nOperations, List<String> operators, List<String> operatorsLabels, List<String> factsNames, List<String> domainDefinition, List<String> structuralRules) {
     List<LinkedHashMap<String, Object>> DataFrame = new ArrayList<>();
     PrologGraph graph;
     for (int i = 0; i < nGraphs; ++i) {

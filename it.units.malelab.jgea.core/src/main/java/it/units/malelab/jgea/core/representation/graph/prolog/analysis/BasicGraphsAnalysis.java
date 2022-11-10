@@ -16,7 +16,7 @@ import java.util.*;
 
 public class BasicGraphsAnalysis {
 
-  static PrologGraph generateBasicGraph(int dimension, List<String> domainDefinition) {
+  private static PrologGraph generateBasicGraph(int dimension, List<String> domainDefinition) {
     Random random = new Random();
 
     List<String> alphabet = Arrays.asList("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z");
@@ -86,13 +86,13 @@ public class BasicGraphsAnalysis {
     return PrologGraphUtils.buildGraph(domainDefinition);
   }
 
-  static public void resetProlog(List<String> factsNames) {
+  public static void resetProlog(List<String> factsNames) {
     for (String fact : factsNames) {
       Query.hasSolution("abolish(" + fact + ").");
     }
   }
 
-  static List<LinkedHashMap<String, Object>> analysis(int dimension, int nGraphs, int nOperations, List<String> operators, List<String> operatorsLabels, List<String> factsNames, List<String> domainDefinition, List<String> structuralRules) {
+  private static List<LinkedHashMap<String, Object>> analysis(int dimension, int nGraphs, int nOperations, List<String> operators, List<String> operatorsLabels, List<String> factsNames, List<String> domainDefinition, List<String> structuralRules) {
     List<LinkedHashMap<String, Object>> DataFrame = new ArrayList<>();
 
     PrologGraph graph;
