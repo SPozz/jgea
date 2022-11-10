@@ -16,7 +16,7 @@ import java.util.*;
 
 public class FsmAnalysis {
 
-  public static PrologGraph generateFSMGraph(int dimension, List<String> domainDefinition) {
+  public static PrologGraph generateFSMGraph(int dimension, List<String> domainDefinition, List<Object> inputSymbols) {
     Random random = new Random();
 
     List<String> alphabet = Arrays.asList("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z");
@@ -68,7 +68,8 @@ public class FsmAnalysis {
         }
         edgeIDs.add(edgeID);
 
-        int input = random.nextInt(0, 2);
+        int inputIndex = random.nextInt(0, inputSymbols.size());
+        Object input = inputSymbols.get(inputIndex);
 
         allEdges.add(Arrays.asList("edge_id(" + edgeID + ")", "edge(" + source + "," + target + "," + edgeID + ")", "input(" + edgeID + "," + input + ")"));
       }
@@ -100,7 +101,8 @@ public class FsmAnalysis {
     PrologGraph graph;
     for (int i = 0; i < nGraphs; ++i) {
       BasicGraphsAnalysis.resetProlog(factsNames);
-      graph = generateFSMGraph(dimension, domainDefinition);
+      List<Object> inputSymbols = Arrays.asList(0,1); //Here we defined operator for this case
+      graph = generateFSMGraph(dimension, domainDefinition,inputSymbols);
 
       for (int j = 0; j < nOperations; ++j) {
         LinkedHashMap<String, Object> observation = new LinkedHashMap<>();

@@ -11,7 +11,6 @@ import java.util.*;
 public class PrologFiniteAutomatonConversion {
 
   public static DeterministicFiniteAutomaton<String> convert(PrologGraph prologFsm) {
-
     LinkedHashGraph<DeterministicFiniteAutomaton.State, Set<String>> intermediateGraph = new LinkedHashGraph<>();
     int index = 1; //index 0 reserved for start node
     LinkedHashMap<String, DeterministicFiniteAutomaton.State> idToState = new LinkedHashMap<>();
@@ -40,7 +39,6 @@ public class PrologFiniteAutomatonConversion {
       intermediateGraph.setArcValue(source, target, inputSet);
     }
 
-
     return new DeterministicFiniteAutomaton<>(intermediateGraph);
   }
 
@@ -53,28 +51,30 @@ public class PrologFiniteAutomatonConversion {
             ":- dynamic edge/3.",
             ":- dynamic input/2.");
 
-    PrologGraph fsm = FsmAnalysis.generateFSMGraph(10, domainDefinition);
+    List<Object> inputSymbols = Arrays.asList(0, 1);
+
+    PrologGraph fsm = FsmAnalysis.generateFSMGraph(100, domainDefinition, inputSymbols);
+
     // Testing
-    LinkedHashMap<String,Object> sourceNode = new LinkedHashMap<>();
-    sourceNode.put("node_id","test111");
-    sourceNode.put("accepting",0);
-    sourceNode.put("start",0);
-    LinkedHashMap<String,Object> targetNode = new LinkedHashMap<>();
-    targetNode.put("node_id","test222");
-    targetNode.put("accepting",1);
-    targetNode.put("start",0);
+    LinkedHashMap<String, Object> sourceNode = new LinkedHashMap<>();
+    sourceNode.put("node_id", "test111");
+    sourceNode.put("accepting", 0);
+    sourceNode.put("start", 0);
+    LinkedHashMap<String, Object> targetNode = new LinkedHashMap<>();
+    targetNode.put("node_id", "test222");
+    targetNode.put("accepting", 1);
+    targetNode.put("start", 0);
 
     fsm.addNode(sourceNode);
     fsm.addNode(targetNode);
 
-    LinkedHashMap<String,Object> value = new LinkedHashMap<>();
-    value.put("edge_id","doubleEdge");
-    value.put("input",999);
-    fsm.setArcValue(sourceNode,targetNode,value);
-    value.remove("input",999);
-    value.put("input",333);
-    fsm.setArcValue(sourceNode,targetNode,value);
-
+    LinkedHashMap<String, Object> value = new LinkedHashMap<>();
+    value.put("edge_id", "doubleEdge");
+    value.put("input", 999);
+    fsm.setArcValue(sourceNode, targetNode, value);
+    value.remove("input", 999);
+    value.put("input", 333);
+    fsm.setArcValue(sourceNode, targetNode, value);
 
     System.out.println(fsm.arcs());
 
