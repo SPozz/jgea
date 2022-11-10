@@ -54,6 +54,29 @@ public class PrologFiniteAutomatonConversion {
             ":- dynamic input/2.");
 
     PrologGraph fsm = FsmAnalysis.generateFSMGraph(10, domainDefinition);
+    // Testing
+    LinkedHashMap<String,Object> sourceNode = new LinkedHashMap<>();
+    sourceNode.put("node_id","test111");
+    sourceNode.put("accepting",0);
+    sourceNode.put("start",0);
+    LinkedHashMap<String,Object> targetNode = new LinkedHashMap<>();
+    targetNode.put("node_id","test222");
+    targetNode.put("accepting",1);
+    targetNode.put("start",0);
+
+    fsm.addNode(sourceNode);
+    fsm.addNode(targetNode);
+
+    LinkedHashMap<String,Object> value = new LinkedHashMap<>();
+    value.put("edge_id","doubleEdge");
+    value.put("input",999);
+    fsm.setArcValue(sourceNode,targetNode,value);
+    value.remove("input",999);
+    value.put("input",333);
+    fsm.setArcValue(sourceNode,targetNode,value);
+
+
+    System.out.println(fsm.arcs());
 
     DeterministicFiniteAutomaton<String> resultingGraph = convert(fsm);
 
