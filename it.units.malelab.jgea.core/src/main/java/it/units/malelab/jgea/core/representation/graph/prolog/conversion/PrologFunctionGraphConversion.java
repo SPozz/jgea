@@ -38,7 +38,7 @@ public class PrologFunctionGraphConversion {
       } else if (nodeLevel == maxLevel) {
         tmpNode = new Output(index);
       } else {
-        tmpNode = new FunctionNode(index, BaseFunction.IDENTITY); //TODO: change according to actual type
+        tmpNode = new FunctionNode(index, BaseFunction.IDENTITY); //TODO: change according to actual function
       }
 
       idToNode.put(node.get("node_id").toString(), tmpNode);
@@ -69,10 +69,12 @@ public class PrologFunctionGraphConversion {
 
 
     // Generate graph
-    PrologGraph ffnn = FfnnAnalysis.generateFfnnGraph(20, domainDefinition);
+    PrologGraph ffnn = FfnnAnalysis.generateFfnnGraph(50, domainDefinition);
 
     FunctionGraph resultingGraph = convert(ffnn);
     System.out.println(resultingGraph);
+
+    System.out.println("correct size conversion: "+(resultingGraph.size() == ffnn.size()));
 
 
   }
