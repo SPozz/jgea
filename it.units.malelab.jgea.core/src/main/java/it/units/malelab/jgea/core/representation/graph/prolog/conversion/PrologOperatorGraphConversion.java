@@ -1,14 +1,15 @@
-package it.units.malelab.jgea.core.representation.graph.prolog;
-
+package it.units.malelab.jgea.core.representation.graph.prolog.conversion;
 
 import it.units.malelab.jgea.core.representation.graph.Graph;
 import it.units.malelab.jgea.core.representation.graph.LinkedHashGraph;
 import it.units.malelab.jgea.core.representation.graph.Node;
+import it.units.malelab.jgea.core.representation.graph.numeric.Constant;
 import it.units.malelab.jgea.core.representation.graph.numeric.Input;
 import it.units.malelab.jgea.core.representation.graph.numeric.Output;
 import it.units.malelab.jgea.core.representation.graph.numeric.operatorgraph.BaseOperator;
 import it.units.malelab.jgea.core.representation.graph.numeric.operatorgraph.OperatorGraph;
 import it.units.malelab.jgea.core.representation.graph.numeric.operatorgraph.OperatorNode;
+import it.units.malelab.jgea.core.representation.graph.prolog.PrologGraph;
 import it.units.malelab.jgea.core.representation.graph.prolog.analysis.TreeAnalysis;
 
 import java.util.*;
@@ -20,7 +21,6 @@ public class PrologOperatorGraphConversion {
 
     LinkedHashGraph<Node, OperatorGraph.NonValuedArc> intermediateGraph = new LinkedHashGraph<>();
     int index = 0;
-
     LinkedHashMap<String, Node> idToNode = new LinkedHashMap<>();
 
     BaseOperator[] baseOperators = new BaseOperator[]{BaseOperator.ADDITION, BaseOperator.DIVISION, BaseOperator.MULTIPLICATION, BaseOperator.SUBTRACTION};
@@ -34,14 +34,19 @@ public class PrologOperatorGraphConversion {
         String prologOperator = node.get("value").toString();
         prologOperator = prologOperator.replace("'", "");
         tmpNode = new OperatorNode(index, baseOperators[0]);
-        for (BaseOperator operator : baseOperators) { //can be done better(?)
+        for (BaseOperator operator : baseOperators) { //can be done better(?) //TODO: check if operation is not defined in possible ones
           if (operator.toString().equals(prologOperator)) {
             tmpNode = new OperatorNode(index, operator);
             break;
           }
         }
       } else if (node.get("type").toString().equals("variable")) {
+//        String valueString = node.get("value").toString();
+//        double value = Double.parseDouble(valueString);
+//        tmpNode = new Constant(index,value); //NO. constants can't have predecessors
+
         tmpNode = new Output(index);
+
       } else {
         throw new UnsupportedOperationException("Not acceptable type");
       }
@@ -70,19 +75,21 @@ public class PrologOperatorGraphConversion {
             ":- dynamic value/2.",
             ":- dynamic edge_id/1.",
             ":- dynamic edge/3.");
-    
+
+    List<String> operatorValues = Arrays.asList("+", "/", "*", "-");
+
     // Generate graph
-    PrologGraph binaryTree = TreeAnalysis.generateBinaryTreeGraph(15, domainDefinition);
-    System.out.println("\nbinary Prolog graph.\nNodes: " + binaryTree.nodes());
-    System.out.println("size before: " + binaryTree.size());
+    PrologGraph binaryTree = TreeAnalysis.generateBinaryTreeGraph(15, domainDefinition, operatorValues);
+//    System.out.println("\nbinary Prolog graph.\nNodes: " + binaryTree.nodes());
+//    System.out.println("size before: " + binaryTree.size());
 
     OperatorGraph convertedGraph = convert(binaryTree);
-    System.out.println("\nconverted graph.\nnInputs (= nStart): " + convertedGraph.nInputs() + "\nnOutputs (= nVariables): " + convertedGraph.nOutputs());
-    System.out.println("size after:  " + convertedGraph.size());
+//    System.out.println("\nconverted graph.\nnInputs (= nStart): " + convertedGraph.nInputs() + "\nnOutputs (= nVariables): " + convertedGraph.nOutputs());
+//    System.out.println("size after:  " + convertedGraph.size());
     System.out.println(convertedGraph);
 
-  }
 
+  }
 
 }
 

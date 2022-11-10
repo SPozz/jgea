@@ -17,12 +17,12 @@ import java.util.*;
 public class TreeAnalysis {
 
 
-  public static PrologGraph generateBinaryTreeGraph(int dimension, List<String> domainDefinition) {
+  public static PrologGraph generateBinaryTreeGraph(int dimension, List<String> domainDefinition, List<String> operatorValues) {
     Random random = new Random();
 
     List<String> alphabet = Arrays.asList("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z");
     List<String> typeValue = Arrays.asList("operator", "variable");
-    List<String> operandValue = Arrays.asList("+", "/", "*", "-");
+//    List<String> operatorValues = Arrays.asList("+", "/", "*", "-");
 
     List<List<String>> allNodes = new ArrayList<>();
     List<List<String>> allEdges = new ArrayList<>();
@@ -43,7 +43,7 @@ public class TreeAnalysis {
     // first node
     int start = 1;
     String type = "operator";
-    String value = operandValue.get(random.nextInt(0, operandValue.size()));
+    String value = operatorValues.get(random.nextInt(0, operatorValues.size()));
     int index = random.nextInt(0, alphabet.size());
     indexList.add(Integer.toString(index));
     String nodeID = alphabet.get(index);
@@ -69,7 +69,7 @@ public class TreeAnalysis {
       indexList.add(Integer.toString(index));
 
       type = "operator";
-      value = operandValue.get(random.nextInt(0, operandValue.size()));
+      value = operatorValues.get(random.nextInt(0, operatorValues.size()));
 
       allNodes.add(Arrays.asList("node_id(" + nodeID + ")", "start(" + nodeID + "," + start + ")", "type(" + nodeID + "," + type + ")", "value(" + nodeID + "," + value + ")"));
       tmpDimension++;
@@ -99,7 +99,7 @@ public class TreeAnalysis {
       type = typeValue.get(random.nextInt(0, typeValue.size()));
       if (type.equals("operator")) {
         invalidNodes.add(nodeID);
-        value = operandValue.get(random.nextInt(0, operandValue.size()));
+        value = operatorValues.get(random.nextInt(0, operatorValues.size()));
       } else {
         value = Integer.toString(random.nextInt(0, 10));
       }
@@ -174,7 +174,8 @@ public class TreeAnalysis {
     PrologGraph graph;
     for (int i = 0; i < nGraphs; ++i) {
       resetProlog(factsNames);
-      graph = generateBinaryTreeGraph(dimension, domainDefinition);
+      List<String> operatorValues = Arrays.asList("+", "/", "*", "-");
+      graph = generateBinaryTreeGraph(dimension, domainDefinition, operatorValues);
 
       for (int j = 0; j < nOperations; ++j) {
         LinkedHashMap<String, Object> observation = new LinkedHashMap<>();
