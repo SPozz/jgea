@@ -15,7 +15,7 @@ import java.util.*;
 
 public class FunctionGraphMapper {
 
-  public static FunctionGraph apply(PrologGraph prologFfnn) {
+  public static FunctionGraph apply(PrologGraph prologFfnn, BaseFunction function) {
     LinkedHashGraph<Node, Double> intermediateGraph = new LinkedHashGraph<>();
     int index = 0;
     LinkedHashMap<String, Node> idToNode = new LinkedHashMap<>();
@@ -33,26 +33,12 @@ public class FunctionGraphMapper {
 
       int nodeLevel = Integer.parseInt(node.get("layer").toString());
 
-      BaseFunction[] baseFunctions = new BaseFunction[]{BaseFunction.SQ, BaseFunction.RE_LU, BaseFunction.IDENTITY, BaseFunction.ABS, BaseFunction.IDENTITY, BaseFunction.EXP,
-              BaseFunction.ABS, BaseFunction.SIN, BaseFunction.STEP, BaseFunction.SAW, BaseFunction.GAUSSIAN, BaseFunction.PROT_INVERSE, BaseFunction.TANH};
-
       if (nodeLevel == minLevel) {
         tmpNode = new Input(index);
       } else if (nodeLevel == maxLevel) {
         tmpNode = new Output(index);
       } else {
-        String prologFunction = node.get("function").toString();
-        tmpNode = new FunctionNode(index, baseFunctions[0]);
-        int debugger = 0;
-        for (BaseFunction function : baseFunctions) {
-          if (function.toString().equalsIgnoreCase(prologFunction)) {
-            tmpNode = new FunctionNode(index, function);
-            break;
-          }
-          debugger++;
-        }
-        if (debugger >= baseFunctions.length)
-          throw new UnsupportedOperationException("operator value not matching baseOperator values");
+        tmpNode = new FunctionNode(index, function);
       }
 
       idToNode.put(node.get("node_id").toString(), tmpNode);
@@ -76,19 +62,20 @@ public class FunctionGraphMapper {
     List<String> domainDefinitionFunctions = Arrays.asList(
             ":- dynamic node_id/1.",
             ":- dynamic layer/2.",
-            ":- dynamic function/2.",
             ":- dynamic edge_id/1.",
             ":- dynamic edge/3.",
             ":- dynamic weight/2."
     );
-    List<String> functionsDomain = Arrays.asList("identity", "sq", "exp", "sin", "abs");
 
 
     // Generate graph
     int dimension = 20;
-    PrologGraph ffnn = FfnnAnalysis.generateFfnnGraphWithFunctions(dimension, domainDefinitionFunctions, functionsDomain);
+    PrologGraph ffnn = FfnnAnalysis.generateFfnnGraph(dimension, domainDefinitionFunctions);
 
-    FunctionGraph resultingGraph = apply(ffnn);
+    BaseFunction[] baseFunctions = new BaseFunction[]{BaseFunction.SQ, BaseFunction.RE_LU, BaseFunction.IDENTITY, BaseFunction.ABS, BaseFunction.IDENTITY, BaseFunction.EXP,
+            BaseFunction.ABS, BaseFunction.SIN, BaseFunction.STEP, BaseFunction.SAW, BaseFunction.GAUSSIAN, BaseFunction.PROT_INVERSE, BaseFunction.TANH};
+
+    FunctionGraph resultingGraph = apply(ffnn, baseFunctions[2]);
     System.out.println(resultingGraph);
 
 
