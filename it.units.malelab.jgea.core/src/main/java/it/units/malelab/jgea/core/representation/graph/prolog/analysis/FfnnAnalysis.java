@@ -171,7 +171,7 @@ public class FfnnAnalysis {
     int minLayer = 0;
 
     for (int i = 0; i < nNodes; ++i) {
-      int index = random.nextInt(0, alphabet.size());
+      final int index = random.nextInt(0, alphabet.size());
       String nodeID = alphabet.get(index);
 
       if (indexList.contains(Integer.toString(index))) {
@@ -189,7 +189,7 @@ public class FfnnAnalysis {
       if (layer == minLayer)
         countFirstLayer++;
 
-      if (i == 1) {
+      if (i == 1) { //to favor growth
         layer = 1;
       }
 
@@ -238,7 +238,7 @@ public class FfnnAnalysis {
       edgeIDs.add(edgeID);
       recursion = 1; // if previous check is passed, recursion restart
 
-      double weight = random.nextDouble(0, 1);
+      final double weight = random.nextDouble(0, 1);
       allEdges.add(Arrays.asList("edge_id(" + edgeID + ")", "edge(" + sourceID + "," + targetID + "," + edgeID + ")", "weight(" + edgeID + "," + weight + ")"));
     }
 
