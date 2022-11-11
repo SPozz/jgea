@@ -153,7 +153,7 @@ public class FfnnAnalysis {
     List<String> indexList = new ArrayList<>();
     int debuggerID = 1;
 
-    int nNodes = random.nextInt(dimension / 3, dimension - 2);
+    int nNodes = random.nextInt(dimension / 4, dimension/2 +1); // favors arcs
 
     List<List<String>> nodesAndLayers = new ArrayList<>();
     for (int i = 0; i < nNodes; ++i) {
