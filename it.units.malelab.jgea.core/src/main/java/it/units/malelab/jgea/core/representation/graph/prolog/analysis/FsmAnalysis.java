@@ -25,16 +25,16 @@ public class FsmAnalysis {
     List<String> nodesIDS = new ArrayList<>();
 
     // Attributes for graph
-    int nNodeAttributes = 3; // including ID
-    int nArcAttributes = 3; // including id and edge
-    if ((nArcAttributes + nNodeAttributes) != domainDefinition.size()){
+    final int nNodeAttributes = 3; // including ID
+    final int nArcAttributes = 3; // including id and edge
+    if ((nArcAttributes + nNodeAttributes) != domainDefinition.size()) {
       throw new UnsupportedOperationException("Wrong definition of number of attributes");
     }
 
     List<String> indexList = new ArrayList<>();
     int debuggerID = 1;
 
-    int nNodes = dimension / 3;
+    final int nNodes = dimension / 3;
 
     for (int i = 0; i < nNodes; ++i) {
       int index = random.nextInt(0, alphabet.size());
@@ -51,24 +51,31 @@ public class FsmAnalysis {
       if (i == 0) {
         start = 1;
       }
-      int accepting = random.nextInt(0, 2);
+      final int accepting = random.nextInt(0, 2);
 
       allNodes.add(Arrays.asList("node_id(" + nodeID + ")", "start(" + nodeID + "," + start + ")", "accepting(" + nodeID + "," + accepting + ")"));
     }
 
     List<String> edgeIDs = new ArrayList<>();
+    final int maxRecursion = 250;
     for (String source : nodesIDS) {
+      int recursion = 1;
       for (int h = 0; h < 2; ++h) {
+        if (recursion == maxRecursion){
+          throw new UnsupportedOperationException("maxRecursion  reached in finding NEW edge target");
+        }
         String target = nodesIDS.get(random.nextInt(0, nodesIDS.size()));
         String edgeID = source + target;
 
         if (edgeIDs.contains(edgeID)) {
-          edgeID += debuggerID;
-          debuggerID++;
+          h--;
+          recursion++;
+          continue;
         }
         edgeIDs.add(edgeID);
+        recursion =1;
 
-        int inputIndex = random.nextInt(0, inputSymbols.size());
+        final int inputIndex = random.nextInt(0, inputSymbols.size());
         Object input = inputSymbols.get(inputIndex);
 
         allEdges.add(Arrays.asList("edge_id(" + edgeID + ")", "edge(" + source + "," + target + "," + edgeID + ")", "input(" + edgeID + "," + input + ")"));
@@ -76,13 +83,13 @@ public class FsmAnalysis {
     }
 
     List<String> graphDescription = new ArrayList<>();
-    for (int j = 0; j < 3; ++j) {
+    for (int j = 0; j < nNodeAttributes; ++j) {
       for (List<String> oneNode : allNodes) {
         graphDescription.add(oneNode.get(j));
       }
     }
 
-    for (int j = 0; j < 3; ++j) {
+    for (int j = 0; j < nArcAttributes; ++j) {
       for (List<String> oneEdge : allEdges) {
         graphDescription.add(oneEdge.get(j));
       }
@@ -101,8 +108,8 @@ public class FsmAnalysis {
     PrologGraph graph;
     for (int i = 0; i < nGraphs; ++i) {
       BasicGraphsAnalysis.resetProlog(factsNames);
-      List<Object> inputSymbols = Arrays.asList(0,1); //Here we defined operator for this case
-      graph = generateFSMGraph(dimension, domainDefinition,inputSymbols);
+      List<Object> inputSymbols = Arrays.asList(0, 1); //Here we defined operator for this case
+      graph = generateFSMGraph(dimension, domainDefinition, inputSymbols);
 
       for (int j = 0; j < nOperations; ++j) {
         LinkedHashMap<String, Object> observation = new LinkedHashMap<>();
@@ -264,6 +271,5 @@ public class FsmAnalysis {
 
 
   }
-
 
 }
