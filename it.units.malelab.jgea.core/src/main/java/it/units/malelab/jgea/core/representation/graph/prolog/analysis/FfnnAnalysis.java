@@ -26,7 +26,7 @@ public class FfnnAnalysis {
     // Attributes for graph
     int nNodeAttributes = 2; // including ID
     int nArcAttributes = 3; // including id and edge
-    if ((nArcAttributes + nNodeAttributes) != domainDefinition.size()){
+    if ((nArcAttributes + nNodeAttributes) != domainDefinition.size()) {
       throw new UnsupportedOperationException("Wrong definition of number of attributes");
     }
 
@@ -119,6 +119,128 @@ public class FfnnAnalysis {
 
     return PrologGraphUtils.buildGraph(domainDefinition);
   }
+
+
+  public static PrologGraph generateFfnnGraphWithFunctions(int dimension, List<String> domainDefinition, List<String> functionsDomain) {
+    // Check attribute function is defined
+    int count = 0;
+    for (String rule : domainDefinition) {
+      rule = rule.replace(" ", "");
+      rule = rule.replace(":-dynamic", "");
+      rule = rule.replace("/2", "");
+      rule = rule.replace(".", "");
+      if (rule.equals("function"))
+        break;
+      count++;
+    }
+    if (count == domainDefinition.size()) {
+      throw new UnsupportedOperationException("attribute function is not in domainDefinition");
+    }
+
+    Random random = new Random();
+
+    List<String> alphabet = Arrays.asList("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z");
+    List<List<String>> allNodes = new ArrayList<>();
+    List<List<String>> allEdges = new ArrayList<>();
+
+    // Attributes for graph
+    int nNodeAttributes = 3; // ID, layer, function
+    int nArcAttributes = 3; // ID, edge, weight
+    if ((nArcAttributes + nNodeAttributes) != domainDefinition.size()) {
+      throw new UnsupportedOperationException("Wrong definition of number of attributes");
+    }
+
+    List<String> indexList = new ArrayList<>();
+    int debuggerID = 1;
+
+    int nNodes = random.nextInt(dimension / 3, dimension - 2);
+
+    List<List<String>> nodesAndLayers = new ArrayList<>();
+    for (int i = 0; i < nNodes; ++i) {
+      nodesAndLayers.add(new ArrayList<>());
+    }
+
+    int maxLayer = 0;
+
+    for (int i = 0; i < nNodes; ++i) {
+      int index = random.nextInt(0, alphabet.size());
+      String nodeID = alphabet.get(index);
+
+      if (indexList.contains(Integer.toString(index))) {
+        nodeID += debuggerID;
+        debuggerID++;
+      }
+      indexList.add(Integer.toString(index));
+
+      int layer = random.nextInt(0, maxLayer + 1);
+
+      if (i == 1) {
+        layer = 1;
+      }
+
+      if (layer == maxLayer) {
+        maxLayer += 1;
+      }
+      nodesAndLayers.get(layer).add(nodeID);
+
+      String functionValue = functionsDomain.get(random.nextInt(0, functionsDomain.size()));
+      allNodes.add(Arrays.asList("node_id(" + nodeID + ")", "layer(" + nodeID + "," + layer + ")","function("+nodeID+","+functionValue+")"));
+    }
+
+    for (int reverseIndex = nodesAndLayers.size() - 1; reverseIndex >= 0; reverseIndex--) {
+      if (nodesAndLayers.get(reverseIndex).isEmpty()) {
+        nodesAndLayers.remove(reverseIndex);
+      } else {
+        break;
+      }
+    }
+
+    List<String> edgeIDs = new ArrayList<>();
+    int debugger = 1;
+
+    for (int j = 0; j < (dimension - nNodes); ++j) {
+      int sourceLayer = 0;
+      if (nodesAndLayers.size() > 1) {
+        sourceLayer = random.nextInt(0, nodesAndLayers.size() - 1);
+      }
+
+      List<String> sourceRange = nodesAndLayers.get(sourceLayer);
+      String sourceID = sourceRange.get(random.nextInt(0, sourceRange.size()));
+
+      List<String> targetRange = nodesAndLayers.get(sourceLayer + 1);
+      String targetID = targetRange.get(random.nextInt(0, targetRange.size()));
+
+      String edgeID = sourceID + targetID;
+      if (edgeIDs.contains(edgeID)) {
+        edgeID = sourceID + targetID + debugger;
+        debugger += 1;
+      }
+      edgeIDs.add(edgeID);
+
+      double weight = random.nextDouble(0, 1);
+      allEdges.add(Arrays.asList("edge_id(" + edgeID + ")", "edge(" + sourceID + "," + targetID + "," + edgeID + ")", "weight(" + edgeID + "," + weight + ")"));
+    }
+
+    List<String> graphDescription = new ArrayList<>();
+    for (int j = 0; j < nNodeAttributes; ++j) {
+      for (List<String> oneNode : allNodes) {
+        graphDescription.add(oneNode.get(j));
+      }
+    }
+
+    for (int j = 0; j < nArcAttributes; ++j) {
+      for (List<String> oneEdge : allEdges) {
+        graphDescription.add(oneEdge.get(j));
+      }
+    }
+
+    for (String fact : graphDescription) {
+      Query.hasSolution("assert(" + fact + ").");
+    }
+
+    return PrologGraphUtils.buildGraph(domainDefinition);
+  }
+
 
   private static List<LinkedHashMap<String, Object>> analysis(int dimension, int nGraphs, int nOperations, List<String> operators, List<String> operatorsLabels, List<String> factsNames, List<String> domainDefinition, List<String> structuralRules) {
     List<LinkedHashMap<String, Object>> DataFrame = new ArrayList<>();
@@ -299,6 +421,19 @@ public class FfnnAnalysis {
         ex.printStackTrace();
       }
     }
+
+    // Generation with functions
+    List<String> domainDefinitionFunctions = Arrays.asList(
+            ":- dynamic node_id/1.",
+            ":- dynamic layer/2.",
+            ":- dynamic function/2.",
+            ":- dynamic edge_id/1.",
+            ":- dynamic edge/3.",
+            ":- dynamic weight/2."
+    );
+    List<String> functionsDomain = Arrays.asList("identity","sq","exp","sin","abs");
+
+    generateFfnnGraphWithFunctions(10,domainDefinitionFunctions,functionsDomain);
 
 
   }
