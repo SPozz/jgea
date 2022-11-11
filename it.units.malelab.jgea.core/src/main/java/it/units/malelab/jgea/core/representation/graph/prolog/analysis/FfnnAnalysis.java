@@ -75,10 +75,11 @@ public class FfnnAnalysis {
 
 
     List<String> edgeIDs = new ArrayList<>();
-    int recursion = 0;
+    int recursion = 1;
+    int maxRecursion = 100;
 
     for (int j = 0; j < (dimension - nNodes); ++j) {
-      if (recursion >= 250) { // limit on recursion
+      if (recursion >= maxRecursion) { // limit on recursion
         break;
       }
       int sourceLayer = 0;
@@ -99,6 +100,7 @@ public class FfnnAnalysis {
         continue;
       }
       edgeIDs.add(edgeID);
+      recursion = 1;
 
       double weight = random.nextDouble(0, 1);
       allEdges.add(Arrays.asList("edge_id(" + edgeID + ")", "edge(" + sourceID + "," + targetID + "," + edgeID + ")", "weight(" + edgeID + "," + weight + ")"));
@@ -178,7 +180,7 @@ public class FfnnAnalysis {
       }
       indexList.add(Integer.toString(index));
 
-      if (countFirstLayer >= nNodes / 3) { //to favor more layers
+      if (countFirstLayer >= (nNodes /2 )) { //to favor more layers
         minLayer++;
         countFirstLayer = 0;
       }
@@ -210,9 +212,10 @@ public class FfnnAnalysis {
 
     List<String> edgeIDs = new ArrayList<>();
 
-    int recursion = 0;
+    int recursion = 1;
+    int maxRecursion = 100;
     for (int j = 0; j < (dimension - nNodes); ++j) {
-      if (recursion >= 250) { // limit on recursion
+      if (recursion >= maxRecursion) { // limit on recursion
         break;
       }
       int sourceLayer = 0;
@@ -233,6 +236,7 @@ public class FfnnAnalysis {
         continue;
       }
       edgeIDs.add(edgeID);
+      recursion = 1; // if previous check is passed, recursion restart
 
       double weight = random.nextDouble(0, 1);
       allEdges.add(Arrays.asList("edge_id(" + edgeID + ")", "edge(" + sourceID + "," + targetID + "," + edgeID + ")", "weight(" + edgeID + "," + weight + ")"));
