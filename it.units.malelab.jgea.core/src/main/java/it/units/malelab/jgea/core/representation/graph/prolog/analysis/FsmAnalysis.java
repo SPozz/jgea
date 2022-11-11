@@ -196,7 +196,8 @@ public class FsmAnalysis {
 
     List<String> factsNames = Arrays.asList("node_id/1", "start/2", "accepting/2", "edge_id/1", "edge/3", "input/2");
 
-    List<String> structuralRules = Arrays.asList("n_input(2).",
+    List<String> structuralRules = Arrays.asList(
+            "n_input(2).",
             "input_domain(X) :- n_input(MAX), integer(X), X =< MAX -1, X >= 0.",
             "accepting_domain(X) :- integer(X), X =< 1, X >= 0.",
             "start_domain(X) :- integer(X), X =< 1, X >= 0.",
