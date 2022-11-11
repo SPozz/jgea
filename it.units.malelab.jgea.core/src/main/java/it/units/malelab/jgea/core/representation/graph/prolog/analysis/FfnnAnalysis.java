@@ -75,9 +75,12 @@ public class FfnnAnalysis {
 
 
     List<String> edgeIDs = new ArrayList<>();
-    int debugger = 1;
+    int recursion = 0;
 
     for (int j = 0; j < (dimension - nNodes); ++j) {
+      if (recursion >= 250){ // limit on recursion
+        break;
+      }
       int sourceLayer = 0;
       if (nodesAndLayers.size() > 1) {
         sourceLayer = random.nextInt(0, nodesAndLayers.size() - 1);
@@ -90,9 +93,10 @@ public class FfnnAnalysis {
       String targetID = targetRange.get(random.nextInt(0, targetRange.size()));
 
       String edgeID = sourceID + targetID;
-      if (edgeIDs.contains(edgeID)) {
-        edgeID = sourceID + targetID + debugger;
-        debugger += 1;
+      if (edgeIDs.contains(edgeID)) { //if edge already exists there, re-do. up to limit on recursion
+        --j;
+        recursion++;
+        continue;
       }
       edgeIDs.add(edgeID);
 
@@ -153,7 +157,7 @@ public class FfnnAnalysis {
     List<String> indexList = new ArrayList<>();
     int debuggerID = 1;
 
-    int nNodes = random.nextInt(dimension / 4, dimension/2 +1); // favors arcs
+    int nNodes = random.nextInt(dimension/3, dimension/2 +1); // favors arcs
 
     List<List<String>> nodesAndLayers = new ArrayList<>();
     for (int i = 0; i < nNodes; ++i) {
@@ -196,9 +200,13 @@ public class FfnnAnalysis {
     }
 
     List<String> edgeIDs = new ArrayList<>();
-    int debugger = 1;
 
+    int recursion = 0;
     for (int j = 0; j < (dimension - nNodes); ++j) {
+      if (recursion >= 250){ // limit on recursion
+        System.out.println("limit on recursion reached");
+        break;
+      }
       int sourceLayer = 0;
       if (nodesAndLayers.size() > 1) {
         sourceLayer = random.nextInt(0, nodesAndLayers.size() - 1);
@@ -211,9 +219,10 @@ public class FfnnAnalysis {
       String targetID = targetRange.get(random.nextInt(0, targetRange.size()));
 
       String edgeID = sourceID + targetID;
-      if (edgeIDs.contains(edgeID)) {
-        edgeID = sourceID + targetID + debugger;
-        debugger += 1;
+      if (edgeIDs.contains(edgeID)) { //if edge already exists there, re-do. up to limit on recursion
+        --j;
+        recursion++;
+        continue;
       }
       edgeIDs.add(edgeID);
 
@@ -373,67 +382,67 @@ public class FfnnAnalysis {
     operators.add(addFinalLayer);
     operatorsLabels.add("addFinalLayer");
 
-    // Analysis:
-    int nGraphs = 25;
-    int nOperations = 40;
-
-    int dimension = 10;
-    List<LinkedHashMap<String, Object>> DataFrame10 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
-
-    dimension = 25;
-    List<LinkedHashMap<String, Object>> DataFrame25 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
-
-    dimension = 40;
-    List<LinkedHashMap<String, Object>> DataFrame40 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
-
-    dimension = 55;
-    List<LinkedHashMap<String, Object>> DataFrame55 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
-
-    String[] files = {"Dataframe10.csv", "Dataframe25.csv", "Dataframe40.csv", "Dataframe55.csv"};
-    List<List<LinkedHashMap<String, Object>>> dfCollection = new ArrayList<>();
-    dfCollection.add(DataFrame10);
-    dfCollection.add(DataFrame25);
-    dfCollection.add(DataFrame40);
-    dfCollection.add(DataFrame55);
-
-    for (int i = 0; i < dfCollection.size(); ++i) {
-      String fileName = "FFNN" + files[i];
-      List<LinkedHashMap<String, Object>> df = dfCollection.get(i);
-
-      try {
-        // create a writer
-        Writer writer = Files.newBufferedWriter(Paths.get("C:\\Users\\Simone\\Desktop\\GitHub_Tesi\\jgea_data\\25x40\\" + fileName));
-
-        // write CSV file
-        CSVPrinter printer = CSVFormat.DEFAULT.withHeader("graph", "operator", "dimension", "executionTime").print(writer);
-
-        for (LinkedHashMap<String, Object> map : df) {
-          printer.printRecord(map.get("graph"), map.get("operator"), map.get("dimension"), map.get("executionTime"));
-        }
-
-        // flush the stream
-        printer.flush();
-
-        // close the writer
-        writer.close();
-
-      } catch (IOException ex) {
-        ex.printStackTrace();
-      }
-    }
-
-    // Generation with functions
-    List<String> domainDefinitionFunctions = Arrays.asList(
-            ":- dynamic node_id/1.",
-            ":- dynamic layer/2.",
-            ":- dynamic function/2.",
-            ":- dynamic edge_id/1.",
-            ":- dynamic edge/3.",
-            ":- dynamic weight/2."
-    );
-    List<String> functionsDomain = Arrays.asList("identity","sq","exp","sin","abs");
-
-    generateFfnnGraphWithFunctions(10,domainDefinitionFunctions,functionsDomain);
+//    // Analysis:
+//    int nGraphs = 25;
+//    int nOperations = 40;
+//
+//    int dimension = 10;
+//    List<LinkedHashMap<String, Object>> DataFrame10 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
+//
+//    dimension = 25;
+//    List<LinkedHashMap<String, Object>> DataFrame25 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
+//
+//    dimension = 40;
+//    List<LinkedHashMap<String, Object>> DataFrame40 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
+//
+//    dimension = 55;
+//    List<LinkedHashMap<String, Object>> DataFrame55 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
+//
+//    String[] files = {"Dataframe10.csv", "Dataframe25.csv", "Dataframe40.csv", "Dataframe55.csv"};
+//    List<List<LinkedHashMap<String, Object>>> dfCollection = new ArrayList<>();
+//    dfCollection.add(DataFrame10);
+//    dfCollection.add(DataFrame25);
+//    dfCollection.add(DataFrame40);
+//    dfCollection.add(DataFrame55);
+//
+//    for (int i = 0; i < dfCollection.size(); ++i) {
+//      String fileName = "FFNN" + files[i];
+//      List<LinkedHashMap<String, Object>> df = dfCollection.get(i);
+//
+//      try {
+//        // create a writer
+//        Writer writer = Files.newBufferedWriter(Paths.get("C:\\Users\\Simone\\Desktop\\GitHub_Tesi\\jgea_data\\25x40\\" + fileName));
+//
+//        // write CSV file
+//        CSVPrinter printer = CSVFormat.DEFAULT.withHeader("graph", "operator", "dimension", "executionTime").print(writer);
+//
+//        for (LinkedHashMap<String, Object> map : df) {
+//          printer.printRecord(map.get("graph"), map.get("operator"), map.get("dimension"), map.get("executionTime"));
+//        }
+//
+//        // flush the stream
+//        printer.flush();
+//
+//        // close the writer
+//        writer.close();
+//
+//      } catch (IOException ex) {
+//        ex.printStackTrace();
+//      }
+//    }
+//
+//    // Generation with functions
+//    List<String> domainDefinitionFunctions = Arrays.asList(
+//            ":- dynamic node_id/1.",
+//            ":- dynamic layer/2.",
+//            ":- dynamic function/2.",
+//            ":- dynamic edge_id/1.",
+//            ":- dynamic edge/3.",
+//            ":- dynamic weight/2."
+//    );
+//    List<String> functionsDomain = Arrays.asList("identity","sq","exp","sin","abs");
+//
+//    generateFfnnGraphWithFunctions(10,domainDefinitionFunctions,functionsDomain);
 
 
   }
