@@ -22,15 +22,14 @@ public class TreeAnalysis {
 
     List<String> alphabet = Arrays.asList("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z");
     List<String> typeValue = Arrays.asList("operator", "variable");
-//    List<String> operatorValues = Arrays.asList("+", "/", "*", "-");
 
     List<List<String>> allNodes = new ArrayList<>();
     List<List<String>> allEdges = new ArrayList<>();
     List<String> edgeIDs = new ArrayList<>();
 
     // Attributes for graph
-    int nNodeAttributes = 4; // including ID
-    int nArcAttributes = 2; // including id and edge
+    final int nNodeAttributes = 4; // including ID
+    final int nArcAttributes = 2; // including id and edge
     if ((nArcAttributes + nNodeAttributes) != domainDefinition.size()) {
       throw new UnsupportedOperationException("Wrong definition of number of attributes");
     }
@@ -108,11 +107,7 @@ public class TreeAnalysis {
       tmpDimension++;
 
       // add edge
-      edgeID = sourceID + nodeID;
-      if (edgeIDs.contains(edgeID)) {
-        edgeID += debuggerID;
-        debuggerID++;
-      }
+      edgeID = sourceID + nodeID; //always new since node is new
       edgeIDs.add(edgeID);
       allEdges.add(Arrays.asList("edge_id(" + edgeID + ")", "edge(" + sourceID + "," + nodeID + "," + edgeID + ")"));
       tmpDimension++;
@@ -265,7 +260,7 @@ public class TreeAnalysis {
             "assert(edge_id(E2))," +
             "assert(edge(V,N1,E1))," +
             "assert(edge(V,N2,E2)).";
-    operators.add(subTree); //NOT WORKING
+    operators.add(subTree);
     operatorsLabels.add("subTree");
 
     String perturbOperator = "findall(OP,type(OP,operator), Operators)," +
