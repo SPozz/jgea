@@ -27,8 +27,8 @@ public class TwitterAnalysis {
     List<String> tweetIDS = new ArrayList<>();
 
     // Attributes for graph
-    int nNodeAttributes = 2; // including ID
-    int nArcAttributes = 3; // including id and edge
+    final int nNodeAttributes = 2;  //ID, type
+    final int nArcAttributes = 3;   //ID, edge, action
     if ((nArcAttributes + nNodeAttributes) != domainDefinition.size()) {
       throw new UnsupportedOperationException("Wrong definition of number of attributes");
     }
@@ -36,7 +36,7 @@ public class TwitterAnalysis {
     List<String> indexList = new ArrayList<>();
     int debuggerID = 1;
 
-    int nNodes = random.nextInt(dimension / 3, dimension / 2);
+    final int nNodes = random.nextInt(dimension / 3, dimension / 2);
     for (int i = 0; i < nNodes; ++i) {
       int index = random.nextInt(0, alphabet.size());
 
@@ -79,11 +79,11 @@ public class TwitterAnalysis {
       }
     }
 
-    int MaxRecursion = 50;
-    int iteration = 0;
+    final int MaxRecursion = 100;
+    int recursion = 0;
     List<String> edgeIDs = new ArrayList<>();
     for (int j = 0; j < (dimension - nNodes - counter); ++j) {
-      if (iteration == MaxRecursion) {
+      if (recursion >= MaxRecursion) {
         break;
       }
       List<String> sourceType = Arrays.asList(userIDS, tweetIDS).get(random.nextInt(0, 2));
@@ -95,7 +95,7 @@ public class TwitterAnalysis {
       } else if (sourceType.equals(userIDS) & targetType.equals(tweetIDS)) {
         action = "retweet";
       } else {
-        ++iteration;
+        ++recursion;
         --j;
         continue;
       }
@@ -104,15 +104,16 @@ public class TwitterAnalysis {
       target = targetType.get(random.nextInt(0, targetType.size()));
       edgeID = source + target;
       if (source.equals(target)) {
-        ++iteration;
+        ++recursion;
         --j;
         continue;
       }
       if (edgeIDs.contains(edgeID)) {
-        ++iteration;
+        ++recursion;
         --j;
         continue;
       }
+      recursion = 0; //if doesn't enter in loop, reset
       edgeIDs.add(edgeID);
       allEdges.add(Arrays.asList("edge_id(" + edgeID + ")", "edge(" + source + "," + target + "," + edgeID + ")", "action(" + edgeID + "," + action + ")"));
     }
@@ -354,6 +355,5 @@ public class TwitterAnalysis {
 
 
   }
-
 
 }
