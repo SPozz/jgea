@@ -1,4 +1,4 @@
-package it.units.malelab.jgea.core.representation.graph.prolog.conversion;
+package it.units.malelab.jgea.core.representation.graph.prolog.mapper;
 
 import it.units.malelab.jgea.core.representation.graph.Graph;
 import it.units.malelab.jgea.core.representation.graph.LinkedHashGraph;
@@ -13,9 +13,9 @@ import it.units.malelab.jgea.core.representation.graph.prolog.analysis.FfnnAnaly
 
 import java.util.*;
 
-public class PrologFunctionGraphConversion {
+public class FunctionGraphMapper {
 
-  public static FunctionGraph convert(PrologGraph prologFfnn) {
+  public static FunctionGraph apply(PrologGraph prologFfnn) {
     LinkedHashGraph<Node, Double> intermediateGraph = new LinkedHashGraph<>();
     int index = 0;
     LinkedHashMap<String, Node> idToNode = new LinkedHashMap<>();
@@ -88,7 +88,7 @@ public class PrologFunctionGraphConversion {
     int dimension = 20;
     PrologGraph ffnn = FfnnAnalysis.generateFfnnGraphWithFunctions(dimension, domainDefinitionFunctions, functionsDomain);
 
-    FunctionGraph resultingGraph = convert(ffnn);
+    FunctionGraph resultingGraph = apply(ffnn);
     System.out.println(resultingGraph);
 
 

@@ -1,9 +1,8 @@
-package it.units.malelab.jgea.core.representation.graph.prolog.conversion;
+package it.units.malelab.jgea.core.representation.graph.prolog.mapper;
 
 import it.units.malelab.jgea.core.representation.graph.Graph;
 import it.units.malelab.jgea.core.representation.graph.LinkedHashGraph;
 import it.units.malelab.jgea.core.representation.graph.Node;
-import it.units.malelab.jgea.core.representation.graph.numeric.Constant;
 import it.units.malelab.jgea.core.representation.graph.numeric.Input;
 import it.units.malelab.jgea.core.representation.graph.numeric.Output;
 import it.units.malelab.jgea.core.representation.graph.numeric.operatorgraph.BaseOperator;
@@ -14,9 +13,9 @@ import it.units.malelab.jgea.core.representation.graph.prolog.analysis.TreeAnaly
 
 import java.util.*;
 
-public class PrologOperatorGraphConversion {
+public class OperatorGraphMapper {
 
-  public static OperatorGraph convert(PrologGraph prologTree) {
+  public static OperatorGraph apply(PrologGraph prologTree) {
     // convert Prolog Tree into Graph<Node, NonValuedArc>
 
     LinkedHashGraph<Node, OperatorGraph.NonValuedArc> intermediateGraph = new LinkedHashGraph<>();
@@ -87,7 +86,7 @@ public class PrologOperatorGraphConversion {
 //    System.out.println("\nbinary Prolog graph.\nNodes: " + binaryTree.nodes());
 //    System.out.println("size before: " + binaryTree.size());
 
-    OperatorGraph convertedGraph = convert(binaryTree);
+    OperatorGraph convertedGraph = apply(binaryTree);
 //    System.out.println("\nconverted graph.\nnInputs (= nStart): " + convertedGraph.nInputs() + "\nnOutputs (= nVariables): " + convertedGraph.nOutputs());
 //    System.out.println("size after:  " + convertedGraph.size());
     System.out.println(convertedGraph);
