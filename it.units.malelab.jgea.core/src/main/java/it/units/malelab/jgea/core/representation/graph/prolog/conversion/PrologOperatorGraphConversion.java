@@ -30,7 +30,7 @@ public class PrologOperatorGraphConversion {
 
       if (node.get("start").toString().equals("1")) {
         tmpNode = new Input(index);
-      } else if (node.get("type").toString().equals("operator")) {
+      } else if (node.get("type").toString().equalsIgnoreCase("operator")) {
         String prologOperator = node.get("value").toString();
         prologOperator = prologOperator.replace("'", "");
         tmpNode = new OperatorNode(index, baseOperators[0]);
