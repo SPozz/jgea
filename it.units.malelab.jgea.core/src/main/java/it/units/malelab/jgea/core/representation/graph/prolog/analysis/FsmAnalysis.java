@@ -102,7 +102,7 @@ public class FsmAnalysis {
     return PrologGraphUtils.buildGraph(domainDefinition);
   }
 
-  private static List<LinkedHashMap<String, Object>> analysis(int dimension, int nGraphs, int nOperations, List<String> operators, List<String> operatorsLabels, List<String> factsNames, List<String> domainDefinition, List<String> structuralRules) {
+  private static List<LinkedHashMap<String, Object>> analyseFsmGeneration(int dimension, int nGraphs, int nOperations, List<String> operators, List<String> operatorsLabels, List<String> factsNames, List<String> domainDefinition, List<String> structuralRules) {
     List<LinkedHashMap<String, Object>> DataFrame = new ArrayList<>();
 
     PrologGraph graph;
@@ -132,6 +132,59 @@ public class FsmAnalysis {
     return DataFrame;
   }
 
+  private static void exportFullFsmAnalysis(List<String> operators, List<String> operatorsLabels,List<String> factsNames,List<String> domainDefinition,List<String> structuralRules){
+    // Analysis:
+    int nGraphs = 25;
+    int nOperations = 40;
+
+    int dimension = 9;
+    List<LinkedHashMap<String, Object>> DataFrame10 = analyseFsmGeneration(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
+
+    dimension = 24;
+    List<LinkedHashMap<String, Object>> DataFrame25 = analyseFsmGeneration(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
+
+    dimension = 39;
+    List<LinkedHashMap<String, Object>> DataFrame40 = analyseFsmGeneration(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
+
+    dimension = 54;
+    List<LinkedHashMap<String, Object>> DataFrame55 = analyseFsmGeneration(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
+
+    String[] files = {"Dataframe10.csv", "Dataframe25.csv", "Dataframe40.csv","Dataframe55.csv"};
+    List<List<LinkedHashMap<String, Object>>> dfCollection = new ArrayList<>();
+    dfCollection.add(DataFrame10);
+    dfCollection.add(DataFrame25);
+    dfCollection.add(DataFrame40);
+    dfCollection.add(DataFrame55);
+
+    // Export CSV
+    for (int i = 0; i < dfCollection.size(); ++i) {
+      String fileName = "FSM" + files[i];
+      List<LinkedHashMap<String, Object>> df = dfCollection.get(i);
+
+      try {
+        // create a writer
+        Writer writer = Files.newBufferedWriter(Paths.get("C:\\Users\\Simone\\Desktop\\GitHub_Tesi\\jgea_data\\25x40\\" + fileName));
+
+        // write CSV file
+        CSVPrinter printer = CSVFormat.DEFAULT.withHeader("graph", "operator", "dimension", "executionTime").print(writer);
+
+        for (LinkedHashMap<String, Object> map : df) {
+          printer.printRecord(map.get("graph"), map.get("operator"), map.get("dimension"), map.get("executionTime"));
+        }
+
+        // flush the stream
+        printer.flush();
+
+        // close the writer
+        writer.close();
+
+      } catch (IOException ex) {
+        ex.printStackTrace();
+      }
+    }
+
+  }
+
   public static void main(String[] args) {
     // Subset definition:
     List<String> domainDefinition = Arrays.asList(":- dynamic node_id/1.",
@@ -147,8 +200,6 @@ public class FsmAnalysis {
             "input_domain(X) :- n_input(MAX), integer(X), X =< MAX -1, X >= 0.",
             "accepting_domain(X) :- integer(X), X =< 1, X >= 0.",
             "start_domain(X) :- integer(X), X =< 1, X >= 0.",
-//            "size([], 0) :- true.",
-//            "size([_|Xs], N) :- size(Xs, N1), plus(N1,1,N).",
             "check_start :- findall(N,start(N,1), N), length(N,N1), N1 == 1.",
             "check_out(S) :- findall(S,edge(S,_,_),RES), length(RES,N), N == 2.",
             "is_valid :- check_start"
@@ -220,54 +271,8 @@ public class FsmAnalysis {
     operatorsLabels.add("changeInputOrder");
     operators.add(changeInputOrder);
 
-    // Analysis:
-    int nGraphs = 25;
-    int nOperations = 40;
-
-    int dimension = 9;
-    List<LinkedHashMap<String, Object>> DataFrame10 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
-
-    dimension = 24;
-    List<LinkedHashMap<String, Object>> DataFrame25 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
-
-    dimension = 39;
-    List<LinkedHashMap<String, Object>> DataFrame40 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
-
-    dimension = 54;
-    List<LinkedHashMap<String, Object>> DataFrame55 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
-
-    String[] files = {"Dataframe10.csv", "Dataframe25.csv", "Dataframe40.csv","Dataframe55.csv"};
-    List<List<LinkedHashMap<String, Object>>> dfCollection = new ArrayList<>();
-    dfCollection.add(DataFrame10);
-    dfCollection.add(DataFrame25);
-    dfCollection.add(DataFrame40);
-    dfCollection.add(DataFrame55);
-
-    for (int i = 0; i < dfCollection.size(); ++i) {
-      String fileName = "FSM" + files[i];
-      List<LinkedHashMap<String, Object>> df = dfCollection.get(i);
-
-      try {
-        // create a writer
-        Writer writer = Files.newBufferedWriter(Paths.get("C:\\Users\\Simone\\Desktop\\GitHub_Tesi\\jgea_data\\25x40\\" + fileName));
-
-        // write CSV file
-        CSVPrinter printer = CSVFormat.DEFAULT.withHeader("graph", "operator", "dimension", "executionTime").print(writer);
-
-        for (LinkedHashMap<String, Object> map : df) {
-          printer.printRecord(map.get("graph"), map.get("operator"), map.get("dimension"), map.get("executionTime"));
-        }
-
-        // flush the stream
-        printer.flush();
-
-        // close the writer
-        writer.close();
-
-      } catch (IOException ex) {
-        ex.printStackTrace();
-      }
-    }
+    //Export CSV
+    exportFullFsmAnalysis(operators,operatorsLabels,factsNames,domainDefinition,structuralRules);
 
 
   }
