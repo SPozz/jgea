@@ -13,16 +13,14 @@ import it.units.malelab.jgea.core.representation.graph.prolog.analysis.TreeAnaly
 
 import java.util.*;
 
-public class OperatorGraphMapper {
+public class OperatorGraphMapper { //implements Function<PrologGraph, OperatorGraph>
 
   public static OperatorGraph apply(PrologGraph prologTree) {
-    // convert Prolog Tree into Graph<Node, NonValuedArc>
-
     LinkedHashGraph<Node, OperatorGraph.NonValuedArc> intermediateGraph = new LinkedHashGraph<>();
     int index = 0;
     LinkedHashMap<String, Node> idToNode = new LinkedHashMap<>();
 
-    BaseOperator[] baseOperators = new BaseOperator[]{BaseOperator.ADDITION, BaseOperator.DIVISION, BaseOperator.MULTIPLICATION, BaseOperator.SUBTRACTION};
+    final BaseOperator[] baseOperators = new BaseOperator[]{BaseOperator.ADDITION, BaseOperator.DIVISION, BaseOperator.MULTIPLICATION, BaseOperator.SUBTRACTION};
 
     for (Map<String, Object> node : prologTree.nodes()) {
       Node tmpNode;
