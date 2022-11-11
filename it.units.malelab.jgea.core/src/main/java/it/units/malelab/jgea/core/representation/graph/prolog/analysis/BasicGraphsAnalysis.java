@@ -26,8 +26,8 @@ public class BasicGraphsAnalysis {
     List<String> nodesIDS = new ArrayList<>();
 
     // Attributes for graph
-    int nNodeAttributes = 2; // including ID
-    int nArcAttributes = 3; // including id and edge
+    final int nNodeAttributes = 2;  //ID, attribute
+    final int nArcAttributes = 3;   //ID, edge, colour
     if ((nArcAttributes + nNodeAttributes) != domainDefinition.size()){
       throw new UnsupportedOperationException("Wrong definition of number of attributes");
     }
@@ -35,10 +35,10 @@ public class BasicGraphsAnalysis {
     List<String> indexList = new ArrayList<>();
     int debuggerID = 1;
 
-    int nNodes = random.nextInt(dimension / 2, dimension - 1);
+    final int nNodes = random.nextInt(dimension / 2, dimension - 1);
 
     for (int i = 0; i < nNodes; ++i) {
-      int index = random.nextInt(0, alphabet.size());
+      final int index = random.nextInt(0, alphabet.size());
       String nodeID = alphabet.get(index);
 
       if (indexList.contains(Integer.toString(index))) {
@@ -47,21 +47,27 @@ public class BasicGraphsAnalysis {
       }
       indexList.add(Integer.toString(index));
 
-      double value = random.nextDouble(0, 1);
+      final double value = random.nextDouble(0, 1);
       nodesIDS.add(nodeID);
       allNodes.add(Arrays.asList("node_id(" + nodeID + ")", "attribute(" + nodeID + "," + value + ")"));
     }
 
     List<String> edgeIDs = new ArrayList<>();
+    int recursion = 1;
+    final int maxRecursion = 100;
     for (int j = 0; j < (dimension - nNodes); ++j) {
+      if (recursion >= maxRecursion) // limit max recursion
+        break;
       String source = nodesIDS.get(random.nextInt(0, nodesIDS.size()));
       String target = nodesIDS.get(random.nextInt(0, nodesIDS.size()));
       String edgeID = source + target;
-      if (edgeIDs.contains(edgeID)) {
-        edgeID += debuggerID;
-        debuggerID++;
+      if (edgeIDs.contains(edgeID)) { // if edge already exists, re-do
+        --j;
+        recursion++;
+        continue;
       }
       edgeIDs.add(edgeID);
+      recursion = 1; // reset if not infinite loop
       String colour = colours.get(random.nextInt(0, colours.size()));
       allEdges.add(Arrays.asList("edge_id(" + edgeID + ")", "edge(" + source + "," + target + "," + edgeID + ")", "colour(" + edgeID + "," + colour + ")"));
     }
