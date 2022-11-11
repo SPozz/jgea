@@ -33,8 +33,8 @@ public class PrologFunctionGraphConversion {
 
       int nodeLevel = Integer.parseInt(node.get("layer").toString());
 
-      BaseFunction[] baseFunctions = new BaseFunction[]{BaseFunction.SQ,BaseFunction.RE_LU,BaseFunction.IDENTITY,BaseFunction.ABS,BaseFunction.IDENTITY,BaseFunction.EXP,
-      BaseFunction.ABS,BaseFunction.SIN,BaseFunction.STEP, BaseFunction.SAW,BaseFunction.GAUSSIAN, BaseFunction.PROT_INVERSE,BaseFunction.TANH};
+      BaseFunction[] baseFunctions = new BaseFunction[]{BaseFunction.SQ, BaseFunction.RE_LU, BaseFunction.IDENTITY, BaseFunction.ABS, BaseFunction.IDENTITY, BaseFunction.EXP,
+              BaseFunction.ABS, BaseFunction.SIN, BaseFunction.STEP, BaseFunction.SAW, BaseFunction.GAUSSIAN, BaseFunction.PROT_INVERSE, BaseFunction.TANH};
 
       if (nodeLevel == minLevel) {
         tmpNode = new Input(index);
@@ -51,7 +51,7 @@ public class PrologFunctionGraphConversion {
           }
           debugger++;
         }
-        if (debugger >= baseFunctions.length )
+        if (debugger >= baseFunctions.length)
           throw new UnsupportedOperationException("operator value not matching baseOperator values");
       }
 
@@ -85,7 +85,8 @@ public class PrologFunctionGraphConversion {
 
 
     // Generate graph
-    PrologGraph ffnn = FfnnAnalysis.generateFfnnGraphWithFunctions(20, domainDefinitionFunctions, functionsDomain);
+    int dimension = 20;
+    PrologGraph ffnn = FfnnAnalysis.generateFfnnGraphWithFunctions(dimension, domainDefinitionFunctions, functionsDomain);
 
     FunctionGraph resultingGraph = convert(ffnn);
     System.out.println(resultingGraph);
