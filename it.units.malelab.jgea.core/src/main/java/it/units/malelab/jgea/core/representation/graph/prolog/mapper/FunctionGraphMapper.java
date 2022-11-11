@@ -25,14 +25,12 @@ public class FunctionGraphMapper {
       String nodeLevel = node.get("layer").toString();
       levels.add(Integer.parseInt(nodeLevel));
     }
-    int maxLevel = Collections.max(levels);
-    int minLevel = Collections.min(levels);
+    final int maxLevel = Collections.max(levels);
+    final int minLevel = Collections.min(levels);
 
     for (Map<String, Object> node : prologFfnn.nodes()) {
       Node tmpNode;
-
-      int nodeLevel = Integer.parseInt(node.get("layer").toString());
-
+      final int nodeLevel = Integer.parseInt(node.get("layer").toString());
       if (nodeLevel == minLevel) {
         tmpNode = new Input(index);
       } else if (nodeLevel == maxLevel) {
