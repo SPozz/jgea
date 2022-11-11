@@ -33,12 +33,26 @@ public class PrologFunctionGraphConversion {
 
       int nodeLevel = Integer.parseInt(node.get("layer").toString());
 
+      BaseFunction[] baseFunctions = new BaseFunction[]{BaseFunction.SQ,BaseFunction.RE_LU,BaseFunction.IDENTITY,BaseFunction.ABS,BaseFunction.IDENTITY,BaseFunction.EXP,
+      BaseFunction.ABS,BaseFunction.SIN,BaseFunction.STEP, BaseFunction.SAW,BaseFunction.GAUSSIAN, BaseFunction.PROT_INVERSE,BaseFunction.TANH};
+
       if (nodeLevel == minLevel) {
         tmpNode = new Input(index);
       } else if (nodeLevel == maxLevel) {
         tmpNode = new Output(index);
       } else {
-        tmpNode = new FunctionNode(index, BaseFunction.IDENTITY); //TODO: change according to actual function
+        String prologFunction = node.get("function").toString();
+        tmpNode = new FunctionNode(index, baseFunctions[0]);
+        int debugger = 0;
+        for (BaseFunction function : baseFunctions) {
+          if (function.toString().equalsIgnoreCase(prologFunction)) {
+            tmpNode = new FunctionNode(index, function);
+            break;
+          }
+          debugger++;
+        }
+        if (debugger >= baseFunctions.length )
+          throw new UnsupportedOperationException("operator value not matching baseOperator values");
       }
 
       idToNode.put(node.get("node_id").toString(), tmpNode);
@@ -59,20 +73,23 @@ public class PrologFunctionGraphConversion {
 
   public static void main(String[] args) {
     //// Domain
-    List<String> domainDefinition = Arrays.asList(
+    List<String> domainDefinitionFunctions = Arrays.asList(
             ":- dynamic node_id/1.",
             ":- dynamic layer/2.",
+            ":- dynamic function/2.",
             ":- dynamic edge_id/1.",
             ":- dynamic edge/3.",
             ":- dynamic weight/2."
     );
+    List<String> functionsDomain = Arrays.asList("identity", "sq", "exp", "sin", "abs");
 
 
     // Generate graph
-    PrologGraph ffnn = FfnnAnalysis.generateFfnnGraph(50, domainDefinition);
+    PrologGraph ffnn = FfnnAnalysis.generateFfnnGraphWithFunctions(20, domainDefinitionFunctions, functionsDomain);
 
     FunctionGraph resultingGraph = convert(ffnn);
     System.out.println(resultingGraph);
+
 
   }
 }
