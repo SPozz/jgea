@@ -271,8 +271,8 @@ public class FsmAnalysis {
     operatorsLabels.add("changeInputOrder");
     operators.add(changeInputOrder);
 
-    //Export CSV
-    exportFullFsmAnalysis(operators,operatorsLabels,factsNames,domainDefinition,structuralRules);
+//    //Export CSV
+//    exportFullFsmAnalysis(operators,operatorsLabels,factsNames,domainDefinition,structuralRules);
 
 
   }

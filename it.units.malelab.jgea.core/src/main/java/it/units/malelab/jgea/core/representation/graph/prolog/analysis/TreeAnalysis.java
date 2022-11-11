@@ -333,8 +333,8 @@ public class TreeAnalysis {
     operatorsLabels.add("perturbVariable");
 
 
-    // Export CSV
-    exportFullTreeAnalysis(operators,operatorsLabels,factsNames,domainDefinition,structuralRules);
+//     //Export CSV
+//    exportFullTreeAnalysis(operators,operatorsLabels,factsNames,domainDefinition,structuralRules);
 
   }
 }
