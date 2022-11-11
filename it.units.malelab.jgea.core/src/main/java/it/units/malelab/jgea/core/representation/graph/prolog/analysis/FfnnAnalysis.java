@@ -150,8 +150,8 @@ public class FfnnAnalysis {
     List<List<String>> allEdges = new ArrayList<>();
 
     // Attributes for graph
-    int nNodeAttributes = 3; // ID, layer, function
-    int nArcAttributes = 3; // ID, edge, weight
+    final int nNodeAttributes = 3; // ID, layer, function
+    final int nArcAttributes = 3; // ID, edge, weight
     if ((nArcAttributes + nNodeAttributes) != domainDefinition.size()) {
       throw new UnsupportedOperationException("Wrong definition of number of attributes");
     }
@@ -160,7 +160,7 @@ public class FfnnAnalysis {
     int debuggerID = 1;
     int countFirstLayer = 0;
 
-    int nNodes = random.nextInt(dimension / 3, dimension / 2 + 1); // favors arcs
+    final int nNodes = random.nextInt(dimension / 3, dimension / 2 + 1); // favors arcs
 
     List<List<String>> nodesAndLayers = new ArrayList<>();
     for (int i = 0; i < nNodes; ++i) {
@@ -213,7 +213,7 @@ public class FfnnAnalysis {
     List<String> edgeIDs = new ArrayList<>();
 
     int recursion = 1;
-    int maxRecursion = 100;
+    final int maxRecursion = 100;
     for (int j = 0; j < (dimension - nNodes); ++j) {
       if (recursion >= maxRecursion) { // limit on recursion
         break;
