@@ -34,7 +34,7 @@ public class FsmAnalysis {
     List<String> indexList = new ArrayList<>();
     int debuggerID = 1;
 
-    final int nNodes = dimension / 3;
+    final int nNodes = dimension / (inputSymbols.size()+1);
 
     for (int i = 0; i < nNodes; ++i) {
       int index = random.nextInt(0, alphabet.size());
@@ -56,28 +56,18 @@ public class FsmAnalysis {
       allNodes.add(Arrays.asList("node_id(" + nodeID + ")", "start(" + nodeID + "," + start + ")", "accepting(" + nodeID + "," + accepting + ")"));
     }
 
+    debuggerID = 1;
     List<String> edgeIDs = new ArrayList<>();
-    final int maxRecursion = 250;
     for (String source : nodesIDS) {
-      int recursion = 1;
-      for (int h = 0; h < 2; ++h) {
-        if (recursion == maxRecursion){
-          throw new UnsupportedOperationException("maxRecursion  reached in finding NEW edge target");
-        }
-        String target = nodesIDS.get(random.nextInt(0, nodesIDS.size()));
+      for (Object input : inputSymbols) { //add as many edges as input symbols
+               String target = nodesIDS.get(random.nextInt(0, nodesIDS.size()));
         String edgeID = source + target;
 
-        if (edgeIDs.contains(edgeID)) {
-          h--;
-          recursion++;
-          continue;
+        if (edgeIDs.contains(edgeID)) { //TODO: change (modify previous edge s.t. it has double input symbol)
+          edgeID += debuggerID;
+          debuggerID++;
         }
         edgeIDs.add(edgeID);
-        recursion =1;
-
-        final int inputIndex = random.nextInt(0, inputSymbols.size());
-        Object input = inputSymbols.get(inputIndex);
-
         allEdges.add(Arrays.asList("edge_id(" + edgeID + ")", "edge(" + source + "," + target + "," + edgeID + ")", "input(" + edgeID + "," + input + ")"));
       }
     }
