@@ -9,13 +9,12 @@ import it.units.malelab.jgea.core.representation.graph.numeric.operatorgraph.Bas
 import it.units.malelab.jgea.core.representation.graph.numeric.operatorgraph.OperatorGraph;
 import it.units.malelab.jgea.core.representation.graph.numeric.operatorgraph.OperatorNode;
 import it.units.malelab.jgea.core.representation.graph.prolog.PrologGraph;
-import it.units.malelab.jgea.core.representation.graph.prolog.analysis.TreeAnalysis;
-
 import java.util.*;
+import java.util.function.Function;
 
-public class OperatorGraphMapper { //implements Function<PrologGraph, OperatorGraph>
+public class OperatorGraphMapper implements Function<PrologGraph, OperatorGraph> {
 
-  public static OperatorGraph apply(PrologGraph prologTree) {
+  public OperatorGraph apply(PrologGraph prologTree) {
     LinkedHashGraph<Node, OperatorGraph.NonValuedArc> intermediateGraph = new LinkedHashGraph<>();
     int index = 1; //0 reserved for output node
     LinkedHashMap<String, Node> idToNode = new LinkedHashMap<>();
@@ -61,28 +60,6 @@ public class OperatorGraphMapper { //implements Function<PrologGraph, OperatorGr
     return new OperatorGraph(intermediateGraph);
   }
 
-
-  public static void main(String[] args) {
-
-    //// Domain
-    List<String> domainDefinition = Arrays.asList(":- dynamic node_id/1.",
-            ":- dynamic start/2.",
-            ":- dynamic type/2.",
-            ":- dynamic value/2.",
-            ":- dynamic edge_id/1.",
-            ":- dynamic edge/3.");
-
-    List<String> operatorValues = Arrays.asList("+", "/", "*", "-");
-
-    // Generate graph
-    PrologGraph binaryTree = TreeAnalysis.generateBinaryTreeGraph(10, domainDefinition, operatorValues);
-    System.out.println("\nProlog graph.\nArcs: " + binaryTree.arcs());
-
-    OperatorGraph convertedGraph = apply(binaryTree);
-    System.out.println(convertedGraph);
-
-
-  }
 
 }
 
