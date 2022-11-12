@@ -16,7 +16,7 @@ import java.util.*;
 
 public class FsmAnalysis {
 
-  public static PrologGraph generateFSMGraph(int dimension, List<String> domainDefinition, List<Object> inputSymbols) {
+  public static PrologGraph generateFSMGraph(int dimension, List<String> domainDefinition, List<Character> inputSymbols) {
     Random random = new Random();
 
     List<String> alphabet = Arrays.asList("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z");
@@ -56,19 +56,28 @@ public class FsmAnalysis {
       allNodes.add(Arrays.asList("node_id(" + nodeID + ")", "start(" + nodeID + "," + start + ")", "accepting(" + nodeID + "," + accepting + ")"));
     }
 
-    debuggerID = 1;
-    List<String> edgeIDs = new ArrayList<>();
+    Set<String> edgeIDs = new HashSet<>();
     for (String source : nodesIDS) {
-      for (Object input : inputSymbols) { //add as many edges as input symbols
+      for (Character input : inputSymbols) { //add as many edges as input symbols
                String target = nodesIDS.get(random.nextInt(0, nodesIDS.size()));
         String edgeID = source + target;
 
-        if (edgeIDs.contains(edgeID)) { //TODO: change (modify previous edge s.t. it has double input symbol)
-          edgeID += debuggerID;
-          debuggerID++;
+        String inputSequence = ""+input;
+
+        if (edgeIDs.contains(edgeID)) { //if edge already exists, create unique one with multiple symbol separated by "--"
+          for( List<String> edge : allEdges){
+            if (edge.contains("edge_id("+edgeID+")")){
+              final int removableEdgeIndex = allEdges.indexOf(edge);
+              String firstCharacter = edge.get(2).replace("input(","");
+              firstCharacter = firstCharacter.replace(")","");
+              allEdges.remove(removableEdgeIndex);
+              inputSequence += "--"+(""+firstCharacter);
+              break;
+            }
+          }
         }
         edgeIDs.add(edgeID);
-        allEdges.add(Arrays.asList("edge_id(" + edgeID + ")", "edge(" + source + "," + target + "," + edgeID + ")", "input(" + edgeID + "," + input + ")"));
+        allEdges.add(Arrays.asList("edge_id(" + edgeID + ")", "edge(" + source + "," + target + "," + edgeID + ")", "input(" + edgeID + "," + inputSequence + ")"));
       }
     }
 
@@ -98,7 +107,7 @@ public class FsmAnalysis {
     PrologGraph graph;
     for (int i = 0; i < nGraphs; ++i) {
       BasicGraphsAnalysis.resetProlog(factsNames);
-      List<Object> inputSymbols = Arrays.asList(0, 1); //Here we defined operator for this case
+      List<Character> inputSymbols = Arrays.asList('0', '1'); //Here we defined operator for this case
       graph = generateFSMGraph(dimension, domainDefinition, inputSymbols);
 
       for (int j = 0; j < nOperations; ++j) {
