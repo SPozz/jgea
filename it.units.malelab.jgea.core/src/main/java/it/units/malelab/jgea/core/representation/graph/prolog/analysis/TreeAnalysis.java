@@ -16,7 +16,6 @@ import java.util.*;
 
 public class TreeAnalysis {
 
-
   public static PrologGraph generateBinaryTreeGraph(int dimension, List<String> domainDefinition, List<String> operatorValues) {
     Random random = new Random();
 
@@ -36,7 +35,6 @@ public class TreeAnalysis {
 
     List<String> indexList = new ArrayList<>();
     int debuggerID = 1;
-
     int tmpDimension = 1;
 
     // first node
@@ -55,7 +53,7 @@ public class TreeAnalysis {
 
     start = 0;
     while (tmpDimension < dimension - 1) {
-      String sourceID = invalidNodes.get(random.nextInt(0, invalidNodes.size()));
+      String targetID = invalidNodes.get(random.nextInt(0, invalidNodes.size()));
 
       // first new node
       index = random.nextInt(0, alphabet.size());
@@ -75,13 +73,9 @@ public class TreeAnalysis {
       invalidNodes.add(nodeID);
 
       // add edge
-      String edgeID = sourceID + nodeID;
-      if (edgeIDs.contains(edgeID)) {
-        edgeID += debuggerID;
-        debuggerID++;
-      }
+      String edgeID = nodeID + targetID; //always new since node is new
       edgeIDs.add(edgeID);
-      allEdges.add(Arrays.asList("edge_id(" + edgeID + ")", "edge(" + sourceID + "," + nodeID + "," + edgeID + ")"));
+      allEdges.add(Arrays.asList("edge_id(" + edgeID + ")", "edge(" + nodeID + "," + targetID + "," + edgeID + ")"));
       tmpDimension++;
 
 
@@ -107,12 +101,12 @@ public class TreeAnalysis {
       tmpDimension++;
 
       // add edge
-      edgeID = sourceID + nodeID; //always new since node is new
+      edgeID = nodeID + targetID; //always new since node is new
       edgeIDs.add(edgeID);
-      allEdges.add(Arrays.asList("edge_id(" + edgeID + ")", "edge(" + sourceID + "," + nodeID + "," + edgeID + ")"));
+      allEdges.add(Arrays.asList("edge_id(" + edgeID + ")", "edge(" + nodeID + "," + targetID + "," + edgeID + ")"));
       tmpDimension++;
 
-      invalidNodes.remove(sourceID);
+      invalidNodes.remove(targetID);
     }
 
     // convert into valid one
@@ -248,7 +242,8 @@ public class TreeAnalysis {
 
   public static void main(String[] args) {
     //// Domain
-    List<String> domainDefinition = Arrays.asList(":- dynamic node_id/1.",
+    List<String> domainDefinition = Arrays.asList(
+            ":- dynamic node_id/1.",
             ":- dynamic start/2.",
             ":- dynamic type/2.",
             ":- dynamic value/2.",
@@ -261,20 +256,19 @@ public class TreeAnalysis {
             "operator_val(*).",
             "operator_val(-).",
             "operator_val(/).",
-            "start_indegree(T) :- findall(E, edge(_,T,E), RES), length(RES,N1), N1 == 0.",
-            "node_indegree(T) :- findall(E, edge(_,T,E), RES), length(RES,N1), N1 == 1.",
-            "operator_outdegree(S) :- findall(E, edge(S,_,E), RES), length(RES,N1), N1 == 2.",
-            "variable_outdegree(S) :- findall(E, edge(S,_,E), RES), length(RES,N1), N1 == 0.",
+            "start_outdegree(S) :- findall(E, edge(S,_,E), RES), length(RES,N1), N1 == 0.",
+            "node_outdegree(S) :- findall(E, edge(S,_,E), RES), length(RES,N1), N1 == 1.",
+            "operator_indegree(T) :- findall(E, edge(_,T,E), RES), length(RES,N1), N1 == 2.",
+            "variable_indegree(T) :- findall(E, edge(_,T,E), RES), length(RES,N1), N1 == 0.",
             "check_start :- findall(N,start(N,1), N),length(N,N1), N1 == 1.",
             "start_connected(N) :- start(N,1).",
-            "start_connected(N) :- edge(X,N,_), start_connected(X).",
-            "is_valid :- " +
-                    "    check_start," +
+            "start_connected(N) :- edge(N,X,_), start_connected(X).",
+            "is_valid :- check_start," +
                     "    foreach(findall(N,node_id(N),Node),maplist(start_connected,Node))," +
-                    "    foreach(findall(T,(node_id(T),start(T,1)),T), maplist(start_indegree,T))," +
-                    "    foreach(findall(T,(node_id(T),start(T,0)),T), maplist(node_indegree,T))," +
-                    "    foreach(findall(O,type(O,operator),O), maplist(operator_outdegree,O))," +
-                    "    foreach(findall(V,type(V,variable),V), maplist(variable_outdegree,V)).");
+                    "    foreach(findall(T,(node_id(T),start(T,1)),T), maplist(start_outdegree,T))," +
+                    "    foreach(findall(T,(node_id(T),start(T,0)),T), maplist(node_outdegree,T))," +
+                    "    foreach(findall(O,type(O,operator),O), maplist(operator_indegree,O))," +
+                    "    foreach(findall(V,type(V,variable),V), maplist(variable_indegree,V)).");
 
     List<String> factsNames = Arrays.asList("node_id/1",
             "start/2",
@@ -333,7 +327,7 @@ public class TreeAnalysis {
     operatorsLabels.add("perturbVariable");
 
 
-//     //Export CSV
+//    ////Export CSV
 //    exportFullTreeAnalysis(operators,operatorsLabels,factsNames,domainDefinition,structuralRules);
 
   }
