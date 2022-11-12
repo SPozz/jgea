@@ -304,8 +304,8 @@ public class TreeAnalysis {
             "gensym(edge,E2)," +
             "assert(edge_id(E1))," +
             "assert(edge_id(E2))," +
-            "assert(edge(V,N1,E1))," +
-            "assert(edge(V,N2,E2)).";
+            "assert(edge(N1,V,E1))," +
+            "assert(edge(N2,V,E2)).";
     operators.add(subTree);
     operatorsLabels.add("subTree");
 
