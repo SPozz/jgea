@@ -34,7 +34,7 @@ public class FsmAnalysis {
     List<String> indexList = new ArrayList<>();
     int debuggerID = 1;
 
-    final int nNodes = dimension / (inputSymbols.size()+1);
+    final int nNodes = dimension / (inputSymbols.size() + 1);
 
     for (int i = 0; i < nNodes; ++i) {
       int index = random.nextInt(0, alphabet.size());
@@ -59,19 +59,20 @@ public class FsmAnalysis {
     Set<String> edgeIDs = new HashSet<>();
     for (String source : nodesIDS) {
       for (Character input : inputSymbols) { //add as many edges as input symbols
-               String target = nodesIDS.get(random.nextInt(0, nodesIDS.size()));
+        String target = nodesIDS.get(random.nextInt(0, nodesIDS.size()));
         String edgeID = source + target;
-
-        String inputSequence = ""+input;
+        String inputSequence = "seq" + input;
 
         if (edgeIDs.contains(edgeID)) { //if edge already exists, create unique one with multiple symbol separated by "--"
-          for( List<String> edge : allEdges){
-            if (edge.contains("edge_id("+edgeID+")")){
+          for (List<String> edge : allEdges) {
+            if (edge.contains("edge_id(" + edgeID + ")")) {
               final int removableEdgeIndex = allEdges.indexOf(edge);
-              String firstCharacter = edge.get(2).replace("input(","");
-              firstCharacter = firstCharacter.replace(")","");
+              final int edgeIDlen = edge.get(0).length() - "edge_id()".length();
+              String previousCharacters = edge.get(2).substring("input(,seq".length() + edgeIDlen);
+              previousCharacters = previousCharacters.replace(")", "");
+              previousCharacters = previousCharacters.replace("_", "");
               allEdges.remove(removableEdgeIndex);
-              inputSequence += "--"+(""+firstCharacter);
+              inputSequence += ("_" + previousCharacters);
               break;
             }
           }
@@ -131,7 +132,7 @@ public class FsmAnalysis {
     return DataFrame;
   }
 
-  private static void exportFullFsmAnalysis(List<String> operators, List<String> operatorsLabels,List<String> factsNames,List<String> domainDefinition,List<String> structuralRules){
+  private static void exportFullFsmAnalysis(List<String> operators, List<String> operatorsLabels, List<String> factsNames, List<String> domainDefinition, List<String> structuralRules) {
     // Analysis:
     int nGraphs = 25;
     int nOperations = 40;
@@ -148,7 +149,7 @@ public class FsmAnalysis {
     dimension = 54;
     List<LinkedHashMap<String, Object>> DataFrame55 = analyseFsmGeneration(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
 
-    String[] files = {"Dataframe10.csv", "Dataframe25.csv", "Dataframe40.csv","Dataframe55.csv"};
+    String[] files = {"Dataframe10.csv", "Dataframe25.csv", "Dataframe40.csv", "Dataframe55.csv"};
     List<List<LinkedHashMap<String, Object>>> dfCollection = new ArrayList<>();
     dfCollection.add(DataFrame10);
     dfCollection.add(DataFrame25);
