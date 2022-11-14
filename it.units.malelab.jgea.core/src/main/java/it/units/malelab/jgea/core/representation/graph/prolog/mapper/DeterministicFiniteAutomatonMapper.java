@@ -1,12 +1,10 @@
 package it.units.malelab.jgea.core.representation.graph.prolog.mapper;
 
 import it.units.malelab.jgea.core.representation.graph.Graph;
-import it.units.malelab.jgea.core.representation.graph.GraphUtils;
 import it.units.malelab.jgea.core.representation.graph.LinkedHashGraph;
 import it.units.malelab.jgea.core.representation.graph.finiteautomata.DeterministicFiniteAutomaton;
 import it.units.malelab.jgea.core.representation.graph.prolog.PrologGraph;
 import it.units.malelab.jgea.core.representation.graph.prolog.PrologGraphUtils;
-import it.units.malelab.jgea.core.representation.graph.prolog.analysis.FsmAnalysis;
 import org.jpl7.Query;
 
 import java.util.*;
@@ -38,9 +36,15 @@ public class DeterministicFiniteAutomatonMapper {//implements Function<PrologGra
     for (Graph.Arc<Map<String, Object>> arc : prologFsm.arcs()) {
       DeterministicFiniteAutomaton.State source = idToState.get((String) arc.getSource().get("node_id"));
       DeterministicFiniteAutomaton.State target = idToState.get((String) arc.getTarget().get("node_id"));
-      Character input = prologFsm.getArcValue(arc).get("input").toString().charAt(0);
+      String inputString = prologFsm.getArcValue(arc).get("input").toString();
+      inputString = inputString.replace("seq","");
+
       Set<Character> inputSet = new HashSet<>();
-      inputSet.add(input);
+      while (inputString.contains("_")) {
+        inputSet.add(inputString.charAt(0));
+        inputString = inputString.substring(2); //since sequence of char separated by "--"
+      }
+      inputSet.add(inputString.charAt(0));
       intermediateGraph.setArcValue(source, target, inputSet);
     }
 
@@ -48,18 +52,18 @@ public class DeterministicFiniteAutomatonMapper {//implements Function<PrologGra
   }
 
   public static void main(String[] args) {
-    // Domain:
-    List<String> domainDefinition = Arrays.asList(
-            ":- dynamic node_id/1.",
-            ":- dynamic start/2.",
-            ":- dynamic accepting/2.",
-            ":- dynamic edge_id/1.",
-            ":- dynamic edge/3.",
-            ":- dynamic input/2.");
+  // Domain:
+  List<String> domainDefinition = Arrays.asList(
+          ":- dynamic node_id/1.",
+          ":- dynamic start/2.",
+          ":- dynamic accepting/2.",
+          ":- dynamic edge_id/1.",
+          ":- dynamic edge/3.",
+          ":- dynamic input/2.");
 
-    List<Object> inputSymbols = Arrays.asList('0', '1');
-
-//    PrologGraph fsm = FsmAnalysis.generateFSMGraph(100, domainDefinition, inputSymbols);
+//    List<Character> inputSymbols = Arrays.asList('0', '1');
+//    PrologGraph fsm = FsmAnalysis.generateFSMGraph(25, domainDefinition, inputSymbols);
+//    System.out.println(apply(fsm));
 
     // TESTING
 
@@ -78,19 +82,17 @@ public class DeterministicFiniteAutomatonMapper {//implements Function<PrologGra
             "edge_id(b0)",
             "edge_id(b1)",
             "edge_id(c0)",
-            "edge_id(c1)",
             "edge(a,b,a1)",
             "edge(a,a,a0)",
             "edge(b,c,b1)",
             "edge(b,a,b0)",
             "edge(c,c,c0)",
-            "edge(c,c,c1)",
-            "input(a0,0)",
-            "input(b0,0)",
-            "input(c0,0)",
-            "input(a1,1)",
-            "input(b1,1)",
-            "input(c1,1)"
+            "input(a0,seq0)",
+            "input(b0,seq0)",
+            "input(c0,seq0_1)",
+            "input(a1,seq1)",
+            "input(b1,seq1)"
+
     );
 
 
@@ -102,8 +104,8 @@ public class DeterministicFiniteAutomatonMapper {//implements Function<PrologGra
 
 
     DeterministicFiniteAutomaton<Character> resultingGraph = apply(example);
-    System.out.println("Result: " + resultingGraph);
-
+    System.out.println("\nTest1:\n" + resultingGraph);
+    System.out.println("String matching:");
     List<Character> match1 = Arrays.asList('1', '0','1','1','0');
     List<Character> match2 = Arrays.asList('1', '1');
     List<Character> match3 = Arrays.asList('0', '0');
