@@ -14,6 +14,7 @@ import java.util.function.Function;
 
 public class OperatorGraphMapper implements Function<PrologGraph, OperatorGraph> {
 
+  @Override
   public OperatorGraph apply(PrologGraph prologTree) {
     LinkedHashGraph<Node, OperatorGraph.NonValuedArc> intermediateGraph = new LinkedHashGraph<>();
     int index = 1; //0 reserved for output node
@@ -42,8 +43,8 @@ public class OperatorGraphMapper implements Function<PrologGraph, OperatorGraph>
           continue;
         }
       } else if (node.get("type").toString().equals("variable")) {
-        String valueString = node.get("value").toString();
-        double value = Double.parseDouble(valueString);
+        final String valueString = node.get("value").toString();
+        final double value = Double.parseDouble(valueString);
         tmpNode = new Constant(index, value);
       } else {
         throw new UnsupportedOperationException("Not acceptable type");
