@@ -197,38 +197,30 @@ public class FsmAnalysis {
     List<String> factsNames = Arrays.asList("node_id/1", "start/2", "accepting/2", "edge_id/1", "edge/3", "input/2");
 
     List<String> structuralRules = Arrays.asList(
-            "n_input(2).",
-            "input_domain(X) :- n_input(MAX), integer(X), X =< MAX -1, X >= 0.",
+            "input_val(1).",
+            "input_val(0).",
+            "n_input(N) :- findall(X,input_val(X),Domain), length(Domain,N).",
             "accepting_domain(X) :- integer(X), X =< 1, X >= 0.",
             "start_domain(X) :- integer(X), X =< 1, X >= 0.",
             "check_start :- findall(N,start(N,1), N), length(N,N1), N1 == 1.",
-            "check_out(S) :- findall(S,edge(S,_,_),RES), length(RES,N), N == 2.",
-            "is_valid :- check_start"
-                    + ", foreach(findall(N,node_id(N),N), maplist(check_out,N))."
+            "check_accepting :- findall(N,accepting(N,1), N), length(N,N1), N1 >= 1.",
+            "symbols(S) :- findall(X,(edge(S,_,ID),input(ID,X)),Inputs), flatten(Inputs,List), list_to_set(List,Set), List == Set.",
+            "is_valid :- check_start, " +
+                    "    foreach(findall(N,node_id(N),Nodes),maplist(symbols,Nodes))," +
+                    "    check_accepting."
     );
 
     // Operators:
     List<String> operators = new ArrayList<>();
     List<String> operatorsLabels = new ArrayList<>();
 
-    String addLegalNode = "gensym(nod,N)," + //Changed from general case
+    String addNode = "gensym(nod,N)," +
             "assert(node_id(N))," +
             "random_between(0,1,INT)," +
             "assert(accepting(N,INT))," +
-            "assert(start(N,0))," +
-            "findall(X,node_id(X), IDs)," +
-            "  random_member(S1,IDs)," +
-            "  gensym(edge,E1), " +
-            "  assert(edge_id(E1))," +
-            "  assert(edge(N,S1,E1))," +
-            "  assert(input(E1,0))," +
-            "  random_member(S2,IDs)," +
-            "  gensym(edge,E2), " +
-            "  assert(edge_id(E2))," +
-            "  assert(edge(N,S2,E2))," +
-            "  assert(input(E2,1)).";
-    operatorsLabels.add("addLegalNode");
-    operators.add(addLegalNode);
+            "assert(start(N,0)).";
+    operatorsLabels.add("addNode");
+    operators.add(addNode);
 
     String changeStart = "findall(N,start(N,0),NonStartBefore)," +
             "findall(O,start(O,1),StartBefore)," +
@@ -261,16 +253,102 @@ public class FsmAnalysis {
     operatorsLabels.add("changeTarget");
     operators.add(changeTarget);
 
-    String changeInputOrder = "findall(M,node_id(M),NodeIDs)," +
+    String addNodeAndEdges = "findall(N,node_id(N),Nodes)," +
+            "findall(V,input_val(V),Values)," +
+            "gensym(nod,N)," +
+            "assert(node_id(N))," +
+            "random_between(0,1,INT)," +
+            "assert(accepting(N,INT))," +
+            "assert(start(N,0)), " +
+            "random_member(X,Nodes)," +
+            "random_member(Y,Nodes)," +
+            "random_pair(V1,V2,Values)," +
+            "gensym(edg,Xedge)," +
+            "assert(edge_id(Xedge))," +
+            "assert(edge(N,X,Xedge))," +
+            "(   X == Y ->  " +
+            "    assert(input(Xedge,[V1,V2]))" +
+            "    ;" +
+            "    assert(input(Xedge,[V1]))," +
+            "    gensym(edg,Yedge)," +
+            "assert(edge_id(Yedge))," +
+            "assert(edge(N,Y,Yedge))," +
+            "    assert(input(Yedge,[V2]))" +
+            "    ).";
+    operatorsLabels.add("addNodeAndEdges");
+    operators.add(addNodeAndEdges);
+
+    String addNodeAndIncomingEdge = "findall(N,node_id(N),Nodes)," +
+            "findall(V,input_val(V),Values)," +
+            "gensym(nod,N)," +
+            "assert(node_id(N))," +
+            "random_between(0,1,INT)," +
+            "assert(accepting(N,INT))," +
+            "assert(start(N,0)), " +
+            "findall(E,edge_id(E),EdgeIDs)," +
+            "random_member(F,EdgeIDs)," +
+            "edge(S,_,F)," +
+            "retract(edge(S,_,F))," +
+            "assert(edge(S,N,F))," +
+            "random_member(X,Nodes)," +
+            "random_member(Y,Nodes)," +
+            "random_pair(V1,V2,Values)," +
+            "gensym(edg,Xedge)," +
+            "assert(edge_id(Xedge))," +
+            "assert(edge(N,X,Xedge))," +
+            "(X == Y ->  " +
+            "assert(input(Xedge,[V1,V2]));" +
+            "assert(input(Xedge,[V1]))," +
+            "gensym(edg,Yedge)," +
+            "assert(edge_id(Yedge))," +
+            "assert(edge(N,Y,Yedge))," +
+            "assert(input(Yedge,[V2]))" +
+            ").";
+    operatorsLabels.add("addNodeAndIncomingEdge");
+    operators.add(addNodeAndIncomingEdge);
+
+    String addMissingTransition = "findall(N,node_id(N),Nodes)," +
+            "random_member(Nod,Nodes)," +
+            "findall(V,input_val(V),Values)," +
+            "findall(W,(edge(Nod,_,X),input(X,W)),ActualValues)," +
+            "flatten(ActualValues,FlattenValues)," +
+            "subtract(Values,FlattenValues,Difference)," +
+            "length(Difference,D)," +
+            "(D == 0 ->   false; " +
+            "    random_member(Target,Nodes)," +
+            "    random_member(NewValue,Difference)," +
+            "    (edge(Nod,Target,ID) ->  " +
+            "    input(ID, Inputs)," +
+            "        retract(input(ID,Inputs))," +
+            "    append([NewValue],Inputs, NewInputs)," +
+            "        assert(input(ID,NewInputs));" +
+            "    gensym(edg,NewEdge)," +
+            "        assert(edge_id(NewEdge))," +
+            "        assert(edge(Nod,Target,NewEdge))," +
+            "        assert(input(NewEdge,[NewValue])))" +
+            "    ).";
+    operatorsLabels.add("addMissingTransition");
+    operatorsLabels.add(addMissingTransition);
+
+    String removeNode = "findall(M,node_id(M),NodeIDs)," +
             "random_member(N,NodeIDs)," +
-            "edge(N,T0,ID0), input(ID0,0)," +
-            "edge(N,T1,ID1), input(ID1,1)," +
-            "retract(input(ID0,0))," +
-            "retract(input(ID1,1))," +
-            "assert(input(ID0,1))," +
-            "assert(input(ID1,0)).";
-    operatorsLabels.add("changeInputOrder");
-    operators.add(changeInputOrder);
+            "findall(E,(edge_id(E),edge(_,N,E)),Ids)," +
+            "retract_list(Ids,edge_id)," +
+            "retractall(edge(_,N,_))," +
+            "retract_list(Ids,input,_)," +
+            "retract(start(N,_))," +
+            "retract(accepting(N,_))," +
+            "retract(node_id(N)).";
+    operatorsLabels.add("removeNode");
+    operators.add(removeNode);
+
+    String removeTransition = "findall(EE,edge_id(EE),Ids)," +
+            "random_member(E,Ids)," +
+            "retract(input(E,_))," +
+            "retract(edge(_,_,E))," +
+            "retract(edge_id(E))";
+    operatorsLabels.add("removeTransition");
+    operators.add(removeTransition);
 
 //    //Export CSV
 //    exportFullFsmAnalysis(operators,operatorsLabels,factsNames,domainDefinition,structuralRules);
