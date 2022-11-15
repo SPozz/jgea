@@ -19,8 +19,8 @@ public class BasicGraphsAnalysis {
   private static PrologGraph generateBasicGraph(int dimension, List<String> domainDefinition) {
     Random random = new Random();
 
-    List<String> alphabet = Arrays.asList("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z");
-    List<String> colours = Arrays.asList("red", "blue", "yellow", "orange", "green");
+    final List<String> alphabet = Arrays.asList("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z");
+    final List<String> colours = Arrays.asList("red", "blue", "yellow", "orange", "green");
     List<List<String>> allNodes = new ArrayList<>();
     List<List<String>> allEdges = new ArrayList<>();
     List<String> nodesIDS = new ArrayList<>();
@@ -28,7 +28,7 @@ public class BasicGraphsAnalysis {
     // Attributes for graph
     final int nNodeAttributes = 2;  //ID, attribute
     final int nArcAttributes = 3;   //ID, edge, colour
-    if ((nArcAttributes + nNodeAttributes) != domainDefinition.size()){
+    if ((nArcAttributes + nNodeAttributes) != domainDefinition.size()) {
       throw new UnsupportedOperationException("Wrong definition of number of attributes");
     }
 
@@ -73,7 +73,7 @@ public class BasicGraphsAnalysis {
     }
 
     List<String> graphDescription = new ArrayList<>();
-    for (int j = 0; j < nNodeAttributes ; ++j) {
+    for (int j = 0; j < nNodeAttributes; ++j) {
       for (List<String> oneNode : allNodes) {
         graphDescription.add(oneNode.get(j));
       }
@@ -129,11 +129,11 @@ public class BasicGraphsAnalysis {
 
   public static void main(String[] args) {
     // Subset of the graph:
-    List<String> domainDefinition = Arrays.asList(":- dynamic node_id/1.", ":- dynamic attribute/2.", ":- dynamic edge_id/1.", ":- dynamic edge/3.", ":- dynamic colour/2.");
+    final List<String> domainDefinition = Arrays.asList(":- dynamic node_id/1.", ":- dynamic attribute/2.", ":- dynamic edge_id/1.", ":- dynamic edge/3.", ":- dynamic colour/2.");
 
-    List<String> factsNames = Arrays.asList("node_id/1", "attribute/2", "edge_id/1", "edge/3", "colour/2");
+    final List<String> factsNames = Arrays.asList("node_id/1", "attribute/2", "edge_id/1", "edge/3", "colour/2");
 
-    List<String> structuralRules = Arrays.asList("is_valid :- true.",
+    final List<String> structuralRules = Arrays.asList("is_valid :- true.",
             "retract_list([X | Xs], P) :- " +
                     "        Z =.. [P, X], retract(Z), retract_list(Xs, P).",
             "retract_list([], _) :- true.",
@@ -148,9 +148,9 @@ public class BasicGraphsAnalysis {
     );
 
     // Operators' definition
-    String operatorAddNodeWithAttribute = "gensym(nod,X), assert(node_id(X)), random(V), attribute_value(V), assert(attribute(X,V)).";
+    final String operatorAddNodeWithAttribute = "gensym(nod,X), assert(node_id(X)), random(V), attribute_value(V), assert(attribute(X,V)).";
 
-    String operatorAddEdgeWithAttribute = "findall(N,node_id(N), Nodes)," +
+    final String operatorAddEdgeWithAttribute = "findall(N,node_id(N), Nodes)," +
             "random_member(Source, Nodes)," +
             "random_member(Target, Nodes), " +
             "gensym(edg,E)," +
@@ -160,13 +160,13 @@ public class BasicGraphsAnalysis {
             "random_member(RED,CDomain)," +
             "assert(colour(E,RED)).";
 
-    String operatorRemoveEdgeWithAttribute = "findall(EID,edge_id(EID),Ids)," +
+    final String operatorRemoveEdgeWithAttribute = "findall(EID,edge_id(EID),Ids)," +
             "random_member(Removable,Ids)," +
             "retract(edge_id(Removable))," +
             "retract(colour(Removable,_))," +
             "retract(edge(_,_,Removable)).";
 
-    String operatorIntermediateNodeWithAttributes = "findall((S,T,I),edge(S,T,I),Edges)," +
+    final String operatorIntermediateNodeWithAttributes = "findall((S,T,I),edge(S,T,I),Edges)," +
             "random_member((N1,N2,ID),Edges)," +
             "retract(edge_id(ID))," +
             "retract(edge(N1,N2,ID))," +
@@ -186,7 +186,7 @@ public class BasicGraphsAnalysis {
             "assert(edge(N1,N,E1))," +
             "assert(edge(N,N2,E2)).";
 
-    String operatorPerturbValue = "findall(X,node_id(X),Nodes)," +
+    final String operatorPerturbValue = "findall(X,node_id(X),Nodes)," +
             "random_member(N,Nodes)," +
             "attribute(N,V)," +
             "random(R)," +
@@ -195,14 +195,14 @@ public class BasicGraphsAnalysis {
             "                    assertz(attribute(N,New_Val));" +
             "    true).";
 
-    String operatorModifyEdgeValue = "findall(ID,edge_id(ID),IDs)," +
+    final String operatorModifyEdgeValue = "findall(ID,edge_id(ID),IDs)," +
             "random_member(E,IDs)," +
             "findall(C,colour_value(C),Colours)," +
             "random_member(V,Colours)," +
             "retract(colour(E,_))," +
             "assert(colour(E,V)).";
 
-    String operatorRemoveNode = "findall(NId,node_id(NId),Nodes)," +
+    final String operatorRemoveNode = "findall(NId,node_id(NId),Nodes)," +
             "random_member(N,Nodes)," +
             "findall(E,edge(_,N,E),ID_in)," +
             "findall(E,edge(N,_,E),ID_out)," +
@@ -216,8 +216,8 @@ public class BasicGraphsAnalysis {
             "retract(node_id(N)).";
 
 
-    List<String> operators = Arrays.asList(operatorRemoveNode, operatorAddEdgeWithAttribute, operatorAddNodeWithAttribute, operatorModifyEdgeValue, operatorPerturbValue, operatorIntermediateNodeWithAttributes, operatorRemoveEdgeWithAttribute);
-    List<String> operatorsLabels = Arrays.asList("removeNode", "addEdge", "addNode", "modifyEdgeValue", "perturbNodeValue", "intermediateNode", "removeEdge");
+    final List<String> operators = Arrays.asList(operatorRemoveNode, operatorAddEdgeWithAttribute, operatorAddNodeWithAttribute, operatorModifyEdgeValue, operatorPerturbValue, operatorIntermediateNodeWithAttributes, operatorRemoveEdgeWithAttribute);
+    final List<String> operatorsLabels = Arrays.asList("removeNode", "addEdge", "addNode", "modifyEdgeValue", "perturbNodeValue", "intermediateNode", "removeEdge");
 
 
     // Analysis:
@@ -236,7 +236,7 @@ public class BasicGraphsAnalysis {
     dimension = 55;
     List<LinkedHashMap<String, Object>> DataFrame55 = analysis(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
 
-    String[] files = {"Dataframe10.csv", "Dataframe25.csv", "Dataframe40.csv","Dataframe55.csv"};
+    String[] files = {"Dataframe10.csv", "Dataframe25.csv", "Dataframe40.csv", "Dataframe55.csv"};
     List<List<LinkedHashMap<String, Object>>> dfCollection = new ArrayList<>();
     dfCollection.add(DataFrame10);
     dfCollection.add(DataFrame25);
@@ -244,7 +244,7 @@ public class BasicGraphsAnalysis {
     dfCollection.add(DataFrame55);
 
 
-     ////EXPORT CSV
+    ////EXPORT CSV
     for (int i = 0; i < dfCollection.size(); ++i) {
       String fileName = "Basic" + files[i];
       List<LinkedHashMap<String, Object>> df = dfCollection.get(i);
