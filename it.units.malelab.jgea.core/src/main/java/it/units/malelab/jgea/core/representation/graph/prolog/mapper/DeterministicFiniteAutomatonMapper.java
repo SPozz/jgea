@@ -11,7 +11,7 @@ import java.util.function.Function;
 
 public class DeterministicFiniteAutomatonMapper implements Function<PrologGraph, DeterministicFiniteAutomaton<Character>> {
 
-  //  @Override
+  @Override
   public DeterministicFiniteAutomaton<Character> apply(PrologGraph prologFsm) {
     LinkedHashGraph<DeterministicFiniteAutomaton.State, Set<Character>> intermediateGraph = new LinkedHashGraph<>();
     int index = 1; //index 0 reserved for start node
@@ -27,11 +27,9 @@ public class DeterministicFiniteAutomatonMapper implements Function<PrologGraph,
         tmpNode = new DeterministicFiniteAutomaton.State(index, accepting);
         index++;
       }
-
       idToState.put(node.get("node_id").toString(), tmpNode);
       intermediateGraph.addNode(tmpNode);
     }
-
     for (Graph.Arc<Map<String, Object>> arc : prologFsm.arcs()) {
       DeterministicFiniteAutomaton.State source = idToState.get((String) arc.getSource().get("node_id"));
       DeterministicFiniteAutomaton.State target = idToState.get((String) arc.getTarget().get("node_id"));
