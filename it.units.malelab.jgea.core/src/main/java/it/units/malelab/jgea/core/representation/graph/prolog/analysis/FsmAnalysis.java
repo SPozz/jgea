@@ -209,6 +209,15 @@ public class FsmAnalysis {
             "check_start :- findall(N,start(N,1), N), length(N,N1), N1 == 1.",
             "check_accepting :- findall(N,accepting(N,1), N), length(N,N1), N1 >= 1.",
             "symbols(S) :- findall(X,(edge(S,_,ID),input(ID,X)),Inputs), flatten(Inputs,List), list_to_set(List,Set), List == Set.",
+            "random_pair(Z1,Z2,List) :-" +
+                    "    random_member(Z1,List)," +
+                    "    random_member(Z2,List)," +
+                    "    Z1 \\== Z2.",
+            "retract_list([], _) :- true.",
+            "retract_list([X | Xs], P) :- " +
+                    "        Z =.. [P, X], retract(Z), retract_list(Xs, P).",
+            "retract_list([X|Xs],P,S) :- Z=.. [P,X,S], retract(Z), retract_list(Xs,P,S).",
+            "retract_list([],_,_) :- true.",
             "is_valid :- check_start, " +
                     "    foreach(findall(N,node_id(N),Nodes),maplist(symbols,Nodes))," +
                     "    check_accepting."
@@ -332,14 +341,18 @@ public class FsmAnalysis {
             "        assert(input(NewEdge,[NewValue])))" +
             "    ).";
     operatorsLabels.add("addMissingTransition");
-    operatorsLabels.add(addMissingTransition);
+    operators.add(addMissingTransition);
 
     String removeNode = "findall(M,node_id(M),NodeIDs)," +
             "random_member(N,NodeIDs)," +
-            "findall(E,(edge_id(E),edge(_,N,E)),Ids)," +
-            "retract_list(Ids,edge_id)," +
+            "findall(E,(edge_id(E),edge(_,N,E)),IdsIncoming)," +
+            "retract_list(IdsIncoming,edge_id)," +
+            "findall(E,(edge_id(E),edge(N,_,E)),IdsOutcoming)," +
+            "retract_list(IdsOutcoming,edge_id)," +
             "retractall(edge(_,N,_))," +
-            "retract_list(Ids,input,_)," +
+            "retractall(edge(N,_,_))," +
+            "retract_list(IdsIncoming,input,_)," +
+            "retract_list(IdsOutcoming,input,_)," +
             "retract(start(N,_))," +
             "retract(accepting(N,_))," +
             "retract(node_id(N)).";
@@ -354,12 +367,9 @@ public class FsmAnalysis {
     operatorsLabels.add("removeTransition");
     operators.add(removeTransition);
 
-    //  TESTING
-    generateFSMGraph(15, domainDefinition, Arrays.asList('0', '1', '2'));
-
 
 //    //Export CSV
-//    exportFullFsmAnalysis(operators,operatorsLabels,factsNames,domainDefinition,structuralRules);
+    exportFullFsmAnalysis(operators,operatorsLabels,factsNames,domainDefinition,structuralRules);
 
 
   }
