@@ -9,13 +9,17 @@ import it.units.malelab.jgea.core.representation.graph.numeric.functiongraph.Bas
 import it.units.malelab.jgea.core.representation.graph.numeric.functiongraph.FunctionGraph;
 import it.units.malelab.jgea.core.representation.graph.numeric.functiongraph.FunctionNode;
 import it.units.malelab.jgea.core.representation.graph.prolog.PrologGraph;
-import it.units.malelab.jgea.core.representation.graph.prolog.analysis.FfnnAnalysis;
 
 import java.util.*;
+import java.util.function.Function;
 
-public class FunctionGraphMapper {
+public class FunctionGraphMapper  implements Function<PrologGraph,FunctionGraph> {
 
-  public static FunctionGraph apply(PrologGraph prologFfnn, BaseFunction function) {
+  public FunctionGraph apply (PrologGraph graph){
+    return apply(graph, BaseFunction.IDENTITY);
+  }
+
+  public FunctionGraph apply(PrologGraph prologFfnn, BaseFunction function){
     LinkedHashGraph<Node, Double> intermediateGraph = new LinkedHashGraph<>();
     int index = 0;
     LinkedHashMap<String, Node> idToNode = new LinkedHashMap<>();
@@ -55,27 +59,4 @@ public class FunctionGraphMapper {
   }
 
 
-  public static void main(String[] args) {
-    //// Domain
-    List<String> domainDefinitionFunctions = Arrays.asList(
-            ":- dynamic node_id/1.",
-            ":- dynamic layer/2.",
-            ":- dynamic edge_id/1.",
-            ":- dynamic edge/3.",
-            ":- dynamic weight/2."
-    );
-
-
-    // Generate graph
-    int dimension = 20;
-    PrologGraph ffnn = FfnnAnalysis.generateFfnnGraph(dimension, domainDefinitionFunctions);
-
-    BaseFunction[] baseFunctions = new BaseFunction[]{BaseFunction.SQ, BaseFunction.RE_LU, BaseFunction.IDENTITY, BaseFunction.ABS, BaseFunction.IDENTITY, BaseFunction.EXP,
-            BaseFunction.ABS, BaseFunction.SIN, BaseFunction.STEP, BaseFunction.SAW, BaseFunction.GAUSSIAN, BaseFunction.PROT_INVERSE, BaseFunction.TANH};
-
-    FunctionGraph resultingGraph = apply(ffnn, baseFunctions[2]);
-    System.out.println(resultingGraph);
-
-
-  }
 }
