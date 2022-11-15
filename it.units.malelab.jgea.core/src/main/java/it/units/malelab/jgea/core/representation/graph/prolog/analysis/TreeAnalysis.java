@@ -184,7 +184,7 @@ public class TreeAnalysis {
     return DataFrame;
   }
 
-  private static void exportFullTreeAnalysis(List<String> operators, List<String> operatorsLabels, List<String> factsNames, List<String> domainDefinition, List<String> structuralRules) {
+  private static void exportTreeAnalysis(List<String> operators, List<String> operatorsLabels, List<String> factsNames, List<String> domainDefinition, List<String> structuralRules) {
     //// Analysis:
     int nGraphs = 25;
     int nOperations = 40;
@@ -325,7 +325,7 @@ public class TreeAnalysis {
 
 
 //    ////Export CSV
-    exportFullTreeAnalysis(operators,operatorsLabels,factsNames,domainDefinition,structuralRules);
+    exportTreeAnalysis(operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
 
 
   }
