@@ -366,7 +366,7 @@ public class FsmAnalysis {
 
 
 //    //Export CSV
-    exportFsmAnalysis(operators,operatorsLabels,factsNames,domainDefinition,structuralRules);
+    exportFsmAnalysis(operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
 
 
   }
