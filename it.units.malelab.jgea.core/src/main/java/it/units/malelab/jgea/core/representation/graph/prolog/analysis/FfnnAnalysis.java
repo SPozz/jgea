@@ -17,9 +17,8 @@ import java.util.*;
 public class FfnnAnalysis {
 
   public static PrologGraph generateFfnnGraph(int dimension, List<String> domainDefinition) {
-    Random random = new Random();
-
-    List<String> alphabet = Arrays.asList("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z");
+    final Random random = new Random();
+    final List<String> alphabet = Arrays.asList("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z");
     List<List<String>> allNodes = new ArrayList<>();
     List<List<String>> allEdges = new ArrayList<>();
 
@@ -127,142 +126,6 @@ public class FfnnAnalysis {
   }
 
 
-  public static PrologGraph generateFfnnGraphWithFunctions(int dimension, List<String> domainDefinition, List<String> functionsDomain) {
-    // Check attribute function is defined
-    int count = 0;
-    for (String rule : domainDefinition) {
-      rule = rule.replace(" ", "");
-      rule = rule.replace(":-dynamic", "");
-      rule = rule.replace("/2", "");
-      rule = rule.replace(".", "");
-      if (rule.equals("function"))
-        break;
-      count++;
-    }
-    if (count == domainDefinition.size()) {
-      throw new UnsupportedOperationException("attribute function is not in domainDefinition");
-    }
-
-    Random random = new Random();
-
-    List<String> alphabet = Arrays.asList("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z");
-    List<List<String>> allNodes = new ArrayList<>();
-    List<List<String>> allEdges = new ArrayList<>();
-
-    // Attributes for graph
-    final int nNodeAttributes = 3; // ID, layer, function
-    final int nArcAttributes = 3; // ID, edge, weight
-    if ((nArcAttributes + nNodeAttributes) != domainDefinition.size()) {
-      throw new UnsupportedOperationException("Wrong definition of number of attributes");
-    }
-
-    List<String> indexList = new ArrayList<>();
-    int debuggerID = 1;
-    int countFirstLayer = 0;
-
-    final int nNodes = random.nextInt(dimension / 3, dimension / 2 + 1); // favors arcs
-
-    List<List<String>> nodesAndLayers = new ArrayList<>();
-    for (int i = 0; i < nNodes; ++i) {
-      nodesAndLayers.add(new ArrayList<>());
-    }
-
-    int maxLayer = 0;
-    int minLayer = 0;
-
-    for (int i = 0; i < nNodes; ++i) {
-      final int index = random.nextInt(0, alphabet.size());
-      String nodeID = alphabet.get(index);
-
-      if (indexList.contains(Integer.toString(index))) {
-        nodeID += debuggerID;
-        debuggerID++;
-      }
-      indexList.add(Integer.toString(index));
-
-      if (countFirstLayer >= (nNodes /2 )) { //to favor more layers
-        minLayer++;
-        countFirstLayer = 0;
-      }
-
-      int layer = random.nextInt(minLayer, maxLayer + 1);
-      if (layer == minLayer)
-        countFirstLayer++;
-
-      if (i == 1) { //to favor growth
-        layer = 1;
-      }
-
-      if (layer == maxLayer) {
-        maxLayer += 1;
-      }
-      nodesAndLayers.get(layer).add(nodeID);
-
-      String functionValue = functionsDomain.get(random.nextInt(0, functionsDomain.size()));
-      allNodes.add(Arrays.asList("node_id(" + nodeID + ")", "layer(" + nodeID + "," + layer + ")", "function(" + nodeID + "," + functionValue + ")"));
-    }
-
-    for (int reverseIndex = nodesAndLayers.size() - 1; reverseIndex >= 0; reverseIndex--) {
-      if (nodesAndLayers.get(reverseIndex).isEmpty()) {
-        nodesAndLayers.remove(reverseIndex);
-      } else {
-        break;
-      }
-    }
-
-    List<String> edgeIDs = new ArrayList<>();
-
-    int recursion = 1;
-    final int maxRecursion = 100;
-    for (int j = 0; j < (dimension - nNodes); ++j) {
-      if (recursion >= maxRecursion) { // limit on recursion
-        break;
-      }
-      int sourceLayer = 0;
-      if (nodesAndLayers.size() > 1) {
-        sourceLayer = random.nextInt(0, nodesAndLayers.size() - 1);
-      }
-
-      List<String> sourceRange = nodesAndLayers.get(sourceLayer);
-      String sourceID = sourceRange.get(random.nextInt(0, sourceRange.size()));
-
-      List<String> targetRange = nodesAndLayers.get(sourceLayer + 1);
-      String targetID = targetRange.get(random.nextInt(0, targetRange.size()));
-
-      String edgeID = sourceID + targetID;
-      if (edgeIDs.contains(edgeID)) { //if edge already exists there, re-do. up to limit on recursion
-        --j;
-        recursion++;
-        continue;
-      }
-      edgeIDs.add(edgeID);
-      recursion = 1; // if previous check is passed, recursion restart
-
-      final double weight = random.nextDouble(0, 1);
-      allEdges.add(Arrays.asList("edge_id(" + edgeID + ")", "edge(" + sourceID + "," + targetID + "," + edgeID + ")", "weight(" + edgeID + "," + weight + ")"));
-    }
-
-    List<String> graphDescription = new ArrayList<>();
-    for (int j = 0; j < nNodeAttributes; ++j) {
-      for (List<String> oneNode : allNodes) {
-        graphDescription.add(oneNode.get(j));
-      }
-    }
-
-    for (int j = 0; j < nArcAttributes; ++j) {
-      for (List<String> oneEdge : allEdges) {
-        graphDescription.add(oneEdge.get(j));
-      }
-    }
-
-    for (String fact : graphDescription) {
-      Query.hasSolution("assert(" + fact + ").");
-    }
-
-    return PrologGraphUtils.buildGraph(domainDefinition);
-  }
-
-
   private static List<LinkedHashMap<String, Object>> analysis(int dimension, int nGraphs, int nOperations, List<String> operators, List<String> operatorsLabels, List<String> factsNames, List<String> domainDefinition, List<String> structuralRules) {
     List<LinkedHashMap<String, Object>> DataFrame = new ArrayList<>();
     PrologGraph graph;
@@ -294,7 +157,7 @@ public class FfnnAnalysis {
 
   public static void main(String[] args) {
     //// Domain
-    List<String> domainDefinition = Arrays.asList(
+    final List<String> domainDefinition = Arrays.asList(
             ":- dynamic node_id/1.",
             ":- dynamic layer/2.",
             ":- dynamic edge_id/1.",
@@ -302,7 +165,7 @@ public class FfnnAnalysis {
             ":- dynamic weight/2."
     );
 
-    List<String> structuralRules = Arrays.asList(
+    final List<String> structuralRules = Arrays.asList(
             "max_weight(1.0).",
             "min_weight(0.0).",
             "min_level(0) :- findall(L,layer(_,L),Layers), min_list(Layers,M).",
@@ -327,14 +190,14 @@ public class FfnnAnalysis {
                     "    )."
     );
 
-    List<String> factsNames = Arrays.asList("node_id/1", "layer/2", "edge_id/1", "edge/3", "weight/2");
+    final List<String> factsNames = Arrays.asList("node_id/1", "layer/2", "edge_id/1", "edge/3", "weight/2");
 
 
     //// Operators
     List<String> operators = new ArrayList<>();
     List<String> operatorsLabels = new ArrayList<>();
 
-    String addEdge =
+    final String addEdge =
             "findall(ID,node_id(ID),Nodes)," +
                     "random_member(N,Nodes)," +
                     "layer(N,L)," +
@@ -353,7 +216,7 @@ public class FfnnAnalysis {
     operators.add(addEdge);
     operatorsLabels.add("addEdge");
 
-    String addInitialLayer = "min_level(X)," +
+    final String addInitialLayer = "min_level(X)," +
             "Y is X -1," +
             "gensym(nod,N)," +
             "assert(node_id(N))," +
@@ -374,7 +237,7 @@ public class FfnnAnalysis {
     operatorsLabels.add("addInitialLayer");
 
 
-    String addFinalLayer = "max_level(X)," +
+    final String addFinalLayer = "max_level(X)," +
             "Y is X +1," +
             "gensym(nod,N)," +
             "assert(node_id(N))," +
@@ -443,20 +306,7 @@ public class FfnnAnalysis {
       }
     }
 
-    // Generation with functions
-    List<String> domainDefinitionFunctions = Arrays.asList(
-            ":- dynamic node_id/1.",
-            ":- dynamic layer/2.",
-            ":- dynamic function/2.",
-            ":- dynamic edge_id/1.",
-            ":- dynamic edge/3.",
-            ":- dynamic weight/2."
-    );
-    List<String> functionsDomain = Arrays.asList("identity","sq","exp","sin","abs");
-
-    generateFfnnGraphWithFunctions(10,domainDefinitionFunctions,functionsDomain);
-
-
+    
   }
 
 
