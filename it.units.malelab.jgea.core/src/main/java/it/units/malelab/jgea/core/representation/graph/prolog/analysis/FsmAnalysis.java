@@ -205,6 +205,7 @@ public class FsmAnalysis {
             "check_start :- findall(N,start(N,1), N), length(N,N1), N1 == 1.",
             "check_accepting :- findall(N,accepting(N,1), N), length(N,N1), N1 >= 1.",
             "symbols(S) :- findall(X,(edge(S,_,ID),input(ID,X)),Inputs), flatten(Inputs,List), list_to_set(List,Set), List == Set.",
+            "outdegree(S,LEN) :- findall(X,(edge(S,_,ID),input(ID,X)),Inputs), flatten(Inputs,K), length(K,LEN).",
             "random_pair(Z1,Z2,List) :-" +
                     "    random_member(Z1,List)," +
                     "    random_member(Z2,List)," +
@@ -287,7 +288,7 @@ public class FsmAnalysis {
     operatorsLabels.add("addNodeAndEdges");
     operators.add(addNodeAndEdges);
 
-    String addNodeAndIncomingEdge = "findall(N,node_id(N),Nodes)," +
+    String addConnectedNode = "findall(N,node_id(N),Nodes)," +
             "findall(V,input_val(V),Values)," +
             "gensym(nod,N)," +
             "assert(node_id(N))," +
@@ -313,10 +314,10 @@ public class FsmAnalysis {
             "assert(edge(N,Y,Yedge))," +
             "assert(input(Yedge,[V2]))" +
             ").";
-    operatorsLabels.add("addNodeAndIncomingEdge");
-    operators.add(addNodeAndIncomingEdge);
+    operatorsLabels.add("addConnectedNode");
+    operators.add(addConnectedNode);
 
-    String addMissingTransition = "findall(N,node_id(N),Nodes)," +
+    String addMissingTransition = "n_input(Ninp), findall(N,(node_id(N),outdegree(N,M), M < Ninp), Nodes), " +
             "random_member(Nod,Nodes)," +
             "findall(V,input_val(V),Values)," +
             "findall(W,(edge(Nod,_,X),input(X,W)),ActualValues)," +
@@ -365,7 +366,7 @@ public class FsmAnalysis {
 
 
 //    //Export CSV
-//    exportFullFsmAnalysis(operators,operatorsLabels,factsNames,domainDefinition,structuralRules);
+    exportFullFsmAnalysis(operators,operatorsLabels,factsNames,domainDefinition,structuralRules);
 
 
   }
