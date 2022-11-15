@@ -60,14 +60,10 @@ public class FsmAnalysis {
       for (Character input : inputSymbols) { //add as many edges as input symbols
         String target = nodesIDS.get(random.nextInt(0, nodesIDS.size()));
 
-        if (target.equals(source)) { // loops don't need to be explicitly constructed
-          continue;
-        }
-
         String edgeID = source + target;
         String inputSequence = "" + input;
 
-        if (edgeIDs.contains(edgeID)) { //if edge already exists, create unique one with multiple symbol separated by "--"
+        if (edgeIDs.contains(edgeID)) { //if edge already exists, create unique one with multiple symbol separated by "," as [0,1,2]
           for (List<String> edge : allEdges) {
             if (edge.contains("edge_id(" + edgeID + ")")) {
               final int removableEdgeIndex = allEdges.indexOf(edge);
