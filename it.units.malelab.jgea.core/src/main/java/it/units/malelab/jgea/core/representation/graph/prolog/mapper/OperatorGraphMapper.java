@@ -9,6 +9,7 @@ import it.units.malelab.jgea.core.representation.graph.numeric.operatorgraph.Bas
 import it.units.malelab.jgea.core.representation.graph.numeric.operatorgraph.OperatorGraph;
 import it.units.malelab.jgea.core.representation.graph.numeric.operatorgraph.OperatorNode;
 import it.units.malelab.jgea.core.representation.graph.prolog.PrologGraph;
+
 import java.util.*;
 import java.util.function.Function;
 
@@ -24,17 +25,15 @@ public class OperatorGraphMapper implements Function<PrologGraph, OperatorGraph>
     for (int i = 0; i < baseOperators.length; ++i) {
       baseOperatorsString[i] = baseOperators[i].toString();
     }
-
-    Output outputNode = new Output(0);
+    final Output outputNode = new Output(0);
     intermediateGraph.addNode(outputNode);
+
     for (Map<String, Object> node : prologTree.nodes()) {
       Node tmpNode;
-
       if (node.get("type").toString().equalsIgnoreCase("operator")) {
-        String prologOperator = node.get("value").toString().replace("'", "");
+        final String prologOperator = node.get("value").toString().replace("'", "");
         final int indexOfOperator = Arrays.asList(baseOperatorsString).indexOf(prologOperator);
         tmpNode = new OperatorNode(index, baseOperators[indexOfOperator]);
-
         if (node.get("start").toString().equals("1")) {
           idToNode.put(node.get("node_id").toString(), tmpNode);
           intermediateGraph.addNode(tmpNode);
@@ -54,7 +53,6 @@ public class OperatorGraphMapper implements Function<PrologGraph, OperatorGraph>
       intermediateGraph.addNode(tmpNode);
       index++;
     }
-
     for (Graph.Arc<Map<String, Object>> arc : prologTree.arcs()) {
       intermediateGraph.setArcValue(idToNode.get((String) arc.getSource().get("node_id")), idToNode.get((String) arc.getTarget().get("node_id")), OperatorGraph.NON_VALUED_ARC);
     }

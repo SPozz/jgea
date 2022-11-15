@@ -7,9 +7,9 @@ import java.util.*;
 
 public class PrologGraphUtils {
 
-  static List<String> status = new ArrayList<>();
+  private static List<String> status = new ArrayList<>();
 
-  static List<String> domainStatus = new ArrayList<>();
+  private static List<String> domainStatus = new ArrayList<>();
 
   private final static PrologGraphUtils INSTANCE = new PrologGraphUtils();
 
@@ -23,11 +23,11 @@ public class PrologGraphUtils {
 
   public synchronized static List<String> describeGraph(PrologGraph graph, List<String> domainDefinition) {
     // Useful repeated variable
-    String nodeID = "node_id";
-    String edgeID = "edge_id";
+    final String nodeID = "node_id";
+    final String edgeID = "edge_id";
 
     // Extract facts' names from ":- dynamic fact/n"
-    List<String> factsNames = extractFactsNames(domainDefinition);
+    final List<String> factsNames = extractFactsNames(domainDefinition);
 
     // IDs for nodes  MUST ALWAYS be defined (edge_id not necessarily?)
     if (!factsNames.contains(nodeID)) {
@@ -52,7 +52,7 @@ public class PrologGraphUtils {
     List<String> graphDescription = new ArrayList<>();
 
     // Get set of nodes
-    Set<Map<String, Object>> graphNodes = graph.nodes();
+    final Set<Map<String, Object>> graphNodes = graph.nodes();
     // Create collection of facts relative to nodes, as many Lists as attributes
     List<List<String>> factsCollection = new ArrayList<>();
     for (int i = 0; i < nodesFactsNames.size(); ++i) {
@@ -76,7 +76,7 @@ public class PrologGraphUtils {
     }
 
     // Get set of arcs
-    Set<PrologGraph.Arc<Map<String, Object>>> graphArcs = graph.arcs();
+    final Set<PrologGraph.Arc<Map<String, Object>>> graphArcs = graph.arcs();
     // Create collection of facts relative to arcs, as many Lists as attributes
     factsCollection = new ArrayList<>();
     for (int i = 0; i < arcsFactsNames.size() - 1; ++i) { //-1 since source and target go together
@@ -87,10 +87,8 @@ public class PrologGraphUtils {
       String ID = graph.getArcValue(arc).get(edgeID).toString();
       String sourceID = arc.getSource().get(nodeID).toString();
       String targetID = arc.getTarget().get(nodeID).toString();
-
       factsCollection.get(0).add(edgeID + "(" + ID + ")");
       factsCollection.get(1).add("edge(" + sourceID + "," + targetID + "," + ID + ")");
-
       for (int i = 3; i < arcsFactsNames.size(); ++i) { //0,1,2 source-target-ID
         String attribute = arcsFactsNames.get(i);
         String value = graph.getArcValue(arc).get(attribute).toString();
@@ -102,31 +100,26 @@ public class PrologGraphUtils {
     for (int i = 0; i < arcsFactsNames.size() - 1; ++i) { //-1 since source and target go together
       graphDescription.addAll(factsCollection.get(i));
     }
-
     return graphDescription;
   }
 
   public synchronized static PrologGraph buildGraph(List<String> domainDefinition) {
-    // already applied domain and graph
-    // Extract facts' names from ":- dynamic fact/n"
-    List<String> factsNames = extractFactsNames(domainDefinition);
-
-    // Split between nodes and arcs, add source-target in place of edge
+    // Extract factNames, split between nodes and arcs, add source-target in place of edge
+    final List<String> factsNames = extractFactsNames(domainDefinition);
     int breakpoint = factsNames.size();
     List<String> arcsFactsNames = new ArrayList<>();
     if (factsNames.contains("edge_id")) {
       breakpoint = getBreakpointNodesAndArcs(factsNames);
-
       arcsFactsNames.addAll(factsNames.subList(breakpoint, factsNames.size()));
       arcsFactsNames.remove("edge");
     }
-    List<String> nodesFactsNames = factsNames.subList(0, breakpoint);
+    final List<String> nodesFactsNames = factsNames.subList(0, breakpoint);
 
     // Create output variable
     PrologGraph graph = new PrologGraph();
 
     // Get (Prolog) a list of node_ids
-    Variable N = new Variable("N");
+    final Variable N = new Variable("N");
     Query nodeIDQuery = new Query("node_id", new Term[]{N});
     if (!nodeIDQuery.hasSolution()) //if no node id => empty graph
       return graph;
@@ -141,8 +134,7 @@ public class PrologGraphUtils {
       String oneNodeID = nodeIDMap.get("N").toString();
       nodeMap = new LinkedHashMap<>();
       nodeMap.put("node_id", oneNodeID);
-
-      Variable V = new Variable("V");
+      final Variable V = new Variable("V");
       for (String attribute : nodesFactsNames.subList(1, nodesFactsNames.size())) { // iterating through attributes
         Object value = Query.oneSolution(attribute, new Term[]{new Atom(oneNodeID), V}).get("V");
         nodeMap.put(attribute, value);
@@ -150,7 +142,6 @@ public class PrologGraphUtils {
       nodesCollection.add(nodeMap);
       graph.addNode(nodeMap);
     }
-
 
     // Get (Prolog) a list of edge_ids
     new Query("assert(edge_id(testing)).").hasSolution(); // otherwise next check crashes
@@ -168,9 +159,7 @@ public class PrologGraphUtils {
     for (Map<String, Term> edgeIDMap : allEdgeIDs) { // iterating through edgeIDs
       String oneEdgeID = edgeIDMap.get("X").toString();
       edgeMap = new LinkedHashMap<>();
-
       edgeMap.put("edge_id", oneEdgeID);
-
       LinkedHashMap<String, Object> sourceNode = new LinkedHashMap<>();
       LinkedHashMap<String, Object> targetNode = new LinkedHashMap<>();
       source = Query.oneSolution("edge(S,T," + oneEdgeID + ")").get("S").toString();
@@ -192,7 +181,6 @@ public class PrologGraphUtils {
 
       graph.setArcValue(sourceNode, targetNode, edgeMap);
     }
-
     return graph;
   }
 
@@ -202,7 +190,7 @@ public class PrologGraphUtils {
     status = domainDefinition;
 
     // get parent-graph description and assert it on Prolog
-    List<String> parentDescription = describeGraph(parent, domainDefinition);
+    final List<String> parentDescription = describeGraph(parent, domainDefinition);
     for (String fact : parentDescription) {
       Query.hasSolution("assert(" + fact + ").");
     }
@@ -214,7 +202,6 @@ public class PrologGraphUtils {
       rule = rule.replace(".", "");
       Query.hasSolution("assert((" + rule + "))");
     }
-
 
     // apply operator
     try {
@@ -294,8 +281,8 @@ public class PrologGraphUtils {
 
   private static List<String> extractFactsNames(List<String> domainDefinition) {
     List<String> facts = new ArrayList<>();
-    int prefix = ":-dynamic".length();
-    int suffix = "/n.".length();
+    final int prefix = ":-dynamic".length();
+    final int suffix = "/n.".length();
     for (String term : domainDefinition) {
       term = term.replace(" ", ""); //remove  spaces
       term = term.substring(prefix, term.length() - suffix);
