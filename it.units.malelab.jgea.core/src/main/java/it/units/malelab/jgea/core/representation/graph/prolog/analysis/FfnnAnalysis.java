@@ -125,7 +125,6 @@ public class FfnnAnalysis {
     return PrologGraphUtils.buildGraph(domainDefinition);
   }
 
-
   private static List<LinkedHashMap<String, Object>> analyseFfnnGeneration(int dimension, int nGraphs, int nOperations, List<String> operators, List<String> operatorsLabels, List<String> factsNames, List<String> domainDefinition, List<String> structuralRules) {
     List<LinkedHashMap<String, Object>> DataFrame = new ArrayList<>();
     PrologGraph graph;
