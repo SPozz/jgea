@@ -24,7 +24,6 @@ public class TreeAnalysis {
 
     List<List<String>> allNodes = new ArrayList<>();
     List<List<String>> allEdges = new ArrayList<>();
-    List<String> edgeIDs = new ArrayList<>();
 
     // Attributes for graph
     final int nNodeAttributes = 4; // including ID
@@ -74,7 +73,6 @@ public class TreeAnalysis {
 
       // add edge
       String edgeID = nodeID + targetID; //always new since node is new
-      edgeIDs.add(edgeID);
       allEdges.add(Arrays.asList("edge_id(" + edgeID + ")", "edge(" + nodeID + "," + targetID + "," + edgeID + ")"));
       tmpDimension++;
 
@@ -102,7 +100,6 @@ public class TreeAnalysis {
 
       // add edge
       edgeID = nodeID + targetID; //always new since node is new
-      edgeIDs.add(edgeID);
       allEdges.add(Arrays.asList("edge_id(" + edgeID + ")", "edge(" + nodeID + "," + targetID + "," + edgeID + ")"));
       tmpDimension++;
 
@@ -328,7 +325,8 @@ public class TreeAnalysis {
 
 
 //    ////Export CSV
-//    exportFullTreeAnalysis(operators,operatorsLabels,factsNames,domainDefinition,structuralRules);
+    exportFullTreeAnalysis(operators,operatorsLabels,factsNames,domainDefinition,structuralRules);
+
 
   }
 }
