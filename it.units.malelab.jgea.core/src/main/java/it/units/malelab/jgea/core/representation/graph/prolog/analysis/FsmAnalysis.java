@@ -132,7 +132,7 @@ public class FsmAnalysis {
     return DataFrame;
   }
 
-  private static void exportFullFsmAnalysis(List<String> operators, List<String> operatorsLabels, List<String> factsNames, List<String> domainDefinition, List<String> structuralRules) {
+  private static void exportFsmAnalysis(List<String> operators, List<String> operatorsLabels, List<String> factsNames, List<String> domainDefinition, List<String> structuralRules) {
     // Analysis:
     int nGraphs = 25;
     int nOperations = 40;
@@ -366,7 +366,7 @@ public class FsmAnalysis {
 
 
 //    //Export CSV
-    exportFullFsmAnalysis(operators,operatorsLabels,factsNames,domainDefinition,structuralRules);
+    exportFsmAnalysis(operators,operatorsLabels,factsNames,domainDefinition,structuralRules);
 
 
   }
