@@ -18,7 +18,6 @@ public class FsmAnalysis {
 
   public static PrologGraph generateFSMGraph(int dimension, List<String> domainDefinition, List<Character> inputSymbols) {
     Random random = new Random();
-
     List<String> alphabet = Arrays.asList("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z");
     List<List<String>> allNodes = new ArrayList<>();
     List<List<String>> allEdges = new ArrayList<>();
@@ -60,25 +59,30 @@ public class FsmAnalysis {
     for (String source : nodesIDS) {
       for (Character input : inputSymbols) { //add as many edges as input symbols
         String target = nodesIDS.get(random.nextInt(0, nodesIDS.size()));
+
+        if (target.equals(source)) { // loops don't need to be explicitly constructed
+          continue;
+        }
+
         String edgeID = source + target;
-        String inputSequence = "seq" + input;
+        String inputSequence = "" + input;
 
         if (edgeIDs.contains(edgeID)) { //if edge already exists, create unique one with multiple symbol separated by "--"
           for (List<String> edge : allEdges) {
             if (edge.contains("edge_id(" + edgeID + ")")) {
               final int removableEdgeIndex = allEdges.indexOf(edge);
-              final int edgeIDlen = edge.get(0).length() - "edge_id()".length();
-              String previousCharacters = edge.get(2).substring("input(,seq".length() + edgeIDlen);
+              final int edgeIdLength = edge.get(0).length() - "edge_id()".length();
+              String previousCharacters = edge.get(2).substring("input(,[".length() + edgeIdLength);
               previousCharacters = previousCharacters.replace(")", "");
-              previousCharacters = previousCharacters.replace("_", "");
+              previousCharacters = previousCharacters.replace("]", "");
               allEdges.remove(removableEdgeIndex);
-              inputSequence += ("_" + previousCharacters);
+              inputSequence += ("," + previousCharacters);
               break;
             }
           }
         }
         edgeIDs.add(edgeID);
-        allEdges.add(Arrays.asList("edge_id(" + edgeID + ")", "edge(" + source + "," + target + "," + edgeID + ")", "input(" + edgeID + "," + inputSequence + ")"));
+        allEdges.add(Arrays.asList("edge_id(" + edgeID + ")", "edge(" + source + "," + target + "," + edgeID + ")", "input(" + edgeID + ",[" + inputSequence + "])"));
       }
     }
 
@@ -349,6 +353,10 @@ public class FsmAnalysis {
             "retract(edge_id(E))";
     operatorsLabels.add("removeTransition");
     operators.add(removeTransition);
+
+    //  TESTING
+    generateFSMGraph(15, domainDefinition, Arrays.asList('0', '1', '2'));
+
 
 //    //Export CSV
 //    exportFullFsmAnalysis(operators,operatorsLabels,factsNames,domainDefinition,structuralRules);
