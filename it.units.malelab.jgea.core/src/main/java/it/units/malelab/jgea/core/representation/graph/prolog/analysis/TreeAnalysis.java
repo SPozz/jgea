@@ -17,11 +17,9 @@ import java.util.*;
 public class TreeAnalysis {
 
   public static PrologGraph generateBinaryTreeGraph(int dimension, List<String> domainDefinition, List<String> operatorValues) {
-    Random random = new Random();
-
-    List<String> alphabet = Arrays.asList("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z");
-    List<String> typeValue = Arrays.asList("operator", "variable");
-
+    final Random random = new Random();
+    final List<String> alphabet = Arrays.asList("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z");
+    final List<String> typeValue = Arrays.asList("operator", "variable");
     List<List<String>> allNodes = new ArrayList<>();
     List<List<String>> allEdges = new ArrayList<>();
 
@@ -31,7 +29,6 @@ public class TreeAnalysis {
     if ((nArcAttributes + nNodeAttributes) != domainDefinition.size()) {
       throw new UnsupportedOperationException("Wrong definition of number of attributes");
     }
-
     List<String> indexList = new ArrayList<>();
     int debuggerID = 1;
     int tmpDimension = 1;
@@ -45,7 +42,6 @@ public class TreeAnalysis {
     String nodeID = alphabet.get(index);
     allNodes.add(Arrays.asList("node_id(" + nodeID + ")", "start(" + nodeID + "," + start + ")", "type(" + nodeID + "," + type + ")", "value(" + nodeID + "," + value + ")"));
     tmpDimension += 1;
-
 
     List<String> invalidNodes = new ArrayList<>();
     invalidNodes.add(nodeID);
@@ -63,10 +59,8 @@ public class TreeAnalysis {
         debuggerID++;
       }
       indexList.add(Integer.toString(index));
-
       type = "operator";
       value = operatorValues.get(random.nextInt(0, operatorValues.size()));
-
       allNodes.add(Arrays.asList("node_id(" + nodeID + ")", "start(" + nodeID + "," + start + ")", "type(" + nodeID + "," + type + ")", "value(" + nodeID + "," + value + ")"));
       tmpDimension++;
       invalidNodes.add(nodeID);
@@ -76,17 +70,14 @@ public class TreeAnalysis {
       allEdges.add(Arrays.asList("edge_id(" + edgeID + ")", "edge(" + nodeID + "," + targetID + "," + edgeID + ")"));
       tmpDimension++;
 
-
       // second new node
       index = random.nextInt(0, alphabet.size());
       nodeID = alphabet.get(index);
-
       if (indexList.contains(Integer.toString(index))) {
         nodeID += debuggerID;
         debuggerID++;
       }
       indexList.add(Integer.toString(index));
-
       type = typeValue.get(random.nextInt(0, typeValue.size()));
       if (type.equals("operator")) {
         invalidNodes.add(nodeID);
@@ -94,7 +85,6 @@ public class TreeAnalysis {
       } else {
         value = Integer.toString(random.nextInt(0, 10));
       }
-
       allNodes.add(Arrays.asList("node_id(" + nodeID + ")", "start(" + nodeID + "," + start + ")", "type(" + nodeID + "," + type + ")", "value(" + nodeID + "," + value + ")"));
       tmpDimension++;
 
@@ -102,7 +92,6 @@ public class TreeAnalysis {
       edgeID = nodeID + targetID; //always new since node is new
       allEdges.add(Arrays.asList("edge_id(" + edgeID + ")", "edge(" + nodeID + "," + targetID + "," + edgeID + ")"));
       tmpDimension++;
-
       invalidNodes.remove(targetID);
     }
 
@@ -110,7 +99,6 @@ public class TreeAnalysis {
     while (!invalidNodes.isEmpty()) {
       nodeID = invalidNodes.get(0);
       value = Integer.toString(random.nextInt(0, 10));
-
       List<List<String>> addable = new ArrayList<>();
       List<List<String>> removable = new ArrayList<>();
       for (List<String> nodeList : allNodes) {
@@ -119,12 +107,10 @@ public class TreeAnalysis {
           addable.add(Arrays.asList("node_id(" + nodeID + ")", "start(" + nodeID + "," + 0 + ")", "type(" + nodeID + ",variable)", "value(" + nodeID + "," + value + ")"));
         }
       }
-
       for (List<String> removableElement : removable) {
         allNodes.remove(removableElement);
       }
       allNodes.addAll(addable);
-
       invalidNodes.remove(nodeID);
     }
 
@@ -144,7 +130,6 @@ public class TreeAnalysis {
     for (String fact : graphDescription) {
       Query.hasSolution("assert(" + fact + ").");
     }
-
     return PrologGraphUtils.buildGraph(domainDefinition);
   }
 
@@ -180,7 +165,6 @@ public class TreeAnalysis {
         DataFrame.add(observation);
       }
     }
-
     return DataFrame;
   }
 
@@ -239,7 +223,7 @@ public class TreeAnalysis {
 
   public static void main(String[] args) {
     //// Domain
-    List<String> domainDefinition = Arrays.asList(
+    final List<String> domainDefinition = Arrays.asList(
             ":- dynamic node_id/1.",
             ":- dynamic start/2.",
             ":- dynamic type/2.",
@@ -247,7 +231,7 @@ public class TreeAnalysis {
             ":- dynamic edge_id/1.",
             ":- dynamic edge/3.");
 
-    List<String> structuralRules = Arrays.asList(
+    final List<String> structuralRules = Arrays.asList(
             "variable_val(X) :- integer(X), X>= 0, X < 10.",
             "operator_val(+).",
             "operator_val(*).",
@@ -267,7 +251,7 @@ public class TreeAnalysis {
                     "    foreach(findall(O,type(O,operator),O), maplist(operator_indegree,O))," +
                     "    foreach(findall(V,type(V,variable),V), maplist(variable_indegree,V)).");
 
-    List<String> factsNames = Arrays.asList("node_id/1",
+    final List<String> factsNames = Arrays.asList("node_id/1",
             "start/2",
             "type/2",
             "value/2",

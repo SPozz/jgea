@@ -245,7 +245,7 @@ public class FfnnAnalysis {
     List<String> operators = new ArrayList<>();
     List<String> operatorsLabels = new ArrayList<>();
 
-    final String addEdge =
+    String addEdge =
             "findall(ID,node_id(ID),Nodes)," +
                     "random_member(N,Nodes)," +
                     "layer(N,L)," +
@@ -264,7 +264,7 @@ public class FfnnAnalysis {
     operators.add(addEdge);
     operatorsLabels.add("addEdge");
 
-    final String addInitialLayer = "min_level(X)," +
+    String addInitialLayer = "min_level(X)," +
             "Y is X -1," +
             "gensym(nod,N)," +
             "assert(node_id(N))," +
@@ -285,7 +285,7 @@ public class FfnnAnalysis {
     operatorsLabels.add("addInitialLayer");
 
 
-    final String addFinalLayer = "max_level(X)," +
+    String addFinalLayer = "max_level(X)," +
             "Y is X +1," +
             "gensym(nod,N)," +
             "assert(node_id(N))," +

@@ -187,16 +187,16 @@ public class FsmAnalysis {
 
   public static void main(String[] args) {
     // Subset definition:
-    List<String> domainDefinition = Arrays.asList(":- dynamic node_id/1.",
+    final List<String> domainDefinition = Arrays.asList(":- dynamic node_id/1.",
             ":- dynamic start/2.",
             ":- dynamic accepting/2.",
             ":- dynamic edge_id/1.",
             ":- dynamic edge/3.",
             ":- dynamic input/2.");
 
-    List<String> factsNames = Arrays.asList("node_id/1", "start/2", "accepting/2", "edge_id/1", "edge/3", "input/2");
+    final List<String> factsNames = Arrays.asList("node_id/1", "start/2", "accepting/2", "edge_id/1", "edge/3", "input/2");
 
-    List<String> structuralRules = Arrays.asList(
+    final List<String> structuralRules = Arrays.asList(
             "input_val(1).",
             "input_val(0).",
             "n_input(N) :- findall(X,input_val(X),Domain), length(Domain,N).",

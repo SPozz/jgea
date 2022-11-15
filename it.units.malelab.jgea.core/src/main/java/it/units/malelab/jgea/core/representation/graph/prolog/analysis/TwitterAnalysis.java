@@ -17,10 +17,8 @@ import java.util.*;
 public class TwitterAnalysis {
 
   public static PrologGraph generateTwitterGraph(int dimension, List<String> domainDefinition) {
-    //RMK: this is NOT error-safe, but it is ok for our purpose
-    Random random = new Random();
-
-    List<String> alphabet = Arrays.asList("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z");
+    final Random random = new Random();
+    final List<String> alphabet = Arrays.asList("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z");
     List<List<String>> allNodes = new ArrayList<>();
     List<List<String>> allEdges = new ArrayList<>();
     List<String> userIDS = new ArrayList<>();
@@ -35,18 +33,15 @@ public class TwitterAnalysis {
 
     List<String> indexList = new ArrayList<>();
     int debuggerID = 1;
-
     final int nNodes = random.nextInt(dimension / 3, dimension / 2);
     for (int i = 0; i < nNodes; ++i) {
       int index = random.nextInt(0, alphabet.size());
-
       String nodeID = alphabet.get(index);
       if (indexList.contains(Integer.toString(index))) {
         nodeID += debuggerID;
         debuggerID++;
       }
       indexList.add(Integer.toString(index));
-
       String type = Arrays.asList("user", "tweet").get(random.nextInt(0, 2));
       if (i == 0) {
         type = "user";
@@ -99,7 +94,6 @@ public class TwitterAnalysis {
         --j;
         continue;
       }
-
       source = sourceType.get(random.nextInt(0, sourceType.size()));
       target = targetType.get(random.nextInt(0, targetType.size()));
       edgeID = source + target;
@@ -151,9 +145,9 @@ public class TwitterAnalysis {
       for (int j = 0; j < nOperations; ++j) {
         LinkedHashMap<String, Object> observation = new LinkedHashMap<>();
         Random rand = new Random();
-        int randomIndex = rand.nextInt(0, operators.size());
+        final int randomIndex = rand.nextInt(0, operators.size());
         String randomOperator = operators.get(randomIndex);
-        int previousDimension = graph.nodes().size() + graph.arcs().size();
+        final int previousDimension = graph.nodes().size() + graph.arcs().size();
 //
 //        System.out.println("DEBUG: applying operator " + operatorsLabels.get(randomIndex));
 //
@@ -164,23 +158,21 @@ public class TwitterAnalysis {
         observation.put("operator", operatorsLabels.get(randomIndex));
         observation.put("dimension", previousDimension);
         observation.put("executionTime", Duration.between(startingInstant, endInstant).toNanos() / 1000000000d);
-
         DataFrame.add(observation);
       }
     }
-
     return DataFrame;
   }
 
   public static void main(String[] args) {
     // Twitter subset definition:
-    List<String> domainDefinition = Arrays.asList(":- dynamic node_id/1.",
+    final List<String> domainDefinition = Arrays.asList(":- dynamic node_id/1.",
             ":- dynamic type/2.",
             ":- dynamic edge_id/1.",
             ":- dynamic edge/3.",
             ":- dynamic action/2.");
 
-    List<String> structuralRules = Arrays.asList(
+    final List<String> structuralRules = Arrays.asList(
             "action_value(retweet).",
             "action_value(post).",
             "action_value(cite).",
@@ -203,7 +195,7 @@ public class TwitterAnalysis {
             "is_valid2 :- foreach(findall(T,(node_id(T),type(T,tweet)),Tweets), maplist(tweet_indeg,Tweets))."
     );
 
-    List<String> factsNames = Arrays.asList("node_id/1", "type/2", "edge_id/1", "edge/3", "action/2");
+    final List<String> factsNames = Arrays.asList("node_id/1", "type/2", "edge_id/1", "edge/3", "action/2");
 
     // Operators:
     List<String> operators = new ArrayList<>();

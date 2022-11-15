@@ -148,9 +148,9 @@ public class BasicGraphsAnalysis {
     );
 
     // Operators' definition
-    final String operatorAddNodeWithAttribute = "gensym(nod,X), assert(node_id(X)), random(V), attribute_value(V), assert(attribute(X,V)).";
+    String operatorAddNodeWithAttribute = "gensym(nod,X), assert(node_id(X)), random(V), attribute_value(V), assert(attribute(X,V)).";
 
-    final String operatorAddEdgeWithAttribute = "findall(N,node_id(N), Nodes)," +
+    String operatorAddEdgeWithAttribute = "findall(N,node_id(N), Nodes)," +
             "random_member(Source, Nodes)," +
             "random_member(Target, Nodes), " +
             "gensym(edg,E)," +
@@ -160,13 +160,13 @@ public class BasicGraphsAnalysis {
             "random_member(RED,CDomain)," +
             "assert(colour(E,RED)).";
 
-    final String operatorRemoveEdgeWithAttribute = "findall(EID,edge_id(EID),Ids)," +
+    String operatorRemoveEdgeWithAttribute = "findall(EID,edge_id(EID),Ids)," +
             "random_member(Removable,Ids)," +
             "retract(edge_id(Removable))," +
             "retract(colour(Removable,_))," +
             "retract(edge(_,_,Removable)).";
 
-    final String operatorIntermediateNodeWithAttributes = "findall((S,T,I),edge(S,T,I),Edges)," +
+    String operatorIntermediateNodeWithAttributes = "findall((S,T,I),edge(S,T,I),Edges)," +
             "random_member((N1,N2,ID),Edges)," +
             "retract(edge_id(ID))," +
             "retract(edge(N1,N2,ID))," +
@@ -186,7 +186,7 @@ public class BasicGraphsAnalysis {
             "assert(edge(N1,N,E1))," +
             "assert(edge(N,N2,E2)).";
 
-    final String operatorPerturbValue = "findall(X,node_id(X),Nodes)," +
+    String operatorPerturbValue = "findall(X,node_id(X),Nodes)," +
             "random_member(N,Nodes)," +
             "attribute(N,V)," +
             "random(R)," +
@@ -195,14 +195,14 @@ public class BasicGraphsAnalysis {
             "                    assertz(attribute(N,New_Val));" +
             "    true).";
 
-    final String operatorModifyEdgeValue = "findall(ID,edge_id(ID),IDs)," +
+    String operatorModifyEdgeValue = "findall(ID,edge_id(ID),IDs)," +
             "random_member(E,IDs)," +
             "findall(C,colour_value(C),Colours)," +
             "random_member(V,Colours)," +
             "retract(colour(E,_))," +
             "assert(colour(E,V)).";
 
-    final String operatorRemoveNode = "findall(NId,node_id(NId),Nodes)," +
+    String operatorRemoveNode = "findall(NId,node_id(NId),Nodes)," +
             "random_member(N,Nodes)," +
             "findall(E,edge(_,N,E),ID_in)," +
             "findall(E,edge(N,_,E),ID_out)," +
