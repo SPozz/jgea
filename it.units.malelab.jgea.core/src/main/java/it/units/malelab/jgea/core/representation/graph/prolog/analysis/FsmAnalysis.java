@@ -369,7 +369,7 @@ public class FsmAnalysis {
 
 
 //    //Export CSV
-    exportFullFsmAnalysis(operators,operatorsLabels,factsNames,domainDefinition,structuralRules);
+//    exportFullFsmAnalysis(operators,operatorsLabels,factsNames,domainDefinition,structuralRules);
 
 
   }
