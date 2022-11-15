@@ -4,16 +4,15 @@ import it.units.malelab.jgea.core.representation.graph.Graph;
 import it.units.malelab.jgea.core.representation.graph.LinkedHashGraph;
 import it.units.malelab.jgea.core.representation.graph.finiteautomata.DeterministicFiniteAutomaton;
 import it.units.malelab.jgea.core.representation.graph.prolog.PrologGraph;
-import it.units.malelab.jgea.core.representation.graph.prolog.PrologGraphUtils;
-import org.jpl7.Query;
+
 
 import java.util.*;
 import java.util.function.Function;
 
-public class DeterministicFiniteAutomatonMapper {//implements Function<PrologGraph,DeterministicFiniteAutomaton<Character>> {
+public class DeterministicFiniteAutomatonMapper implements Function<PrologGraph, DeterministicFiniteAutomaton<Character>> {
 
   //  @Override
-  public static DeterministicFiniteAutomaton<Character> apply(PrologGraph prologFsm) {
+  public DeterministicFiniteAutomaton<Character> apply(PrologGraph prologFsm) {
     LinkedHashGraph<DeterministicFiniteAutomaton.State, Set<Character>> intermediateGraph = new LinkedHashGraph<>();
     int index = 1; //index 0 reserved for start node
     LinkedHashMap<String, DeterministicFiniteAutomaton.State> idToState = new LinkedHashMap<>();
@@ -37,12 +36,13 @@ public class DeterministicFiniteAutomatonMapper {//implements Function<PrologGra
       DeterministicFiniteAutomaton.State source = idToState.get((String) arc.getSource().get("node_id"));
       DeterministicFiniteAutomaton.State target = idToState.get((String) arc.getTarget().get("node_id"));
       String inputString = prologFsm.getArcValue(arc).get("input").toString();
-      inputString = inputString.replace("seq","");
+      inputString = inputString.substring(1, inputString.length() - 1); //exclude brackets
+      inputString = inputString.replace(" ", "");
 
       Set<Character> inputSet = new HashSet<>();
-      while (inputString.contains("_")) {
+      while (inputString.contains(",")) {
         inputSet.add(inputString.charAt(0));
-        inputString = inputString.substring(2); //since sequence of char separated by "--"
+        inputString = inputString.substring(2);
       }
       inputSet.add(inputString.charAt(0));
       intermediateGraph.setArcValue(source, target, inputSet);
@@ -51,70 +51,5 @@ public class DeterministicFiniteAutomatonMapper {//implements Function<PrologGra
     return new DeterministicFiniteAutomaton<>(intermediateGraph);
   }
 
-  public static void main(String[] args) {
-  // Domain:
-  List<String> domainDefinition = Arrays.asList(
-          ":- dynamic node_id/1.",
-          ":- dynamic start/2.",
-          ":- dynamic accepting/2.",
-          ":- dynamic edge_id/1.",
-          ":- dynamic edge/3.",
-          ":- dynamic input/2.");
 
-//    List<Character> inputSymbols = Arrays.asList('0', '1');
-//    PrologGraph fsm = FsmAnalysis.generateFSMGraph(25, domainDefinition, inputSymbols);
-//    System.out.println(apply(fsm));
-
-    // TESTING
-
-    List<String> graphDescription = Arrays.asList(
-            "node_id(a)",
-            "node_id(b)",
-            "node_id(c)",
-            "start(a,1)",
-            "start(b,0)",
-            "start(c,0)",
-            "accepting(a,0)",
-            "accepting(b,0)",
-            "accepting(c,1)",
-            "edge_id(a0)",
-            "edge_id(a1)",
-            "edge_id(b0)",
-            "edge_id(b1)",
-            "edge_id(c0)",
-            "edge(a,b,a1)",
-            "edge(a,a,a0)",
-            "edge(b,c,b1)",
-            "edge(b,a,b0)",
-            "edge(c,c,c0)",
-            "input(a0,seq0)",
-            "input(b0,seq0)",
-            "input(c0,seq0_1)",
-            "input(a1,seq1)",
-            "input(b1,seq1)"
-
-    );
-
-
-    for (String fact : graphDescription) {
-      Query.hasSolution("assert(" + fact + ").");
-    }
-
-    PrologGraph example = PrologGraphUtils.buildGraph(domainDefinition);
-
-
-    DeterministicFiniteAutomaton<Character> resultingGraph = apply(example);
-    System.out.println("\nTest1:\n" + resultingGraph);
-    System.out.println("String matching:");
-    List<Character> match1 = Arrays.asList('1', '0','1','1','0');
-    List<Character> match2 = Arrays.asList('1', '1');
-    List<Character> match3 = Arrays.asList('0', '0');
-    System.out.println(resultingGraph.match(match1));
-    System.out.println(resultingGraph.match(match2));
-    System.out.println(resultingGraph.match(match3));
-
-
-    System.out.println("\n"+resultingGraph.extract(match1));
-
-  }
 }
