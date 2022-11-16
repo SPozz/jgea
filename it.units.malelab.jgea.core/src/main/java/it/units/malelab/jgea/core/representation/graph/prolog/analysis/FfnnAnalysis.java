@@ -216,7 +216,7 @@ public class FfnnAnalysis {
     final List<String> structuralRules = Arrays.asList(
             "max_weight(1.0).",
             "min_weight(0.0).",
-            "min_level(0) :- findall(L,layer(_,L),Layers), min_list(Layers,M).",
+            "min_level(M) :- findall(L,layer(_,L),Layers), min_list(Layers,M).",
             "max_level(M) :- findall(L,layer(_,L),Layers), max_list(Layers,M).",
             "level(X) :- " +
                     "    float(X), max_level(Max), min_level(Min), " +
