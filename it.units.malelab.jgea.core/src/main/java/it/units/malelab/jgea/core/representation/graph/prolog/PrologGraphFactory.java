@@ -26,16 +26,16 @@ public class PrologGraphFactory implements Factory<PrologGraph> {
   @Override
   public List<PrologGraph> build(int n, RandomGenerator random) {
     List<PrologGraph> graphList = new ArrayList<>();
-    final int maxTries = 100;
+    final int maxAttempts = 100;
 
     for (int i = 0; i < n; ++i) {
       final int dimension = random.nextInt(minDimension, maxDimension + 1);
       PrologGraph graph = originGraph;
-      int nTries = 0;
-      while (graph.size() < dimension && nTries < maxTries) { // Less or Different?
+      int attempt = 0;
+      while (graph.size() < dimension && attempt < maxAttempts) { // Less or Different?
         String operator = Misc.pickRandomly(operators, random);
         graph = PrologGraphUtils.applyOperator(operator, graph, domainDefinition, structuralRules);
-        nTries++;
+        attempt++;
       }
       graphList.add(graph);
     }
