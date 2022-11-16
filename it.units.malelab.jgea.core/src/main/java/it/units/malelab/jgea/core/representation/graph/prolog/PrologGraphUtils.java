@@ -22,20 +22,20 @@ public class PrologGraphUtils {
 
 
   public synchronized static List<String> describeGraph(PrologGraph graph, List<String> domainDefinition) {
-    // Useful repeated variable
+    // Useful repeated variable and output variable
     final String nodeID = "node_id";
     final String edgeID = "edge_id";
+    List<String> graphDescription = new ArrayList<>();
 
     // Extract facts' names from ":- dynamic fact/n"
     final List<String> factsNames = extractFactsNames(domainDefinition);
 
     // IDs for nodes  MUST ALWAYS be defined (edge_id not necessarily?)
     if (!factsNames.contains(nodeID)) {
-      throw new UnsupportedOperationException("node_id MUST be always defined."); //TODO: check error handling
+      throw new UnsupportedOperationException("node_id MUST be always defined.");
     }
 
     // Split between nodes and arcs, add source-target in place of edge
-    // Now should work even if arcs are not in the graph definition
     int breakpoint = factsNames.size();
     List<String> arcsFactsNames = new ArrayList<>();
     if (factsNames.contains(edgeID)) {
@@ -47,9 +47,6 @@ public class PrologGraphUtils {
       arcsFactsNames.remove("edge");
     }
     List<String> nodesFactsNames = factsNames.subList(0, breakpoint);
-
-    // Create output
-    List<String> graphDescription = new ArrayList<>();
 
     // Get set of nodes
     final Set<Map<String, Object>> graphNodes = graph.nodes();
@@ -96,8 +93,7 @@ public class PrologGraphUtils {
         factsCollection.get(i - 1).add(complete);//-1 to be coherent to numb of lists
       }
     }
-
-    for (int i = 0; i < arcsFactsNames.size() - 1; ++i) { //-1 since source and target go together
+    for (int i = 0; i < arcsFactsNames.size() - 1; ++i) { //-1 since source and target go together in edge
       graphDescription.addAll(factsCollection.get(i));
     }
     return graphDescription;
@@ -237,7 +233,7 @@ public class PrologGraphUtils {
   private static void resetPrologKnowledge() {
     if (status.isEmpty())
       return;
-    int prefix = ":-dynamic".length();
+    final int prefix = ":-dynamic".length();
     for (String fact : status) {
       fact = fact.replace(" ", ""); //remove spaces
       fact = fact.replace(".", ""); //remove point
