@@ -63,7 +63,7 @@ public class PrologGraphUtils {
       String ID = node.get(nodeID).toString();
       factsCollection.get(0).add(nodeID + "(" + ID + ")");
 
-      for (int i = 1; i < nodesFactsNames.size(); ++i) { // i iterating through attributes
+      for (int i = 1; i < nodesFactsNames.size(); ++i) { // iterating through attributes
         String attribute = nodesFactsNames.get(i);
         String value = node.get(attribute).toString();
         String complete = attribute + "(" + ID + "," + value + ")";
@@ -195,8 +195,8 @@ public class PrologGraphUtils {
       Query.hasSolution("assert(" + fact + ").");
     }
 
-    // assert domainStructuralRules -> PROBLEM WHEN GRAPH IS EMPTY
-    retractRules(domainStatus); // retract previous ones
+    // assert domainStructuralRules (might cause problems if graph empty)
+    retractRules();
     domainStatus = domainStructuralRules;
     for (String rule : domainStructuralRules) {
       rule = rule.replace(".", "");
@@ -246,9 +246,12 @@ public class PrologGraphUtils {
     }
   }
 
-  private static void retractRules(List<String> domainStructuralRules) {
+  private static void retractRules() {
+    if (domainStatus.isEmpty())
+      return;
+
     List<String> rulesSet = new ArrayList<>();
-    for (String rule : domainStructuralRules) {
+    for (String rule : domainStatus) {
       if (!rule.contains(".")) {
         throw new UnsupportedOperationException("ERROR, rule defined without ending point.");
       }
@@ -257,14 +260,14 @@ public class PrologGraphUtils {
       rule = rule.replace(" ", "");
 
       if (rule.contains(":-")) {
-        int index = rule.indexOf(":-");
+        final int index = rule.indexOf(":-");
         rule = rule.substring(0, index);
       }
 
       if (!rule.contains(")")) {
         arity = 0;
       } else {
-        int count = rule.length() - rule.replace(",", "").length(); // compute occurrences of ","
+        final int count = rule.length() - rule.replace(",", "").length(); // compute occurrences of ","
         arity = 1 + count;
         rule = rule.substring(0, rule.indexOf("("));
       }
