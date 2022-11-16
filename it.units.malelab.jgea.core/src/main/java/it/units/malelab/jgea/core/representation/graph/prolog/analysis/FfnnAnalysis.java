@@ -305,11 +305,37 @@ public class FfnnAnalysis {
     operators.add(addFinalLayer);
     operatorsLabels.add("addFinalLayer");
 
-    //Export CSV
+    String addNode = "max_level(Max)," +
+            "min_level(Min)," +
+            "random_between(Min,Max,L)," +
+            "gensym(nod,N)," +
+            "assert(node_id(N))," +
+            "assert(layer(N,L)).";
+    operators.add(addNode);
+    operatorsLabels.add("addNode");
+
+    String addNodeEdge = "max_level(Max)," +
+            "min_level(Min)," +
+            "random_between(Min,Max,L)," +
+            "findall(M,node_id(M),Nodes)," +
+            "max_weight(MaxW)," +
+            "min_weight(MinW)," +
+            "random_between(MinW,MaxW,W)," +
+            "gensym(nod,N)," +
+            "assert(node_id(N))," +
+            "assert(layer(N,L))," +
+            "random_member(X,Nodes)," +
+            "gensym(edg,E)," +
+            "assert(edge_id(E))," +
+            "assert(edge(X,N,E))," +
+            "assert(weight(E,W)).";
+    operators.add(addNodeEdge);
+    operatorsLabels.add("addNodeEdge");
+
+//    //Export CSV
     exportFfnnAnalysis(operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
 
 
   }
-
 
 }
