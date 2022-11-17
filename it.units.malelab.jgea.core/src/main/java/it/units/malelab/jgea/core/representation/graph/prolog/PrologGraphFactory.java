@@ -27,9 +27,17 @@ public class PrologGraphFactory implements Factory<PrologGraph> {
   public List<PrologGraph> build(int n, RandomGenerator random) {
     List<PrologGraph> graphList = new ArrayList<>();
     final int maxAttempts = 100;
+    final int nStep = maxDimension - minDimension + 1;
+    final int graphPerDimension = n / nStep;
 
-    for (int i = 0; i < n; ++i) {
-      final int dimension = random.nextInt(minDimension, maxDimension + 1);
+    int[] dimensions = new int[n];
+    for (int j = 0; j < nStep; ++j)
+      for (int i = 0; i < graphPerDimension; ++i)
+        dimensions[graphPerDimension * j + i] = minDimension + j;
+    for (int i = 1; i <= (n - nStep * graphPerDimension); ++i)
+      dimensions[n - i] = new Random().nextInt(minDimension, maxDimension + 1);
+
+    for (final int dimension : dimensions) {
       PrologGraph graph = originGraph;
       int attempt = 0;
       while (graph.size() < dimension && attempt < maxAttempts) { // Less or Different?
