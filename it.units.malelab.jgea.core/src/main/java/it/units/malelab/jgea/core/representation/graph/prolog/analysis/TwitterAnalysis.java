@@ -342,7 +342,7 @@ public class TwitterAnalysis {
     operatorsLabels.add("intermediatePublisher");
 
 //    //Export CSV
-//    exportTwitterAnalysis(operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
+    exportTwitterAnalysis(operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
 
 
   }
