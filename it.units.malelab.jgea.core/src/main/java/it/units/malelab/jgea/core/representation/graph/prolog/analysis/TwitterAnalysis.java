@@ -136,9 +136,6 @@ public class TwitterAnalysis {
     List<LinkedHashMap<String, Object>> DataFrame = new ArrayList<>();
     PrologGraph graph;
     for (int i = 0; i < nGraphs; ++i) {
-//
-//      System.out.println("DEBUG. Graph " + i);
-//
       BasicGraphsAnalysis.resetProlog(factsNames);
       graph = generateTwitterGraph(dimension, domainDefinition);
 
@@ -148,9 +145,6 @@ public class TwitterAnalysis {
         final int randomIndex = rand.nextInt(0, operators.size());
         String randomOperator = operators.get(randomIndex);
         final int previousDimension = graph.nodes().size() + graph.arcs().size();
-//
-//        System.out.println("DEBUG: applying operator " + operatorsLabels.get(randomIndex));
-//
         Instant startingInstant = Instant.now();
         graph = PrologGraphUtils.applyOperator(randomOperator, graph, domainDefinition, structuralRules);
         Instant endInstant = Instant.now();
