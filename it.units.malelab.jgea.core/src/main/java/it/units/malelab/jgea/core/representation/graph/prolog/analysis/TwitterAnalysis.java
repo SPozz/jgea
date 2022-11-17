@@ -343,7 +343,7 @@ public class TwitterAnalysis {
 
 //    //Export CSV
 //    exportTwitterAnalysis(operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
-    
+
 
   }
 
