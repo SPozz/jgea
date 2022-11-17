@@ -158,6 +158,58 @@ public class TwitterAnalysis {
     return DataFrame;
   }
 
+  private static void exportTwitterAnalysis(List<String> operators, List<String> operatorsLabels, List<String> factsNames, List<String> domainDefinition, List<String> structuralRules) {
+    int nGraphs = 25;
+    int nOperations = 40;
+
+    int dimension = 10;
+    List<LinkedHashMap<String, Object>> DataFrame10 = analyseTwitterGeneration(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
+
+    dimension = 25;
+    List<LinkedHashMap<String, Object>> DataFrame25 = analyseTwitterGeneration(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
+
+    dimension = 40;
+    List<LinkedHashMap<String, Object>> DataFrame40 = analyseTwitterGeneration(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
+
+    dimension = 55;
+    List<LinkedHashMap<String, Object>> DataFrame55 = analyseTwitterGeneration(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
+
+    String[] files = {"Dataframe10.csv", "Dataframe25.csv", "Dataframe40.csv", "Dataframe55.csv"};
+    List<List<LinkedHashMap<String, Object>>> dfCollection = new ArrayList<>();
+    dfCollection.add(DataFrame10);
+    dfCollection.add(DataFrame25);
+    dfCollection.add(DataFrame40);
+    dfCollection.add(DataFrame55);
+
+    for (int i = 0; i < dfCollection.size(); ++i) {
+      String fileName = "TwitterComplete" + files[i];
+      List<LinkedHashMap<String, Object>> df = dfCollection.get(i);
+
+      try {
+        // create a writer
+        Writer writer = Files.newBufferedWriter(Paths.get("C:\\Users\\Simone\\Desktop\\GitHub_Tesi\\jgea_data\\25x40\\" + fileName));
+
+        // write CSV file
+        CSVPrinter printer = CSVFormat.DEFAULT.withHeader("graph", "operator", "dimension", "executionTime").print(writer);
+
+        for (LinkedHashMap<String, Object> map : df) {
+          printer.printRecord(map.get("graph"), map.get("operator"), map.get("dimension"), map.get("executionTime"));
+        }
+
+        // flush the stream
+        printer.flush();
+
+        // close the writer
+        writer.close();
+
+      } catch (IOException ex) {
+        ex.printStackTrace();
+      }
+    }
+
+
+  }
+
   public static void main(String[] args) {
     // Twitter subset definition:
     final List<String> domainDefinition = Arrays.asList(":- dynamic node_id/1.",
@@ -289,56 +341,9 @@ public class TwitterAnalysis {
     operators.add(intermediatePublisher);
     operatorsLabels.add("intermediatePublisher");
 
-
-    // Analysis:
-    int nGraphs = 25;
-    int nOperations = 40;
-
-    int dimension = 10;
-    List<LinkedHashMap<String, Object>> DataFrame10 = analyseTwitterGeneration(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
-
-    dimension = 25;
-    List<LinkedHashMap<String, Object>> DataFrame25 = analyseTwitterGeneration(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
-
-    dimension = 40;
-    List<LinkedHashMap<String, Object>> DataFrame40 = analyseTwitterGeneration(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
-
-    dimension = 55;
-    List<LinkedHashMap<String, Object>> DataFrame55 = analyseTwitterGeneration(dimension, nGraphs, nOperations, operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
-
-    String[] files = {"Dataframe10.csv", "Dataframe25.csv", "Dataframe40.csv", "Dataframe55.csv"};
-    List<List<LinkedHashMap<String, Object>>> dfCollection = new ArrayList<>();
-    dfCollection.add(DataFrame10);
-    dfCollection.add(DataFrame25);
-    dfCollection.add(DataFrame40);
-    dfCollection.add(DataFrame55);
-
-    for (int i = 0; i < dfCollection.size(); ++i) {
-      String fileName = "TwitterComplete" + files[i];
-      List<LinkedHashMap<String, Object>> df = dfCollection.get(i);
-
-      try {
-        // create a writer
-        Writer writer = Files.newBufferedWriter(Paths.get("C:\\Users\\Simone\\Desktop\\GitHub_Tesi\\jgea_data\\25x40\\" + fileName));
-
-        // write CSV file
-        CSVPrinter printer = CSVFormat.DEFAULT.withHeader("graph", "operator", "dimension", "executionTime").print(writer);
-
-        for (LinkedHashMap<String, Object> map : df) {
-          printer.printRecord(map.get("graph"), map.get("operator"), map.get("dimension"), map.get("executionTime"));
-        }
-
-        // flush the stream
-        printer.flush();
-
-        // close the writer
-        writer.close();
-
-      } catch (IOException ex) {
-        ex.printStackTrace();
-      }
-    }
-
+//    //Export CSV
+//    exportTwitterAnalysis(operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
+    
 
   }
 
