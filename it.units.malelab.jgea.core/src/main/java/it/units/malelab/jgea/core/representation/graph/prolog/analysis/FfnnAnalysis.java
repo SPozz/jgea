@@ -1,6 +1,7 @@
 package it.units.malelab.jgea.core.representation.graph.prolog.analysis;
 
 import it.units.malelab.jgea.core.representation.graph.prolog.PrologGraph;
+import it.units.malelab.jgea.core.representation.graph.prolog.PrologGraphFactory;
 import it.units.malelab.jgea.core.representation.graph.prolog.PrologGraphUtils;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
@@ -334,6 +335,28 @@ public class FfnnAnalysis {
 
 //    //Export CSV
     exportFfnnAnalysis(operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
+
+//  // Export analysis of Factory
+    PrologGraph origin = new PrologGraph();
+    LinkedHashMap<String, Object> node1 = new LinkedHashMap<>();
+    node1.put("node_id", "first");
+    node1.put("layer", 0);
+    LinkedHashMap<String, Object> node2 = new LinkedHashMap<>();
+    node2.put("node_id", "second");
+    node2.put("layer", 1);
+    LinkedHashMap<String, Object> edge = new LinkedHashMap<>();
+    edge.put("edge_id", "firstEdge");
+    edge.put("weight", 0.5);
+    origin.addNode(node1);
+    origin.addNode(node2);
+    origin.setArcValue(node1, node2, edge);
+
+    String name = "FfnnComplete";
+    List<String> factoryOperators = Arrays.asList(addEdge, addFinalLayer, addInitialLayer, addNode, addNodeEdge);
+
+    PrologGraphFactory.exportFactoryAnalysis(name, 25, 49, origin, factoryOperators, domainDefinition, structuralRules);
+    PrologGraphFactory.exportFactoryAnalysis(name, 50, 74, origin, factoryOperators, domainDefinition, structuralRules);
+    PrologGraphFactory.exportFactoryAnalysis(name, 75, 99, origin, factoryOperators, domainDefinition, structuralRules);
 
 
   }
