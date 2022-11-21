@@ -46,7 +46,7 @@ public class PrologGraphFactory implements Factory<PrologGraph> {
     for (final int dimension : dimensions) {
       PrologGraph graph = originGraph;
       int attempt = 0;
-      while (graph.size() < dimension && attempt < maxAttempts) { // Less or Different?
+      while (graph.size() < dimension && attempt < maxAttempts) {
         String operator = Misc.pickRandomly(operators, random);
         graph = PrologGraphUtils.applyOperator(operator, graph, domainDefinition, structuralRules);
         attempt++;
