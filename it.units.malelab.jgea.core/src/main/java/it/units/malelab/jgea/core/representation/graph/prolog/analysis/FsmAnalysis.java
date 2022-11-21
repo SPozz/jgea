@@ -389,8 +389,6 @@ public class FsmAnalysis {
     PrologGraphFactory.exportFactoryAnalysis(name, 75, 99, origin, factoryOperators, domainDefinition, structuralRules);
 
 
-
-
   }
 
 }
