@@ -1,6 +1,7 @@
 package it.units.malelab.jgea.core.representation.graph.prolog.analysis;
 
 import it.units.malelab.jgea.core.representation.graph.prolog.PrologGraph;
+import it.units.malelab.jgea.core.representation.graph.prolog.PrologGraphFactory;
 import it.units.malelab.jgea.core.representation.graph.prolog.PrologGraphUtils;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
@@ -310,6 +311,40 @@ public class TreeAnalysis {
 
 //    ////Export CSV
     exportTreeAnalysis(operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
+
+//  // Export analysis of Factory
+    PrologGraph origin = new PrologGraph();
+    LinkedHashMap<String, Object> node1 = new LinkedHashMap<>();
+    node1.put("node_id", "first");
+    node1.put("start", 1);
+    node1.put("type","operator");
+    node1.put("value","+");
+    LinkedHashMap<String, Object> node2 = new LinkedHashMap<>();
+    node2.put("node_id", "second");
+    node2.put("start", 0);
+    node2.put("type","variable");
+    node2.put("value",5);
+    LinkedHashMap<String, Object> node3 = new LinkedHashMap<>();
+    node3.put("node_id", "third");
+    node3.put("start", 0);
+    node3.put("type","variable");
+    node3.put("value",3);
+    LinkedHashMap<String, Object> edge1 = new LinkedHashMap<>();
+    edge1.put("edge_id", "firstEdge");
+    LinkedHashMap<String, Object> edge2 = new LinkedHashMap<>();
+    edge2.put("edge_id", "secondEdge");
+    origin.addNode(node1);
+    origin.addNode(node2);
+    origin.addNode(node3);
+    origin.setArcValue(node2,node1,edge1);
+    origin.setArcValue(node3,node1,edge2);
+
+    String name = "TreeAdd";
+    List<String> factoryOperators = Arrays.asList(subTree);
+
+    PrologGraphFactory.exportFactoryAnalysis(name, 25, 49, origin, factoryOperators, domainDefinition, structuralRules);
+    PrologGraphFactory.exportFactoryAnalysis(name, 50, 74, origin, factoryOperators, domainDefinition, structuralRules);
+    PrologGraphFactory.exportFactoryAnalysis(name, 75, 99, origin, factoryOperators, domainDefinition, structuralRules);
 
 
   }
