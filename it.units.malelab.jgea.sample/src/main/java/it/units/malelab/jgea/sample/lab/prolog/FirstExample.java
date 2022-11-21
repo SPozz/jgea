@@ -3,6 +3,7 @@ package it.units.malelab.jgea.sample.lab.prolog;
 import it.units.malelab.jgea.core.representation.graph.numeric.RealFunction;
 import it.units.malelab.jgea.core.representation.graph.prolog.PrologGraph;
 import it.units.malelab.jgea.core.representation.graph.prolog.PrologGraphFactory;
+import it.units.malelab.jgea.core.representation.graph.prolog.PrologGraphUtils;
 import it.units.malelab.jgea.core.representation.graph.prolog.mapper.OperatorGraphMapper;
 import it.units.malelab.jgea.core.selector.Last;
 import it.units.malelab.jgea.core.selector.Tournament;
@@ -36,12 +37,13 @@ public class FirstExample implements Runnable {
           ":- dynamic edge/3.");
   private final List<String> structuralRules;
   private final PrologGraph originGraph;
-  private final List<String> operators = new ArrayList<>();
+  private final List<String> operators;
 
-  public FirstExample(int minDim, int maxDim, List<String> structuralRules) {
+  public FirstExample(int minDim, int maxDim, List<String> operators, List<String> structuralRules) {
     executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() - 1);
     this.minDim = minDim;
     this.maxDim = maxDim;
+    this.operators = operators;
     this.structuralRules = structuralRules;
 
     PrologGraph origin = new PrologGraph();
@@ -94,7 +96,56 @@ public class FirstExample implements Runnable {
                     "    foreach(findall(O,type(O,operator),O), maplist(operator_indegree,O))," +
                     "    foreach(findall(V,type(V,variable),V), maplist(variable_indegree,V)).");
 
-    new FirstExample(10, 30, structuralRules).run();
+    //// Operators
+    List<String> operators = new ArrayList<>();
+    List<String> operatorsLabels = new ArrayList<>();
+
+    String subTree = "findall(VV,type(VV,variable),VAR)," +
+            "random_member(V,VAR)," +
+            "retract(value(V,_))," +
+            "retract(type(V,variable))," +
+            "operator_val(OpVal)," +
+            "assert(type(V,operator))," +
+            "assert(value(V,OpVal))," +
+            "gensym(nod,N1)," +
+            "assert(node_id(N1))," +
+            "assert(type(N1,variable))," +
+            "random_between(0,9,V1Val)," +
+            "assert(value(N1,V1Val))," +
+            "assert(start(N1,0))," +
+            "gensym(nod,N2)," +
+            "assert(node_id(N2))," +
+            "assert(type(N2,variable))," +
+            "random_between(0,9,V2Val)," +
+            "assert(value(N2,V2Val))," +
+            "assert(start(N2,0))," +
+            "gensym(edge,E1)," +
+            "gensym(edge,E2)," +
+            "assert(edge_id(E1))," +
+            "assert(edge_id(E2))," +
+            "assert(edge(N1,V,E1))," +
+            "assert(edge(N2,V,E2)).";
+    operators.add(subTree);
+    operatorsLabels.add("subTree");
+
+    String perturbOperator = "findall(OP,type(OP,operator), Operators)," +
+            "random_member(O, Operators)," +
+            "retract(value(O,_))," +
+            "findall(V,operator_val(V),Values)," +
+            "random_member(X,Values)," +
+            "assert(value(O,X))";
+    operators.add(perturbOperator);
+    operatorsLabels.add("perturbOperator");
+
+    String perturbVariable = "findall(VAR,type(VAR,variable), Variables)," +
+            "random_member(O, Variables)," +
+            "retract(value(O,_))," +
+            "random_between(0,9,X)," +
+            "assert(value(O,X))";
+    operators.add(perturbVariable);
+    operatorsLabels.add("perturbVariable");
+
+    new FirstExample(10, 30, operators, structuralRules).run();
   }
 
 
@@ -108,12 +159,18 @@ public class FirstExample implements Runnable {
     SyntheticSymbolicRegressionProblem p = new Nguyen7(SymbolicRegressionFitness.Metric.MSE, 1);
     List<IterativeSolver<? extends POSetPopulationState<PrologGraph, RealFunction, Double>, SyntheticSymbolicRegressionProblem,
             RealFunction>> solvers = new ArrayList<>();
+
+    Map<Object,Double> operatorsMap = new HashMap<>();
+    final double weight = 1.0/operators.size();
+    for (String op : operators)
+      operatorsMap.put(PrologGraphUtils.applyOperator(op,originGraph,domainDefinition,structuralRules),weight);
+
     solvers.add(new StandardEvolver<>(
             new OperatorGraphMapper().andThen(og -> (RealFunction) input -> og.apply(input)[0]),
             new PrologGraphFactory(minDim, maxDim, originGraph, operators, domainDefinition, structuralRules),
             100,
             StopConditions.nOfIterations(500),
-            null,//Map.of(new SameRootSubtreeCrossover<>(12), 0.8d, new GrammarBasedSubtreeMutation<>(12, srGrammar), 0.2d),
+            null, //operatorsMap, //NO, non mi è chiaro cosa dovrebbe essere
             new Tournament(5),
             new Last(),
             100,
