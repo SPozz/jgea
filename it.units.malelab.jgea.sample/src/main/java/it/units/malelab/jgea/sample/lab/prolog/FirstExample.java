@@ -3,7 +3,7 @@ package it.units.malelab.jgea.sample.lab.prolog;
 import it.units.malelab.jgea.core.representation.graph.numeric.RealFunction;
 import it.units.malelab.jgea.core.representation.graph.prolog.PrologGraph;
 import it.units.malelab.jgea.core.representation.graph.prolog.PrologGraphFactory;
-import it.units.malelab.jgea.core.representation.graph.prolog.PrologGraphUtils;
+import it.units.malelab.jgea.core.representation.graph.prolog.PrologOperator;
 import it.units.malelab.jgea.core.representation.graph.prolog.mapper.OperatorGraphMapper;
 import it.units.malelab.jgea.core.selector.Last;
 import it.units.malelab.jgea.core.selector.Tournament;
@@ -98,7 +98,6 @@ public class FirstExample implements Runnable {
 
     //// Operators
     List<String> operators = new ArrayList<>();
-    List<String> operatorsLabels = new ArrayList<>();
 
     String subTree = "findall(VV,type(VV,variable),VAR)," +
             "random_member(V,VAR)," +
@@ -126,7 +125,6 @@ public class FirstExample implements Runnable {
             "assert(edge(N1,V,E1))," +
             "assert(edge(N2,V,E2)).";
     operators.add(subTree);
-    operatorsLabels.add("subTree");
 
     String perturbOperator = "findall(OP,type(OP,operator), Operators)," +
             "random_member(O, Operators)," +
@@ -135,7 +133,6 @@ public class FirstExample implements Runnable {
             "random_member(X,Values)," +
             "assert(value(O,X))";
     operators.add(perturbOperator);
-    operatorsLabels.add("perturbOperator");
 
     String perturbVariable = "findall(VAR,type(VAR,variable), Variables)," +
             "random_member(O, Variables)," +
@@ -143,7 +140,6 @@ public class FirstExample implements Runnable {
             "random_between(0,9,X)," +
             "assert(value(O,X))";
     operators.add(perturbVariable);
-    operatorsLabels.add("perturbVariable");
 
     new FirstExample(10, 30, operators, structuralRules).run();
   }
@@ -160,17 +156,17 @@ public class FirstExample implements Runnable {
     List<IterativeSolver<? extends POSetPopulationState<PrologGraph, RealFunction, Double>, SyntheticSymbolicRegressionProblem,
             RealFunction>> solvers = new ArrayList<>();
 
-    Map<Object,Double> operatorsMap = new HashMap<>();
-    final double weight = 1.0/operators.size();
+    Map<PrologOperator, Double> operatorsMap = new HashMap<>();
+    final double weight = 1.0d / operators.size();
     for (String op : operators)
-      operatorsMap.put(PrologGraphUtils.applyOperator(op,originGraph,domainDefinition,structuralRules),weight);
+      operatorsMap.put(new PrologOperator(op, domainDefinition, structuralRules), weight);
 
     solvers.add(new StandardEvolver<>(
             new OperatorGraphMapper().andThen(og -> (RealFunction) input -> og.apply(input)[0]),
             new PrologGraphFactory(minDim, maxDim, originGraph, operators, domainDefinition, structuralRules),
             100,
             StopConditions.nOfIterations(500),
-            null, //operatorsMap, //NO, non mi è chiaro cosa dovrebbe essere
+            null,
             new Tournament(5),
             new Last(),
             100,
