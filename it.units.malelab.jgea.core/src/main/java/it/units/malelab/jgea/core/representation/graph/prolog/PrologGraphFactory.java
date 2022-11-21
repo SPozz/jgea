@@ -20,7 +20,7 @@ public class PrologGraphFactory implements Factory<PrologGraph> {
   final private List<String> domainDefinition;
   final private List<String> structuralRules;
 
-  PrologGraphFactory(int minDimension, int maxDimension, PrologGraph originGraph, List<String> operators, List<String> domainDefinition, List<String> structuralRules) {
+  public PrologGraphFactory(int minDimension, int maxDimension, PrologGraph originGraph, List<String> operators, List<String> domainDefinition, List<String> structuralRules) {
     this.minDimension = minDimension;
     this.maxDimension = maxDimension;
     this.originGraph = originGraph;

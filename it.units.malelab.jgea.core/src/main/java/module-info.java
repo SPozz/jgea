@@ -26,6 +26,8 @@ module it.units.malelab.jgea.core {
   exports it.units.malelab.jgea.core.solver.speciation;
   exports it.units.malelab.jgea.core.solver.state;
   exports it.units.malelab.jgea.core.util;
+  exports it.units.malelab.jgea.core.representation.graph.prolog;
+  exports it.units.malelab.jgea.core.representation.graph.prolog.mapper;
   requires com.google.common;
   requires org.knowm.xchart;
   requires java.desktop;
