@@ -381,9 +381,11 @@ public class FsmAnalysis {
     origin.addNode(node);
     origin.setArcValue(node,node,edge);
 
-//    PrologGraphFactory.exportFactoryAnalysis("Fsm",25,49,origin,Arrays.asList(addConnectedNode,addNode,addMissingTransition,addNodeAndEdges,changeStart,changeTarget,changeAcceptingValue),domainDefinition,structuralRules);
-//    PrologGraphFactory.exportFactoryAnalysis("Fsm",50,74,origin,Arrays.asList(addConnectedNode,addNode,addMissingTransition,addNodeAndEdges,changeStart,changeTarget,changeAcceptingValue),domainDefinition,structuralRules);
-//    PrologGraphFactory.exportFactoryAnalysis("Fsm",75,99,origin,Arrays.asList(addConnectedNode,addNode,addMissingTransition,addNodeAndEdges,changeStart,changeTarget,changeAcceptingValue),domainDefinition,structuralRules);
+    String name = "FsmSelection"; //Selection = addConncected, addNode, addNodeAndEdges, addMissingTransition, changeTarget
+
+    PrologGraphFactory.exportFactoryAnalysis(name,25,49,origin,Arrays.asList(addConnectedNode,addNode,addMissingTransition,addNodeAndEdges,changeTarget),domainDefinition,structuralRules);
+    PrologGraphFactory.exportFactoryAnalysis(name,50,74,origin,Arrays.asList(addConnectedNode,addNode,addMissingTransition,addNodeAndEdges,changeTarget),domainDefinition,structuralRules);
+    PrologGraphFactory.exportFactoryAnalysis(name,75,99,origin,Arrays.asList(addConnectedNode,addNode,addMissingTransition,addNodeAndEdges,changeTarget),domainDefinition,structuralRules);
 
 
 

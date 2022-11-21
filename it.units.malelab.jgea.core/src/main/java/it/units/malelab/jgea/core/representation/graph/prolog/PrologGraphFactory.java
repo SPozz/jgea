@@ -32,7 +32,7 @@ public class PrologGraphFactory implements Factory<PrologGraph> {
   @Override
   public List<PrologGraph> build(int n, RandomGenerator random) {
     List<PrologGraph> graphList = new ArrayList<>();
-    final int maxAttempts = 100;
+    final int maxAttempts = 150;
     final int nStep = maxDimension - minDimension + 1;
     final int graphPerDimension = n / nStep;
 
