@@ -361,7 +361,7 @@ public class TwitterAnalysis {
     origin.setArcValue(node1, node2, edge);
 
     String name = "TwitterSelection";
-    List<String> factoryOperators = Arrays.asList(addLegalEdge,addUser,addRandomNode); //Selection = AddUser, AddLegalEdge, addRandomNode(possible +2)
+    List<String> factoryOperators = Arrays.asList(addLegalEdge, addUser, addRandomNode); //Selection = AddUser, AddLegalEdge, addRandomNode(possible +2)
 
     PrologGraphFactory.exportFactoryAnalysis(name, 25, 49, origin, factoryOperators, domainDefinition, structuralRules);
     PrologGraphFactory.exportFactoryAnalysis(name, 50, 74, origin, factoryOperators, domainDefinition, structuralRules);
