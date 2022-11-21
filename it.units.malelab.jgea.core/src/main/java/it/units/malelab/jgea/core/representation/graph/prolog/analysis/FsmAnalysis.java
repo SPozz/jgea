@@ -381,8 +381,8 @@ public class FsmAnalysis {
     origin.addNode(node);
     origin.setArcValue(node, node, edge);
 
-    String name = "FsmSelection"; //Selection = addConncected, addNode, addNodeAndEdges, addMissingTransition, changeTarget
-    List<String> factoryOperators = Arrays.asList(addConnectedNode, addNode, addMissingTransition, addNodeAndEdges, changeTarget);
+    String name = "FsmSelection"; //Selection = addConnected, addNodeAndEdges, addMissingTransition, changeTarget
+    List<String> factoryOperators = Arrays.asList(addConnectedNode, addMissingTransition, addNodeAndEdges, changeTarget);
 
     PrologGraphFactory.exportFactoryAnalysis(name, 25, 49, origin, factoryOperators, domainDefinition, structuralRules);
     PrologGraphFactory.exportFactoryAnalysis(name, 50, 74, origin, factoryOperators, domainDefinition, structuralRules);
