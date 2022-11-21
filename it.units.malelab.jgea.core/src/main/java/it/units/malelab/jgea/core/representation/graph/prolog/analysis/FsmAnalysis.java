@@ -367,25 +367,26 @@ public class FsmAnalysis {
 
 
 //    //Export CSV
-//    exportFsmAnalysis(operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
+    exportFsmAnalysis(operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
 
 //    //Export analysis of Factory
     PrologGraph origin = new PrologGraph();
-    LinkedHashMap<String,Object> node = new LinkedHashMap<>();
-    node.put("node_id","start");
-    node.put("start",1);
-    node.put("accepting",1);
-    LinkedHashMap<String,Object> edge = new LinkedHashMap<>();
-    edge.put("edge_id","loop");
-    edge.put("input","[0,1]");
+    LinkedHashMap<String, Object> node = new LinkedHashMap<>();
+    node.put("node_id", "start");
+    node.put("start", 1);
+    node.put("accepting", 1);
+    LinkedHashMap<String, Object> edge = new LinkedHashMap<>();
+    edge.put("edge_id", "loop");
+    edge.put("input", "[0,1]");
     origin.addNode(node);
-    origin.setArcValue(node,node,edge);
+    origin.setArcValue(node, node, edge);
 
     String name = "FsmSelection"; //Selection = addConncected, addNode, addNodeAndEdges, addMissingTransition, changeTarget
+    List<String> factoryOperators = Arrays.asList(addConnectedNode, addNode, addMissingTransition, addNodeAndEdges, changeTarget);
 
-    PrologGraphFactory.exportFactoryAnalysis(name,25,49,origin,Arrays.asList(addConnectedNode,addNode,addMissingTransition,addNodeAndEdges,changeTarget),domainDefinition,structuralRules);
-    PrologGraphFactory.exportFactoryAnalysis(name,50,74,origin,Arrays.asList(addConnectedNode,addNode,addMissingTransition,addNodeAndEdges,changeTarget),domainDefinition,structuralRules);
-    PrologGraphFactory.exportFactoryAnalysis(name,75,99,origin,Arrays.asList(addConnectedNode,addNode,addMissingTransition,addNodeAndEdges,changeTarget),domainDefinition,structuralRules);
+    PrologGraphFactory.exportFactoryAnalysis(name, 25, 49, origin, factoryOperators, domainDefinition, structuralRules);
+    PrologGraphFactory.exportFactoryAnalysis(name, 50, 74, origin, factoryOperators, domainDefinition, structuralRules);
+    PrologGraphFactory.exportFactoryAnalysis(name, 75, 99, origin, factoryOperators, domainDefinition, structuralRules);
 
 
 
