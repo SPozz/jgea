@@ -57,7 +57,7 @@ public class PrologGraphFactory implements Factory<PrologGraph> {
   }
 
 
-  void exportFactoryAnalysis(String domainName, int minDimension, int maxDimension, PrologGraph originGraph, List<String> operators, List<String> domainDefinition, List<String> structuralRules) {
+  public static void exportFactoryAnalysis(String domainName, int minDimension, int maxDimension, PrologGraph originGraph, List<String> operators, List<String> domainDefinition, List<String> structuralRules) {
     final int nGraphs = 200;
     final Random random = new Random();
 
@@ -67,7 +67,7 @@ public class PrologGraphFactory implements Factory<PrologGraph> {
 
     try {
       // create a writer
-      Writer writer = Files.newBufferedWriter(Paths.get("C:\\Users\\Simone\\Desktop\\GitHub_Tesi\\jgea_data\\sizeDistribution\\" + fileName));
+      Writer writer = Files.newBufferedWriter(Paths.get("C:\\Users\\Simone\\Desktop\\GitHub_Tesi\\jgea_data\\sizeDistribution\\" + fileName + ".csv"));
 
       // write CSV file
       CSVPrinter printer = CSVFormat.DEFAULT.withHeader("graph", "dimension", "nNodes", "nArcs").print(writer);
