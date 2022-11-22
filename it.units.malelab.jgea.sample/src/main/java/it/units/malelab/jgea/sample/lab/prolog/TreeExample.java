@@ -162,7 +162,7 @@ public class TreeExample implements Runnable {
     for (String op : operators)
       operatorsMap.put(new PrologOperator(op, domainDefinition, structuralRules), weight);
 
-    solvers.add(new StandardEvolver<POSetPopulationState<PrologGraph, RealFunction, Double>, SyntheticSymbolicRegressionProblem, PrologGraph, RealFunction, Double>(
+    solvers.add(new StandardEvolver<>(
             new OperatorGraphMapper().andThen(og -> (RealFunction) input -> og.apply(input)[0]),
             new PrologGraphFactory(minDim, maxDim, originGraph, operators, domainDefinition, structuralRules),
             100,
@@ -173,7 +173,7 @@ public class TreeExample implements Runnable {
             100,
             true,
             false,
-            (srp, rnd) -> new POSetPopulationState<PrologGraph, RealFunction, Double>()
+            (srp, rnd) -> new POSetPopulationState<>()
     ));
 
     int counter = 0;
