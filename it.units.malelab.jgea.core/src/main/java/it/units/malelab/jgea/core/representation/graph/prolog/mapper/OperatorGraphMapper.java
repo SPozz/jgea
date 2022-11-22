@@ -20,7 +20,7 @@ public class OperatorGraphMapper implements Function<PrologGraph, OperatorGraph>
     LinkedHashGraph<Node, OperatorGraph.NonValuedArc> intermediateGraph = new LinkedHashGraph<>();
     int index = 1; //0 reserved for output node
     LinkedHashMap<String, Node> idToNode = new LinkedHashMap<>();
-    final BaseOperator[] baseOperators = new BaseOperator[]{BaseOperator.ADDITION, BaseOperator.DIVISION, BaseOperator.MULTIPLICATION, BaseOperator.SUBTRACTION};
+    final BaseOperator[] baseOperators = new BaseOperator[]{BaseOperator.ADDITION, BaseOperator.DIVISION, BaseOperator.MULTIPLICATION, BaseOperator.SUBTRACTION, BaseOperator.LOG};
     final String[] baseOperatorsString = new String[baseOperators.length];
     for (int i = 0; i < baseOperators.length; ++i) {
       baseOperatorsString[i] = baseOperators[i].toString();
