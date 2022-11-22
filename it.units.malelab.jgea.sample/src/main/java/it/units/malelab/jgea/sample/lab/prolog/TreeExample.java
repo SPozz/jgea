@@ -78,12 +78,12 @@ public class TreeExample implements Runnable {
 
   public static void main(String[] args) {
     List<String> structuralRules = Arrays.asList(
-            "variable_val(X) :- float(X), X>= 0.0, X < 2.0",
+            "variable_val(X) :- float(X), X>= 0.0, X < 2.0 .",
             "operator_val(+).",
             "operator_val(*).",
             "operator_val(-).",
             "operator_val(/).",
-            "operator_val(log)",
+            "operator_val(log).",
             "start_outdegree(S) :- findall(E, edge(S,_,E), RES), length(RES,N1), N1 == 0.",
             "node_outdegree(S) :- findall(E, edge(S,_,E), RES), length(RES,N1), N1 == 1.",
             "operator_indegree(T) :- findall(E, edge(_,T,E), RES), length(RES,N1), N1 == 2.",
