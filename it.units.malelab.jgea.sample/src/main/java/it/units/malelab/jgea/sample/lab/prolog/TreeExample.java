@@ -23,7 +23,7 @@ import java.util.logging.Logger;
 
 import static it.units.malelab.jgea.sample.lab.TuiExample.*;
 
-public class FirstExample implements Runnable {
+public class TreeExample implements Runnable {
   private final static Logger L = Logger.getLogger(TuiExample.class.getName());
   private final ExecutorService executorService;
   private final int minDim;
@@ -39,7 +39,7 @@ public class FirstExample implements Runnable {
   private final PrologGraph originGraph;
   private final List<String> operators;
 
-  public FirstExample(int minDim, int maxDim, List<String> operators, List<String> structuralRules) {
+  public TreeExample(int minDim, int maxDim, List<String> operators, List<String> structuralRules) {
     executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() - 1);
     this.minDim = minDim;
     this.maxDim = maxDim;
@@ -141,7 +141,7 @@ public class FirstExample implements Runnable {
             "assert(value(O,X))";
     operators.add(perturbVariable);
 
-    new FirstExample(10, 30, operators, structuralRules).run();
+    new TreeExample(10, 30, operators, structuralRules).run();
   }
 
 
@@ -166,7 +166,7 @@ public class FirstExample implements Runnable {
             new PrologGraphFactory(minDim, maxDim, originGraph, operators, domainDefinition, structuralRules),
             100,
             StopConditions.nOfIterations(500),
-            null,
+            null, //operatorsMap
             new Tournament(5),
             new Last(),
             100,
