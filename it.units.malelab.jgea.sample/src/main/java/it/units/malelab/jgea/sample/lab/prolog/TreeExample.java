@@ -78,11 +78,12 @@ public class TreeExample implements Runnable {
 
   public static void main(String[] args) {
     List<String> structuralRules = Arrays.asList(
-            "variable_val(X) :- integer(X), X>= 0, X < 10.",
+            "variable_val(X) :- float(X), X>= 0.0, X < 2.0",
             "operator_val(+).",
             "operator_val(*).",
             "operator_val(-).",
             "operator_val(/).",
+            "operator_val(log)",
             "start_outdegree(S) :- findall(E, edge(S,_,E), RES), length(RES,N1), N1 == 0.",
             "node_outdegree(S) :- findall(E, edge(S,_,E), RES), length(RES,N1), N1 == 1.",
             "operator_indegree(T) :- findall(E, edge(_,T,E), RES), length(RES,N1), N1 == 2.",
@@ -110,13 +111,13 @@ public class TreeExample implements Runnable {
             "gensym(nod,N1)," +
             "assert(node_id(N1))," +
             "assert(type(N1,variable))," +
-            "random_between(0,9,V1Val)," +
+            "random_between(0.0,2.0,V1Val)," +
             "assert(value(N1,V1Val))," +
             "assert(start(N1,0))," +
             "gensym(nod,N2)," +
             "assert(node_id(N2))," +
             "assert(type(N2,variable))," +
-            "random_between(0,9,V2Val)," +
+            "random_between(0.0,2.0,V2Val)," +
             "assert(value(N2,V2Val))," +
             "assert(start(N2,0))," +
             "gensym(edge,E1)," +
@@ -138,11 +139,33 @@ public class TreeExample implements Runnable {
     String perturbVariable = "findall(VAR,type(VAR,variable), Variables)," +
             "random_member(O, Variables)," +
             "retract(value(O,_))," +
-            "random_between(0,9,X)," +
+            "random_between(0.0,2.0,X)," +
             "assert(value(O,X))";
     operators.add(perturbVariable);
 
-    new TreeExample(10, 30, operators, structuralRules).run();
+    String removeLeaves = "findall(VV,(node_id(VV),type(VV,variable)),VariablesID)," +
+            "random_member(V,VariablesID)," +
+            "edge(V,T,ID)," +
+            "retract(edge_id(ID))," +
+            "retract(edge(V,T,_))," +
+            "retract(node_id(V))," +
+            "retract(start(V,0))," +
+            "retract(type(V,_))," +
+            "edge(S,T,ID2)," +
+            "retract(node_id(S))," +
+            "retract(start(S,0))," +
+            "retract(type(S,_))," +
+            "retract(value(S,_))," +
+            "retract(edge_id(ID2))," +
+            "retract(edge(S,T,ID2))," +
+            "retract(type(T,_))," +
+            "retract(value(T,_))," +
+            "random_between(0,10,Val)," +
+            "assert(value(T,Val))," +
+            "assert(type(T,variable))";
+    operators.add(removeLeaves);
+
+    new TreeExample(5, 30, operators, structuralRules).run();
   }
 
 
