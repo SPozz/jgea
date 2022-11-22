@@ -1,5 +1,6 @@
 package it.units.malelab.jgea.sample.lab.prolog;
 
+import it.units.malelab.jgea.core.operator.GeneticOperator;
 import it.units.malelab.jgea.core.representation.graph.numeric.RealFunction;
 import it.units.malelab.jgea.core.representation.graph.prolog.PrologGraph;
 import it.units.malelab.jgea.core.representation.graph.prolog.PrologGraphFactory;
@@ -156,23 +157,23 @@ public class TreeExample implements Runnable {
     List<IterativeSolver<? extends POSetPopulationState<PrologGraph, RealFunction, Double>, SyntheticSymbolicRegressionProblem,
             RealFunction>> solvers = new ArrayList<>();
 
-    Map<PrologOperator, Double> operatorsMap = new HashMap<>();
+    Map<GeneticOperator<PrologGraph>, Double> operatorsMap = new HashMap<>();
     final double weight = 1.0d / operators.size();
     for (String op : operators)
       operatorsMap.put(new PrologOperator(op, domainDefinition, structuralRules), weight);
 
-    solvers.add(new StandardEvolver<>(
+    solvers.add(new StandardEvolver<POSetPopulationState<PrologGraph, RealFunction, Double>, SyntheticSymbolicRegressionProblem, PrologGraph, RealFunction, Double>(
             new OperatorGraphMapper().andThen(og -> (RealFunction) input -> og.apply(input)[0]),
             new PrologGraphFactory(minDim, maxDim, originGraph, operators, domainDefinition, structuralRules),
             100,
             StopConditions.nOfIterations(500),
-            null, //operatorsMap
+            operatorsMap,
             new Tournament(5),
             new Last(),
             100,
             true,
             false,
-            (srp, rnd) -> new POSetPopulationState<>()
+            (srp, rnd) -> new POSetPopulationState<PrologGraph, RealFunction, Double>()
     ));
 
     int counter = 0;
