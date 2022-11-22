@@ -332,6 +332,18 @@ public class TreeAnalysis {
     operators.add(removeLeaves);
     operatorsLabels.add("removeLeaves");
 
+    String swapEdges = "findall(VV,(node_id(VV),type(VV,variable)),VariablesID)," +
+            "random_member(V1,VariablesID)," +
+            "random_member(V2,VariablesID)," +
+            "edge(V1,T1,Id1)," +
+            "edge(V2,T2,Id2)," +
+            "retract(edge(V1,T1,Id1))," +
+            "retract(edge(V2,T2,Id2))," +
+            "assert(edge(V1,T2,Id1))," +
+            "assert(edge(V2,T1,Id2)).";
+    operators.add(swapEdges);
+    operatorsLabels.add("swapEdges");
+
 
 //    ////Export CSV
     exportTreeAnalysis(operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
