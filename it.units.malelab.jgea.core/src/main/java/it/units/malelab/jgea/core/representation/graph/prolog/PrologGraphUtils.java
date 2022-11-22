@@ -217,12 +217,20 @@ public class PrologGraphUtils {
       Query.hasSolution("assert(( is_valid :- true )).");
 
     // check validity (updated)
-    if (!Query.hasSolution("is_valid")) {
+    try {
+      if (!Query.hasSolution("is_valid")) {
+        return parent;
+      }
+    } catch (PrologException any) {
       return parent;
     }
     // ev. check second validity
     if (rulesCheck.contains("is_valid2")) {
-      if (!Query.hasSolution("is_valid2")) {
+      try {
+        if (!Query.hasSolution("is_valid2")) {
+          return parent;
+        }
+      } catch (PrologException any) {
         return parent;
       }
     }
