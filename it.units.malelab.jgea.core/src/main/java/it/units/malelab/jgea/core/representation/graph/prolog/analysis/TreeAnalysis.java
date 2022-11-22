@@ -238,6 +238,7 @@ public class TreeAnalysis {
             "operator_val(*).",
             "operator_val(-).",
             "operator_val(/).",
+            "operator_val(log).",
             "start_outdegree(S) :- findall(E, edge(S,_,E), RES), length(RES,N1), N1 == 0.",
             "node_outdegree(S) :- findall(E, edge(S,_,E), RES), length(RES,N1), N1 == 1.",
             "operator_indegree(T) :- findall(E, edge(_,T,E), RES), length(RES,N1), N1 == 2.",
@@ -307,6 +308,29 @@ public class TreeAnalysis {
             "assert(value(O,X))";
     operators.add(perturbVariable);
     operatorsLabels.add("perturbVariable");
+
+    String removeLeaves = "findall(VV,(node_id(VV),type(VV,variable)),VariablesID)," +
+            "random_member(V,VariablesID)," +
+            "edge(V,T,ID)," +
+            "retract(edge_id(ID))," +
+            "retract(edge(V,T,ID))," +
+            "retract(node_id(V))," +
+            "retract(start(V,0))," +
+            "retract(type(V,_))," +
+            "edge(S,T,ID2)," +
+            "retract(node_id(S))," +
+            "retract(start(S,0))," +
+            "retract(type(S,_))," +
+            "retract(value(S,_))," +
+            "retract(edge_id(ID2))," +
+            "retract(edge(S,T,ID2))," +
+            "retract(type(T,_))," +
+            "retract(value(T,_))," +
+            "random_between(0,10,Val)," +
+            "assert(value(T,Val))," +
+            "assert(type(T,variable)).";
+    operators.add(removeLeaves);
+    operatorsLabels.add("removeLeaves");
 
 
 //    ////Export CSV
