@@ -354,7 +354,7 @@ public class TreeAnalysis {
 
 
 //    ////Export CSV
-    exportTreeAnalysis(operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
+//    exportTreeAnalysis(operators, operatorsLabels, factsNames, domainDefinition, structuralRules);
 
 //  // Export analysis of Factory
     PrologGraph origin = new PrologGraph();
