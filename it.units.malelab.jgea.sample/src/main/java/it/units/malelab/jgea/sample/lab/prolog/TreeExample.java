@@ -23,6 +23,7 @@ import java.util.concurrent.Executors;
 import java.util.logging.Logger;
 
 import static it.units.malelab.jgea.sample.lab.TuiExample.*;
+import static it.units.malelab.jgea.core.listener.NamedFunctions.*;
 
 public class TreeExample implements Runnable {
   private final static Logger L = Logger.getLogger(TuiExample.class.getName());
@@ -74,7 +75,6 @@ public class TreeExample implements Runnable {
     origin.setArcValue(node3, node1, edge2);
     this.originGraph = origin;
   }
-
 
   public static void main(String[] args) {
     List<String> structuralRules = Arrays.asList(
@@ -165,14 +165,28 @@ public class TreeExample implements Runnable {
             "assert(type(T,variable))";
     operators.add(removeLeaves);
 
+    String swapEdges = "findall(VV,(node_id(VV),type(VV,variable)),VariablesID)," +
+            "random_member(V1,VariablesID)," +
+            "random_member(V2,VariablesID)," +
+            "edge(V1,T1,Id1)," +
+            "edge(V2,T2,Id2)," +
+            "retract(edge(V1,T1,Id1))," +
+            "retract(edge(V2,T2,Id2))," +
+            "assert(edge(V1,T2,Id1))," +
+            "assert(edge(V2,T1,Id2)).";
+    operators.add(swapEdges);
+
     new TreeExample(5, 30, operators, structuralRules).run();
   }
-
 
   public void run() {
     TerminalMonitor<? super POSetPopulationState<?, ?, ? extends Double>, Map<String, Object>> tm =
             new TerminalMonitor<>(
-                    Misc.concat(List.of(BASIC_FUNCTIONS, DOUBLE_FUNCTIONS)),
+                    Misc.concat(List.of(
+                            BASIC_FUNCTIONS,
+                            DOUBLE_FUNCTIONS,
+                            List.of(solution().reformat("%20.20s").of(best()))
+                    )),
                     List.of()
             );
     List<Integer> seeds = List.of(1, 2, 3, 4, 5);
