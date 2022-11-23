@@ -4,6 +4,7 @@ import it.units.malelab.jgea.core.representation.graph.Graph;
 import it.units.malelab.jgea.core.representation.graph.LinkedHashGraph;
 import it.units.malelab.jgea.core.representation.graph.Node;
 import it.units.malelab.jgea.core.representation.graph.numeric.Constant;
+import it.units.malelab.jgea.core.representation.graph.numeric.Input;
 import it.units.malelab.jgea.core.representation.graph.numeric.Output;
 import it.units.malelab.jgea.core.representation.graph.numeric.operatorgraph.BaseOperator;
 import it.units.malelab.jgea.core.representation.graph.numeric.operatorgraph.OperatorGraph;
@@ -41,10 +42,12 @@ public class OperatorGraphMapper implements Function<PrologGraph, OperatorGraph>
           intermediateGraph.setArcValue(tmpNode, outputNode, OperatorGraph.NON_VALUED_ARC);
           continue;
         }
-      } else if (node.get("type").toString().equals("variable")) {
+      } else if (node.get("type").toString().equalsIgnoreCase("constant")) {
         final String valueString = node.get("value").toString();
         final double value = Double.parseDouble(valueString);
         tmpNode = new Constant(index, value);
+      } else if (node.get("type").toString().equalsIgnoreCase("input")) {
+        tmpNode = new Input(index);
       } else {
         throw new UnsupportedOperationException("Not acceptable type");
       }
