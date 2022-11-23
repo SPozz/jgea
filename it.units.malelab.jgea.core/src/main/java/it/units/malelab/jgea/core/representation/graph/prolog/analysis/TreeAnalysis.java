@@ -280,14 +280,14 @@ public class TreeAnalysis {
             "assert(node_id(N1))," +
             "(   maybe ->  assert(type(N1,input)); " +
             "    assert(type(N1,constant)) )," +
-            "random_between(0,10,V1Val)," +
+            "random(0,10,V1Val)," +
             "assert(value(N1,V1Val))," +
             "assert(start(N1,0))," +
             "gensym(nod,N2)," +
             "assert(node_id(N2))," +
             "(   maybe ->  assert(type(N2,input)); " +
             "    assert(type(N2,constant)) )," +
-            "random_between(0,10,V2Val)," +
+            "random(0,10,V2Val)," +
             "assert(value(N2,V2Val))," +
             "assert(start(N2,0))," +
             "gensym(edge,E1)," +
@@ -311,7 +311,7 @@ public class TreeAnalysis {
     String changeConstant = "findall(CON,type(CON,constant), Constants)," +
             "random_member(O, Constants)," +
             "retract(value(O,_))," +
-            "random_between(0,9,X)," +
+            "random(0,9,X)," +
             "assert(value(O,X)).";
     operators.add(changeConstant);
     operatorsLabels.add("changeConstant");
@@ -333,7 +333,7 @@ public class TreeAnalysis {
             "retract(edge(S,T,ID2))," +
             "retract(type(T,_))," +
             "retract(value(T,_))," +
-            "random_between(0,10,Val)," +
+            "random(0,10,Val)," +
             "assert(value(T,Val))," +
             "(maybe -> assert(type(T,variable));" +
             "assert(type(T,input)) ).";
