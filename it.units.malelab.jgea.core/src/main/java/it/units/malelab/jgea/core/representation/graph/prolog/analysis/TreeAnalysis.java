@@ -233,12 +233,12 @@ public class TreeAnalysis {
             ":- dynamic edge/3.");
 
     final List<String> structuralRules = Arrays.asList(
-            "variable_val(X) :- integer(X), X>= 0, X < 10.",
             "operator_val(+).",
             "operator_val(*).",
             "operator_val(-).",
             "operator_val(/).",
-            "operator_val(log).",
+            "input_val(null).",
+            "constant_val(X) :- integer(X), X>=0, X< 10.",
             "start_outdegree(S) :- findall(E, edge(S,_,E), RES), length(RES,N1), N1 == 0.",
             "node_outdegree(S) :- findall(E, edge(S,_,E), RES), length(RES,N1), N1 == 1.",
             "operator_indegree(T) :- findall(E, edge(_,T,E), RES), length(RES,N1), N1 == 2.",
@@ -251,8 +251,8 @@ public class TreeAnalysis {
                     "    foreach(findall(T,(node_id(T),start(T,1)),T), maplist(start_outdegree,T))," +
                     "    foreach(findall(T,(node_id(T),start(T,0)),T), maplist(node_outdegree,T))," +
                     "    foreach(findall(O,type(O,operator),O), maplist(operator_indegree,O))," +
-                    "    foreach(findall(V,type(V,variable),V), maplist(variable_indegree,V)).");
-
+                    "    foreach(findall(V,type(V,input),V), maplist(leaf_indegree,V))," +
+                    "    foreach(findall(V,type(V,constant),V), maplist(leaf_indegree,V))");
     final List<String> factsNames = Arrays.asList("node_id/1",
             "start/2",
             "type/2",
@@ -264,23 +264,25 @@ public class TreeAnalysis {
     List<String> operators = new ArrayList<>();
     List<String> operatorsLabels = new ArrayList<>();
 
-    String subTree = "findall(VV,type(VV,variable),VAR)," +
+    String subTree = "findall(VV,(type(VV,input); type(VV,constant)),VAR)," +
             "random_member(V,VAR)," +
             "retract(value(V,_))," +
-            "retract(type(V,variable))," +
+            "retract(type(V,input))," +
             "operator_val(OpVal)," +
             "assert(type(V,operator))," +
             "assert(value(V,OpVal))," +
             "gensym(nod,N1)," +
             "assert(node_id(N1))," +
-            "assert(type(N1,variable))," +
-            "random_between(0,9,V1Val)," +
+            "(   maybe ->  assert(type(N1,input)); " +
+            "    assert(type(N1,constant)) )," +
+            "random_between(0,10,V1Val)," +
             "assert(value(N1,V1Val))," +
             "assert(start(N1,0))," +
             "gensym(nod,N2)," +
             "assert(node_id(N2))," +
-            "assert(type(N2,variable))," +
-            "random_between(0,9,V2Val)," +
+            "(   maybe ->  assert(type(N2,input)); " +
+            "    assert(type(N2,constant)) )," +
+            "random_between(0,10,V2Val)," +
             "assert(value(N2,V2Val))," +
             "assert(start(N2,0))," +
             "gensym(edge,E1)," +
@@ -288,29 +290,32 @@ public class TreeAnalysis {
             "assert(edge_id(E1))," +
             "assert(edge_id(E2))," +
             "assert(edge(N1,V,E1))," +
-            "assert(edge(N2,V,E2)).";
+            "assert(edge(N2,V,E2))," +
+            "is_valid.";
     operators.add(subTree);
     operatorsLabels.add("subTree");
 
-    String perturbOperator = "findall(OP,type(OP,operator), Operators)," +
+    String changeOperator = "findall(OP,type(OP,operator), Operators)," +
             "random_member(O, Operators)," +
             "retract(value(O,_))," +
             "findall(V,operator_val(V),Values)," +
             "random_member(X,Values)," +
             "assert(value(O,X))";
-    operators.add(perturbOperator);
-    operatorsLabels.add("perturbOperator");
+    operators.add(changeOperator);
+    operatorsLabels.add("changeOperator");
 
-    String perturbVariable = "findall(VAR,type(VAR,variable), Variables)," +
-            "random_member(O, Variables)," +
+    String changeConstant = "findall(CON,type(CON,constant), Constants)," +
+            "random_member(O, Constants)," +
             "retract(value(O,_))," +
             "random_between(0,9,X)," +
-            "assert(value(O,X))";
-    operators.add(perturbVariable);
-    operatorsLabels.add("perturbVariable");
+            "assert(value(O,X))," +
+            "is_valid.";
+    operators.add(changeConstant);
+    operatorsLabels.add("changeConstant");
 
-    String removeLeaves = "findall(VV,(node_id(VV),type(VV,variable)),VariablesID)," +
-            "random_member(V,VariablesID)," +
+
+    String removeLeaves = "findall(VV,(node_id(VV),(type(VV,variable); type(VV,input)),LeavesID)," +
+            "random_member(V,LeavesID)," +
             "edge(V,T,ID)," +
             "retract(edge_id(ID))," +
             "retract(edge(V,T,ID))," +
@@ -328,13 +333,14 @@ public class TreeAnalysis {
             "retract(value(T,_))," +
             "random_between(0,10,Val)," +
             "assert(value(T,Val))," +
-            "assert(type(T,variable)).";
+            "(maybe -> assert(type(T,variable));" +
+            "assert(type(T,input)) ).";
     operators.add(removeLeaves);
     operatorsLabels.add("removeLeaves");
 
-    String swapEdges = "findall(VV,(node_id(VV),type(VV,variable)),VariablesID)," +
-            "random_member(V1,VariablesID)," +
-            "random_member(V2,VariablesID)," +
+    String swapEdges = "findall(VV,(node_id(VV),(type(VV,variable); type(VV,input) ),Leaves)," +
+            "random_member(V1,Leaves)," +
+            "random_member(V2,Leaves)," +
             "edge(V1,T1,Id1)," +
             "edge(V2,T2,Id2)," +
             "retract(edge(V1,T1,Id1))," +
@@ -358,13 +364,13 @@ public class TreeAnalysis {
     LinkedHashMap<String, Object> node2 = new LinkedHashMap<>();
     node2.put("node_id", "second");
     node2.put("start", 0);
-    node2.put("type", "variable");
-    node2.put("value", 5);
+    node2.put("type", "constant");
+    node2.put("value", 1.0d);
     LinkedHashMap<String, Object> node3 = new LinkedHashMap<>();
     node3.put("node_id", "third");
     node3.put("start", 0);
-    node3.put("type", "variable");
-    node3.put("value", 3);
+    node3.put("type", "input");
+    node3.put("value", "null");
     LinkedHashMap<String, Object> edge1 = new LinkedHashMap<>();
     edge1.put("edge_id", "firstEdge");
     LinkedHashMap<String, Object> edge2 = new LinkedHashMap<>();
@@ -375,8 +381,8 @@ public class TreeAnalysis {
     origin.setArcValue(node2, node1, edge1);
     origin.setArcValue(node3, node1, edge2);
 
-    String name = "TreeAdd";
-    List<String> factoryOperators = Arrays.asList(subTree);
+    String name = "ZZNEWTreeSelection";
+    List<String> factoryOperators = Arrays.asList(subTree,swapEdges);
 
     PrologGraphFactory.exportFactoryAnalysis(name, 25, 49, origin, factoryOperators, domainDefinition, structuralRules);
     PrologGraphFactory.exportFactoryAnalysis(name, 50, 74, origin, factoryOperators, domainDefinition, structuralRules);
