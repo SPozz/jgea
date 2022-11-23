@@ -221,18 +221,15 @@ public class PrologGraphUtils {
       if (!Query.hasSolution("is_valid")) {
         return parent;
       }
-    } catch (PrologException any) {
-      return parent;
-    }
-    // ev. check second validity
-    if (rulesCheck.contains("is_valid2")) {
-      try {
+
+      // ev. check second validity
+      if (rulesCheck.contains("is_valid2")) {
         if (!Query.hasSolution("is_valid2")) {
           return parent;
         }
-      } catch (PrologException any) {
-        return parent;
       }
+    } catch (PrologException any) {
+      return parent;
     }
     return buildGraph(domainDefinition);
   }
