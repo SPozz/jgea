@@ -27,7 +27,10 @@ import static it.units.malelab.jgea.core.listener.NamedFunctions.*;
 
 public class TreeExample implements Runnable {
   private final static Logger L = Logger.getLogger(TuiExample.class.getName());
+
   private final ExecutorService executorService;
+
+
   private final int minDim;
   private final int maxDim;
   private final List<String> domainDefinition = Arrays.asList(
@@ -74,6 +77,69 @@ public class TreeExample implements Runnable {
     origin.setArcValue(node2, node1, edge1);
     origin.setArcValue(node3, node1, edge2);
     this.originGraph = origin;
+  }
+
+  @Override
+  public void run() {
+    TerminalMonitor<? super POSetPopulationState<?, ?, ? extends Double>, Map<String, Object>> tm =
+            new TerminalMonitor<>(
+                    Misc.concat(List.of(
+                            BASIC_FUNCTIONS,
+                            DOUBLE_FUNCTIONS,
+                            List.of(solution().reformat("%20.20s").of(best()))
+                    )),
+                    List.of()
+            );
+    List<Integer> seeds = List.of(1, 2, 3, 4, 5);
+    SyntheticSymbolicRegressionProblem p = new Nguyen7(SymbolicRegressionFitness.Metric.MSE, 1);
+    List<IterativeSolver<? extends POSetPopulationState<PrologGraph, RealFunction, Double>, SyntheticSymbolicRegressionProblem,
+            RealFunction>> solvers = new ArrayList<>();
+
+    Map<GeneticOperator<PrologGraph>, Double> operatorsMap = new HashMap<>();
+    final double weight = 1.0d / operators.size();
+    for (String op : operators)
+      operatorsMap.put(new PrologOperator(op, domainDefinition, structuralRules), weight);
+
+    solvers.add(new StandardEvolver<>(
+            new OperatorGraphMapper().andThen(og -> (RealFunction) input -> og.apply(input)[0]),
+            new PrologGraphFactory(minDim, maxDim, originGraph, operators, domainDefinition, structuralRules),
+            100,
+            StopConditions.nOfIterations(500),
+            operatorsMap,
+            new Tournament(5),
+            new Last(),
+            100,
+            true,
+            false,
+            (srp, rnd) -> new POSetPopulationState<>()
+    ));
+
+    int counter = 0;
+    for (int seed : seeds) {
+      Random r = new Random(1);
+      for (IterativeSolver<? extends POSetPopulationState<?, RealFunction, Double>, SyntheticSymbolicRegressionProblem,
+              RealFunction> solver : solvers) {
+        Map<String, Object> keys = Map.ofEntries(
+                Map.entry("seed", seed),
+                Map.entry("solver", solver.getClass().getSimpleName())
+        );
+        tm.notify((double) counter / (double) (seeds.size() * solvers.size()), "Starting " + keys);
+        try {
+          Collection<RealFunction> solutions = solver.solve(
+                  p,
+                  r,
+                  executorService,
+                  tm.build(keys).deferred(executorService)
+          );
+          counter = counter + 1;
+          tm.notify((double) counter / (double) (seeds.size() * solvers.size()), "Starting " + keys);
+          L.info(String.format("Found %d solutions with %s", solutions.size(), keys));
+        } catch (SolverException e) {
+          L.severe(String.format("Exception while doing %s: %s", e, keys));
+        }
+      }
+    }
+    tm.shutdown();
   }
 
   public static void main(String[] args) {
@@ -184,66 +250,5 @@ public class TreeExample implements Runnable {
     new TreeExample(5, 30, operators, structuralRules).run();
   }
 
-  public void run() {
-    TerminalMonitor<? super POSetPopulationState<?, ?, ? extends Double>, Map<String, Object>> tm =
-            new TerminalMonitor<>(
-                    Misc.concat(List.of(
-                            BASIC_FUNCTIONS,
-                            DOUBLE_FUNCTIONS,
-                            List.of(solution().reformat("%20.20s").of(best()))
-                    )),
-                    List.of()
-            );
-    List<Integer> seeds = List.of(1, 2, 3, 4, 5);
-    SyntheticSymbolicRegressionProblem p = new Nguyen7(SymbolicRegressionFitness.Metric.MSE, 1);
-    List<IterativeSolver<? extends POSetPopulationState<PrologGraph, RealFunction, Double>, SyntheticSymbolicRegressionProblem,
-            RealFunction>> solvers = new ArrayList<>();
-
-    Map<GeneticOperator<PrologGraph>, Double> operatorsMap = new HashMap<>();
-    final double weight = 1.0d / operators.size();
-    for (String op : operators)
-      operatorsMap.put(new PrologOperator(op, domainDefinition, structuralRules), weight);
-
-    solvers.add(new StandardEvolver<>(
-            new OperatorGraphMapper().andThen(og -> (RealFunction) input -> og.apply(input)[0]),
-            new PrologGraphFactory(minDim, maxDim, originGraph, operators, domainDefinition, structuralRules),
-            100,
-            StopConditions.nOfIterations(500),
-            operatorsMap,
-            new Tournament(5),
-            new Last(),
-            100,
-            true,
-            false,
-            (srp, rnd) -> new POSetPopulationState<>()
-    ));
-
-    int counter = 0;
-    for (int seed : seeds) {
-      Random r = new Random(1);
-      for (IterativeSolver<? extends POSetPopulationState<?, RealFunction, Double>, SyntheticSymbolicRegressionProblem,
-              RealFunction> solver : solvers) {
-        Map<String, Object> keys = Map.ofEntries(
-                Map.entry("seed", seed),
-                Map.entry("solver", solver.getClass().getSimpleName())
-        );
-        tm.notify((double) counter / (double) (seeds.size() * solvers.size()), "Starting " + keys);
-        try {
-          Collection<RealFunction> solutions = solver.solve(
-                  p,
-                  r,
-                  executorService,
-                  tm.build(keys).deferred(executorService)
-          );
-          counter = counter + 1;
-          tm.notify((double) counter / (double) (seeds.size() * solvers.size()), "Starting " + keys);
-          L.info(String.format("Found %d solutions with %s", solutions.size(), keys));
-        } catch (SolverException e) {
-          L.severe(String.format("Exception while doing %s: %s", e, keys));
-        }
-      }
-    }
-    tm.shutdown();
-  }
 }
 
