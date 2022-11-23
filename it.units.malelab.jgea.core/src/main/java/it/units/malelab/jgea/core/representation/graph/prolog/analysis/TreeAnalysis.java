@@ -17,6 +17,7 @@ import java.util.*;
 
 public class TreeAnalysis {
 
+  @Deprecated
   public static PrologGraph generateBinaryTreeGraph(int dimension, List<String> domainDefinition, List<String> operatorValues) {
     final Random random = new Random();
     final List<String> alphabet = Arrays.asList("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z");
@@ -140,6 +141,7 @@ public class TreeAnalysis {
     }
   }
 
+  @Deprecated
   private static List<LinkedHashMap<String, Object>> analyseTreeGeneration(int dimension, int nGraphs, int nOperations, List<String> operators, List<String> operatorsLabels, List<String> factsNames, List<String> domainDefinition, List<String> structuralRules) {
     List<LinkedHashMap<String, Object>> DataFrame = new ArrayList<>();
 
@@ -169,6 +171,7 @@ public class TreeAnalysis {
     return DataFrame;
   }
 
+  @Deprecated
   private static void exportTreeAnalysis(List<String> operators, List<String> operatorsLabels, List<String> factsNames, List<String> domainDefinition, List<String> structuralRules) {
     //// Analysis:
     int nGraphs = 25;
@@ -237,22 +240,24 @@ public class TreeAnalysis {
             "operator_val(*).",
             "operator_val(-).",
             "operator_val(/).",
-            "input_val(null).",
+            "input_val(inp).",
             "constant_val(X) :- integer(X), X>=0, X< 10.",
             "start_outdegree(S) :- findall(E, edge(S,_,E), RES), length(RES,N1), N1 == 0.",
             "node_outdegree(S) :- findall(E, edge(S,_,E), RES), length(RES,N1), N1 == 1.",
             "operator_indegree(T) :- findall(E, edge(_,T,E), RES), length(RES,N1), N1 == 2.",
-            "variable_indegree(T) :- findall(E, edge(_,T,E), RES), length(RES,N1), N1 == 0.",
+            "leaf_indegree(T) :- findall(E, edge(_,T,E), RES), length(RES,N1), N1 == 0.",
             "check_start :- findall(N,start(N,1), N),length(N,N1), N1 == 1.",
             "start_connected(N) :- start(N,1).",
             "start_connected(N) :- edge(N,X,_), start_connected(X).",
-            "is_valid :- check_start," +
+            "is_valid :- " +
+                    "    check_start," +
                     "    foreach(findall(N,node_id(N),Node),maplist(start_connected,Node))," +
                     "    foreach(findall(T,(node_id(T),start(T,1)),T), maplist(start_outdegree,T))," +
                     "    foreach(findall(T,(node_id(T),start(T,0)),T), maplist(node_outdegree,T))," +
                     "    foreach(findall(O,type(O,operator),O), maplist(operator_indegree,O))," +
                     "    foreach(findall(V,type(V,input),V), maplist(leaf_indegree,V))," +
-                    "    foreach(findall(V,type(V,constant),V), maplist(leaf_indegree,V))");
+                    "    foreach(findall(C,type(C,constant),C), maplist(leaf_indegree,C)).");
+
     final List<String> factsNames = Arrays.asList("node_id/1",
             "start/2",
             "type/2",
@@ -267,7 +272,7 @@ public class TreeAnalysis {
     String subTree = "findall(VV,(type(VV,input); type(VV,constant)),VAR)," +
             "random_member(V,VAR)," +
             "retract(value(V,_))," +
-            "retract(type(V,input))," +
+            "retract(type(V,_))," +
             "operator_val(OpVal)," +
             "assert(type(V,operator))," +
             "assert(value(V,OpVal))," +
@@ -290,8 +295,7 @@ public class TreeAnalysis {
             "assert(edge_id(E1))," +
             "assert(edge_id(E2))," +
             "assert(edge(N1,V,E1))," +
-            "assert(edge(N2,V,E2))," +
-            "is_valid.";
+            "assert(edge(N2,V,E2)).";
     operators.add(subTree);
     operatorsLabels.add("subTree");
 
@@ -308,11 +312,9 @@ public class TreeAnalysis {
             "random_member(O, Constants)," +
             "retract(value(O,_))," +
             "random_between(0,9,X)," +
-            "assert(value(O,X))," +
-            "is_valid.";
+            "assert(value(O,X)).";
     operators.add(changeConstant);
     operatorsLabels.add("changeConstant");
-
 
     String removeLeaves = "findall(VV,(node_id(VV),(type(VV,variable); type(VV,input)),LeavesID)," +
             "random_member(V,LeavesID)," +
@@ -338,7 +340,7 @@ public class TreeAnalysis {
     operators.add(removeLeaves);
     operatorsLabels.add("removeLeaves");
 
-    String swapEdges = "findall(VV,(node_id(VV),(type(VV,variable); type(VV,input) ),Leaves)," +
+    String swapEdges = "findall(VV,(type(VV,variable); type(VV,input) ),Leaves)," +
             "random_member(V1,Leaves)," +
             "random_member(V2,Leaves)," +
             "edge(V1,T1,Id1)," +
@@ -370,7 +372,7 @@ public class TreeAnalysis {
     node3.put("node_id", "third");
     node3.put("start", 0);
     node3.put("type", "input");
-    node3.put("value", "null");
+    node3.put("value", "inp");
     LinkedHashMap<String, Object> edge1 = new LinkedHashMap<>();
     edge1.put("edge_id", "firstEdge");
     LinkedHashMap<String, Object> edge2 = new LinkedHashMap<>();
@@ -382,7 +384,7 @@ public class TreeAnalysis {
     origin.setArcValue(node3, node1, edge2);
 
     String name = "ZZNEWTreeSelection";
-    List<String> factoryOperators = Arrays.asList(subTree,swapEdges);
+    List<String> factoryOperators = Arrays.asList(subTree, changeOperator);
 
     PrologGraphFactory.exportFactoryAnalysis(name, 25, 49, origin, factoryOperators, domainDefinition, structuralRules);
     PrologGraphFactory.exportFactoryAnalysis(name, 50, 74, origin, factoryOperators, domainDefinition, structuralRules);
