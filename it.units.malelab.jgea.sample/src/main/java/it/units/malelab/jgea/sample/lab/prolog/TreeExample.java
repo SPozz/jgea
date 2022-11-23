@@ -63,7 +63,7 @@ public class TreeExample implements Runnable {
     node3.put("node_id", "third");
     node3.put("start", 0);
     node3.put("type", "input");
-    node3.put("value", "null");
+    node3.put("value", "inp");
     LinkedHashMap<String, Object> edge1 = new LinkedHashMap<>();
     edge1.put("edge_id", "firstEdge");
     LinkedHashMap<String, Object> edge2 = new LinkedHashMap<>();
@@ -114,14 +114,14 @@ public class TreeExample implements Runnable {
             "assert(node_id(N1))," +
             "(   maybe ->  assert(type(N1,input)); " +
             "    assert(type(N1,constant)) )," +
-            "random_between(0,10,V1Val)," +
+            "random(0.0,2.0,V1Val)," +
             "assert(value(N1,V1Val))," +
             "assert(start(N1,0))," +
             "gensym(nod,N2)," +
             "assert(node_id(N2))," +
             "(   maybe ->  assert(type(N2,input)); " +
             "    assert(type(N2,constant)) )," +
-            "random_between(0,10,V2Val)," +
+            "random(0.0,2.0,V2Val)," +
             "assert(value(N2,V2Val))," +
             "assert(start(N2,0))," +
             "gensym(edge,E1)," +
@@ -143,7 +143,7 @@ public class TreeExample implements Runnable {
     String changeConstant = "findall(CON,type(CON,constant), Constants)," +
             "random_member(O, Constants)," +
             "retract(value(O,_))," +
-            "random_between(0,9,X)," +
+            "random(0.0,2.0,X)," +
             "assert(value(O,X)).";
     operators.add(changeConstant);
 
@@ -164,7 +164,7 @@ public class TreeExample implements Runnable {
             "retract(edge(S,T,ID2))," +
             "retract(type(T,_))," +
             "retract(value(T,_))," +
-            "random_between(0,10,Val)," +
+            "random(0.0,2.0,Val)," +
             "assert(value(T,Val))," +
             "(maybe -> assert(type(T,variable));" +
             "assert(type(T,input)) ).";
