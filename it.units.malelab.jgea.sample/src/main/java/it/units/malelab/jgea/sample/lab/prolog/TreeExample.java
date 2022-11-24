@@ -259,6 +259,25 @@ public class TreeExample implements Runnable {
             "assert(edge(V2,T1,Id2)).";
     operators.add(swapEdges);
 
+    String constToInput = "findall(Con,type(Con,constant),Constants)," +
+            "random_member(C,Constants)," +
+            "retract(type(C,constant))," +
+            "retract(value(C,_))," +
+            "assert(type(C,input))," +
+            "n_input(Max)," +
+            "random(0,Max,NewVal)," +
+            "assert(value(C,NewVal)).";
+    operators.add(constToInput);
+
+    String inpToConst = "findall(Inp,type(Inp,input),Inputs)," +
+            "random_member(I,Inputs)," +
+            "retract(type(I,input))," +
+            "retract(value(I,_))," +
+            "assert(type(I,constant))," +
+            "random(0.0,2.0,NewVal)," +
+            "assert(value(I,NewVal)).";
+    operators.add(inpToConst);
+
     new TreeExample(5, 30, operators, structuralRules).run();
   }
 
