@@ -240,7 +240,8 @@ public class TreeAnalysis {
             "operator_val(*).",
             "operator_val(-).",
             "operator_val(/).",
-            "input_val(inp).",
+            "n_input(3).",
+            "input_val(X) :- n_input(Max), integer(X), X>=0, X<Max.",
             "constant_val(X) :- integer(X), X>=0, X< 10.",
             "start_outdegree(S) :- findall(E, edge(S,_,E), RES), length(RES,N1), N1 == 0.",
             "node_outdegree(S) :- findall(E, edge(S,_,E), RES), length(RES,N1), N1 == 1.",
@@ -269,32 +270,38 @@ public class TreeAnalysis {
     List<String> operators = new ArrayList<>();
     List<String> operatorsLabels = new ArrayList<>();
 
-    String subTree = "findall(VV,(type(VV,input); type(VV,constant)),VAR)," +
-            "random_member(V,VAR)," +
-            "retract(value(V,_))," +
-            "retract(type(V,_))," +
-            "operator_val(OpVal)," +
-            "assert(type(V,operator))," +
-            "assert(value(V,OpVal))," +
-            "gensym(nod,N1)," +
-            "assert(node_id(N1))," +
-            "(   maybe ->  assert(type(N1,input)); " +
-            "    assert(type(N1,constant)) )," +
-            "random(0,10,V1Val)," +
-            "assert(value(N1,V1Val))," +
-            "assert(start(N1,0))," +
-            "gensym(nod,N2)," +
-            "assert(node_id(N2))," +
-            "(   maybe ->  assert(type(N2,input)); " +
-            "    assert(type(N2,constant)) )," +
-            "random(0,10,V2Val)," +
-            "assert(value(N2,V2Val))," +
-            "assert(start(N2,0))," +
-            "gensym(edge,E1)," +
-            "gensym(edge,E2)," +
-            "assert(edge_id(E1))," +
-            "assert(edge_id(E2))," +
-            "assert(edge(N1,V,E1))," +
+    String subTree = "findall(VV,(type(VV,input); type(VV,constant)),VAR),\n" +
+            "random_member(V,VAR),\n" +
+            "retract(value(V,_)),\n" +
+            "retract(type(V,_)),\n" +
+            "operator_val(OpVal),\n" +
+            "assert(type(V,operator)),\n" +
+            "assert(value(V,OpVal)),\n" +
+            "gensym(nod,N1),\n" +
+            "assert(node_id(N1)),\n" +
+            "assert(start(N1,0)),\n" +
+            "n_input(NInp),\n" +
+            "InpMax is NInp -1,\n" +
+            "(   maybe ->  assert(type(N1,input)),\n" +
+            "                     random(0, InpMax, InpVal),\n" +
+            "                     assert(value(N1,InpVal)); \n" +
+            "    assert(type(N1,constant)),\n" +
+            "                     random(0,10,V1Val),\n" +
+            "                     assert(value(N1,V1Val)) ),\n" +
+            "gensym(nod,N2),\n" +
+            "assert(node_id(N2)),\n" +
+            "assert(start(N2,0)),\n" +
+            "(   maybe ->  assert(type(N2,input)),\n" +
+            "                     random(0, InpMax, InpVal2),\n" +
+            "                     assert(value(N2,InpVal2)); \n" +
+            "    assert(type(N2,constant)),\n" +
+            "                     random(0,10,V2Val),\n" +
+            "                     assert(value(N2,V2Val)) ),\n" +
+            "gensym(edge,E1),\n" +
+            "gensym(edge,E2),\n" +
+            "assert(edge_id(E1)),\n" +
+            "assert(edge_id(E2)),\n" +
+            "assert(edge(N1,V,E1)),\n" +
             "assert(edge(N2,V,E2)).";
     operators.add(subTree);
     operatorsLabels.add("subTree");
@@ -333,10 +340,14 @@ public class TreeAnalysis {
             "retract(edge(S,T,ID2))," +
             "retract(type(T,_))," +
             "retract(value(T,_))," +
-            "random(0,10,Val)," +
-            "assert(value(T,Val))," +
-            "(maybe -> assert(type(T,variable));" +
-            "assert(type(T,input)) ).";
+            "n_input(NInp)," +
+            "InpMax is NInp -1," +
+            "(maybe -> assert(type(T,variable))," +
+            "   random(0,InpMax,InpVal)," +
+            "   assert(value(N1,InpVal));" +
+            "assert(type(T,input))," +
+            "   random(0,10,V1Val)," +
+            "   assert(value(N1,V1Val)) ).";
     operators.add(removeLeaves);
     operatorsLabels.add("removeLeaves");
 
@@ -372,7 +383,7 @@ public class TreeAnalysis {
     node3.put("node_id", "third");
     node3.put("start", 0);
     node3.put("type", "input");
-    node3.put("value", "inp");
+    node3.put("value", 0);
     LinkedHashMap<String, Object> edge1 = new LinkedHashMap<>();
     edge1.put("edge_id", "firstEdge");
     LinkedHashMap<String, Object> edge2 = new LinkedHashMap<>();
