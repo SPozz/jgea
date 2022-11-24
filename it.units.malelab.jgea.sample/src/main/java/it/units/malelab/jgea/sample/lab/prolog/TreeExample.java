@@ -149,7 +149,7 @@ public class TreeExample implements Runnable {
             "operator_val(*).",
             "operator_val(-).",
             "operator_val(/).",
-            "n_input(3).",
+            "n_input(1).",
             "input_val(X) :- n_input(Max), integer(X), X>=0, X<Max.",
             "constant_val(X) :- float(X), X>=0.0, X< 2.0",
             "start_outdegree(S) :- findall(E, edge(S,_,E), RES), length(RES,N1), N1 == 0.",
