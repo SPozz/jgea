@@ -66,7 +66,7 @@ public class TreeExample implements Runnable {
     node3.put("node_id", "third");
     node3.put("start", 0);
     node3.put("type", "input");
-    node3.put("value", "inp");
+    node3.put("value", 0);
     LinkedHashMap<String, Object> edge1 = new LinkedHashMap<>();
     edge1.put("edge_id", "firstEdge");
     LinkedHashMap<String, Object> edge2 = new LinkedHashMap<>();
@@ -86,7 +86,7 @@ public class TreeExample implements Runnable {
                     Misc.concat(List.of(
                             BASIC_FUNCTIONS,
                             DOUBLE_FUNCTIONS,
-                            List.of(solution().reformat("%20.20s").of(best()))
+                            List.of(solution().of(best())) //.reformat("%20.20s")
                     )),
                     List.of()
             );
@@ -136,6 +136,7 @@ public class TreeExample implements Runnable {
           L.info(String.format("Found %d solutions with %s", solutions.size(), keys));
         } catch (SolverException e) {
           L.severe(String.format("Exception while doing %s: %s", e, keys));
+          e.printStackTrace();
         }
       }
     }
@@ -148,7 +149,8 @@ public class TreeExample implements Runnable {
             "operator_val(*).",
             "operator_val(-).",
             "operator_val(/).",
-            "input_val(inp).",
+            "n_input(3).",
+            "input_val(X) :- n_input(Max), integer(X), X>=0, X<Max.",
             "constant_val(X) :- integer(X), X>=0, X< 10.",
             "start_outdegree(S) :- findall(E, edge(S,_,E), RES), length(RES,N1), N1 == 0.",
             "node_outdegree(S) :- findall(E, edge(S,_,E), RES), length(RES,N1), N1 == 1.",
@@ -178,18 +180,24 @@ public class TreeExample implements Runnable {
             "assert(value(V,OpVal))," +
             "gensym(nod,N1)," +
             "assert(node_id(N1))," +
-            "(   maybe ->  assert(type(N1,input)); " +
-            "    assert(type(N1,constant)) )," +
-            "random(0.0,2.0,V1Val)," +
-            "assert(value(N1,V1Val))," +
             "assert(start(N1,0))," +
+            "n_input(NInp)," +
+            "InpMax is NInp -1," +
+            "(   maybe ->  assert(type(N1,input))," +
+            "                     random(0, InpMax, InpVal)," +
+            "                     assert(value(N1,InpVal)); " +
+            "    assert(type(N1,constant))," +
+            "                     random(0,10,V1Val)," +
+            "                     assert(value(N1,V1Val)) )," +
             "gensym(nod,N2)," +
             "assert(node_id(N2))," +
-            "(   maybe ->  assert(type(N2,input)); " +
-            "    assert(type(N2,constant)) )," +
-            "random(0.0,2.0,V2Val)," +
-            "assert(value(N2,V2Val))," +
             "assert(start(N2,0))," +
+            "(   maybe ->  assert(type(N2,input))," +
+            "                     random(0, InpMax, InpVal2)," +
+            "                     assert(value(N2,InpVal2)); " +
+            "    assert(type(N2,constant))," +
+            "                     random(0,10,V2Val)," +
+            "                     assert(value(N2,V2Val)) )," +
             "gensym(edge,E1)," +
             "gensym(edge,E2)," +
             "assert(edge_id(E1))," +
@@ -230,10 +238,14 @@ public class TreeExample implements Runnable {
             "retract(edge(S,T,ID2))," +
             "retract(type(T,_))," +
             "retract(value(T,_))," +
-            "random(0.0,2.0,Val)," +
-            "assert(value(T,Val))," +
-            "(maybe -> assert(type(T,variable));" +
-            "assert(type(T,input)) ).";
+            "n_input(NInp)," +
+            "InpMax is NInp -1," +
+            "(maybe -> assert(type(T,variable))," +
+            "   random(0,InpMax,InpVal)," +
+            "   assert(value(N1,InpVal));" +
+            "assert(type(T,input))," +
+            "   random(0,10,V1Val)," +
+            "   assert(value(N1,V1Val)) ).";
     operators.add(removeLeaves);
 
     String swapEdges = "findall(VV,(type(VV,variable); type(VV,input) ),Leaves)," +
