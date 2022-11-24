@@ -10,7 +10,6 @@ import it.units.malelab.jgea.core.representation.graph.numeric.operatorgraph.Bas
 import it.units.malelab.jgea.core.representation.graph.numeric.operatorgraph.OperatorGraph;
 import it.units.malelab.jgea.core.representation.graph.numeric.operatorgraph.OperatorNode;
 import it.units.malelab.jgea.core.representation.graph.prolog.PrologGraph;
-import it.units.malelab.jgea.core.representation.graph.prolog.PrologGraphFactory;
 
 import java.util.*;
 import java.util.function.Function;
