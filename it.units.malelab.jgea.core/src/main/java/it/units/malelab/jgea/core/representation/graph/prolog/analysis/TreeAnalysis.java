@@ -286,7 +286,7 @@ public class TreeAnalysis {
             "                     random(0, InpMax, InpVal)," +
             "                     assert(value(N1,InpVal)); " +
             "    assert(type(N1,constant))," +
-            "                     random(0,10,V1Val)," +
+            "                     random(0,9,V1Val)," +
             "                     assert(value(N1,V1Val)) )," +
             "gensym(nod,N2)," +
             "assert(node_id(N2))," +
@@ -295,7 +295,7 @@ public class TreeAnalysis {
             "                     random(0, InpMax, InpVal2)," +
             "                     assert(value(N2,InpVal2)); " +
             "    assert(type(N2,constant))," +
-            "                     random(0,10,V2Val)," +
+            "                     random(0,9,V2Val)," +
             "                     assert(value(N2,V2Val)) )," +
             "gensym(edge,E1)," +
             "gensym(edge,E2)," +
@@ -346,7 +346,7 @@ public class TreeAnalysis {
             "   random(0,InpMax,InpVal)," +
             "   assert(value(N1,InpVal));" +
             "assert(type(T,input))," +
-            "   random(0,10,V1Val)," +
+            "   random(0,9,V1Val)," +
             "   assert(value(N1,V1Val)) ).";
     operators.add(removeLeaves);
     operatorsLabels.add("removeLeaves");
@@ -362,6 +362,27 @@ public class TreeAnalysis {
             "assert(edge(V2,T1,Id2)).";
     operators.add(swapEdges);
     operatorsLabels.add("swapEdges");
+
+    String constToInput = "findall(Con,type(Con,constant),Constants)," +
+            "random_member(C,Constants)," +
+            "retract(type(C,constant))," +
+            "retract(value(C,_))," +
+            "assert(type(C,input))," +
+            "n_input(Max)," +
+            "random(0,Max,NewVal)," +
+            "assert(value(C,NewVal)).";
+    operators.add(constToInput);
+    operatorsLabels.add("constToInput");
+
+    String inpToConst = "findall(Inp,type(Inp,input),Inputs)," +
+            "random_member(I,Inputs)," +
+            "retract(type(I,input))," +
+            "retract(value(I,_))," +
+            "assert(type(I,constant))," +
+            "random(0,9,NewVal)," +
+            "assert(value(I,NewVal)).";
+    operators.add(inpToConst);
+    operatorsLabels.add("inpToConst");
 
 
 //    ////Export CSV
