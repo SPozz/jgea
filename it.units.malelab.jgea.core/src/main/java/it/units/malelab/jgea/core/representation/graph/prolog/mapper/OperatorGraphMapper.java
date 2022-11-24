@@ -20,42 +20,44 @@ public class OperatorGraphMapper implements Function<PrologGraph, OperatorGraph>
   @Override
   public OperatorGraph apply(PrologGraph prologTree) {
     LinkedHashGraph<Node, OperatorGraph.NonValuedArc> intermediateGraph = new LinkedHashGraph<>();
-    int index = 1; //0 reserved for output node
+    int constIndex = 0;
+    int operatorIndex = 0;
     LinkedHashMap<String, Node> idToNode = new LinkedHashMap<>();
-    final BaseOperator[] baseOperators = new BaseOperator[]{BaseOperator.ADDITION, BaseOperator.DIVISION, BaseOperator.MULTIPLICATION, BaseOperator.SUBTRACTION, BaseOperator.LOG};
+    final BaseOperator[] baseOperators = new BaseOperator[]{BaseOperator.ADDITION, BaseOperator.DIVISION, BaseOperator.MULTIPLICATION, BaseOperator.SUBTRACTION};
     final String[] baseOperatorsString = new String[baseOperators.length];
     for (int i = 0; i < baseOperators.length; ++i) {
       baseOperatorsString[i] = baseOperators[i].toString();
     }
-    final Output outputNode = new Output(0);
+    final Output outputNode = new Output(0); //unique => index 0
     intermediateGraph.addNode(outputNode);
-
     for (Map<String, Object> node : prologTree.nodes()) {
       Node tmpNode;
       if (node.get("type").toString().equalsIgnoreCase("operator")) {
         final String prologOperator = node.get("value").toString().replace("'", "");
         final int indexOfOperator = Arrays.asList(baseOperatorsString).indexOf(prologOperator);
-        tmpNode = new OperatorNode(index, baseOperators[indexOfOperator]);
+        tmpNode = new OperatorNode(operatorIndex, baseOperators[indexOfOperator]);
+        operatorIndex++;
         if (node.get("start").toString().equals("1")) {
           idToNode.put(node.get("node_id").toString(), tmpNode);
           intermediateGraph.addNode(tmpNode);
-          index++;
           intermediateGraph.setArcValue(tmpNode, outputNode, OperatorGraph.NON_VALUED_ARC);
           continue;
         }
       } else if (node.get("type").toString().equalsIgnoreCase("constant")) {
         final String valueString = node.get("value").toString();
         final double value = Double.parseDouble(valueString);
-        tmpNode = new Constant(index, value);
+        tmpNode = new Constant(constIndex, value);
+        constIndex++;
       } else if (node.get("type").toString().equalsIgnoreCase("input")) {
-        tmpNode = new Input(index);
+        final int inputIndex = Integer.parseInt(node.get("value").toString());
+        tmpNode = new Input(inputIndex);
+        idToNode.put(node.get("node_id").toString(), tmpNode);
+        intermediateGraph.addNode(tmpNode);
       } else {
         throw new UnsupportedOperationException("Not acceptable type");
       }
-
       idToNode.put(node.get("node_id").toString(), tmpNode);
       intermediateGraph.addNode(tmpNode);
-      index++;
     }
     for (Graph.Arc<Map<String, Object>> arc : prologTree.arcs()) {
       intermediateGraph.setArcValue(idToNode.get((String) arc.getSource().get("node_id")), idToNode.get((String) arc.getTarget().get("node_id")), OperatorGraph.NON_VALUED_ARC);
@@ -78,8 +80,9 @@ public class OperatorGraphMapper implements Function<PrologGraph, OperatorGraph>
             "operator_val(*).",
             "operator_val(-).",
             "operator_val(/).",
-            "input_val(inp).",
-            "constant_val(X) :- integer(X), X>=0, X< 10.",
+            "n_input(3).",
+            "input_val(X) :- n_input(Max), integer(X), X>=0, X<Max.",
+            "constant_val(X) :- integer(X), X>=0, X< 9.",
             "start_outdegree(S) :- findall(E, edge(S,_,E), RES), length(RES,N1), N1 == 0.",
             "node_outdegree(S) :- findall(E, edge(S,_,E), RES), length(RES,N1), N1 == 1.",
             "operator_indegree(T) :- findall(E, edge(_,T,E), RES), length(RES,N1), N1 == 2.",
@@ -107,18 +110,24 @@ public class OperatorGraphMapper implements Function<PrologGraph, OperatorGraph>
             "assert(value(V,OpVal))," +
             "gensym(nod,N1)," +
             "assert(node_id(N1))," +
-            "(   maybe ->  assert(type(N1,input)); " +
-            "    assert(type(N1,constant)) )," +
-            "random_between(0,10,V1Val)," +
-            "assert(value(N1,V1Val))," +
             "assert(start(N1,0))," +
+            "n_input(NInp)," +
+            "InpMax is NInp -1," +
+            "(   maybe ->  assert(type(N1,input))," +
+            "                     random(0, InpMax, InpVal)," +
+            "                     assert(value(N1,InpVal)); " +
+            "    assert(type(N1,constant))," +
+            "                     random(0,9,V1Val)," +
+            "                     assert(value(N1,V1Val)) )," +
             "gensym(nod,N2)," +
             "assert(node_id(N2))," +
-            "(   maybe ->  assert(type(N2,input)); " +
-            "    assert(type(N2,constant)) )," +
-            "random_between(0,10,V2Val)," +
-            "assert(value(N2,V2Val))," +
             "assert(start(N2,0))," +
+            "(   maybe ->  assert(type(N2,input))," +
+            "                     random(0, InpMax, InpVal2)," +
+            "                     assert(value(N2,InpVal2)); " +
+            "    assert(type(N2,constant))," +
+            "                     random(0,9,V2Val)," +
+            "                     assert(value(N2,V2Val)) )," +
             "gensym(edge,E1)," +
             "gensym(edge,E2)," +
             "assert(edge_id(E1))," +
@@ -138,7 +147,7 @@ public class OperatorGraphMapper implements Function<PrologGraph, OperatorGraph>
     String changeConstant = "findall(CON,type(CON,constant), Constants)," +
             "random_member(O, Constants)," +
             "retract(value(O,_))," +
-            "random_between(0,9,X)," +
+            "random(0,9,X)," +
             "assert(value(O,X)).";
     operators.add(changeConstant);
 
@@ -159,10 +168,14 @@ public class OperatorGraphMapper implements Function<PrologGraph, OperatorGraph>
             "retract(edge(S,T,ID2))," +
             "retract(type(T,_))," +
             "retract(value(T,_))," +
-            "random_between(0,10,Val)," +
-            "assert(value(T,Val))," +
-            "(maybe -> assert(type(T,variable));" +
-            "assert(type(T,input)) ).";
+            "n_input(NInp)," +
+            "InpMax is NInp -1," +
+            "(maybe -> assert(type(T,variable))," +
+            "   random(0,InpMax,InpVal)," +
+            "   assert(value(N1,InpVal));" +
+            "assert(type(T,input))," +
+            "   random(0,9,V1Val)," +
+            "   assert(value(N1,V1Val)) ).";
     operators.add(removeLeaves);
 
     String swapEdges = "findall(VV,(type(VV,variable); type(VV,input) ),Leaves)," +
@@ -176,7 +189,7 @@ public class OperatorGraphMapper implements Function<PrologGraph, OperatorGraph>
             "assert(edge(V2,T1,Id2)).";
     operators.add(swapEdges);
 
-//  // Export analysis of Factory
+
     PrologGraph origin = new PrologGraph();
     LinkedHashMap<String, Object> node1 = new LinkedHashMap<>();
     node1.put("node_id", "first");
@@ -192,7 +205,7 @@ public class OperatorGraphMapper implements Function<PrologGraph, OperatorGraph>
     node3.put("node_id", "third");
     node3.put("start", 0);
     node3.put("type", "input");
-    node3.put("value", "inp");
+    node3.put("value", 0);
     LinkedHashMap<String, Object> edge1 = new LinkedHashMap<>();
     edge1.put("edge_id", "firstEdge");
     LinkedHashMap<String, Object> edge2 = new LinkedHashMap<>();
@@ -203,7 +216,7 @@ public class OperatorGraphMapper implements Function<PrologGraph, OperatorGraph>
     origin.setArcValue(node2, node1, edge1);
     origin.setArcValue(node3, node1, edge2);
 
-    List<PrologGraph> graphs = new PrologGraphFactory(9, 9, origin, operators, domainDefinition, structuralRules).build(3, new Random());
+    List<PrologGraph> graphs = new PrologGraphFactory(12, 12, origin, operators, domainDefinition, structuralRules).build(3, new Random());
 
     List<OperatorGraph> opGraphs = new ArrayList<>();
     for (PrologGraph graph : graphs) {
@@ -211,15 +224,8 @@ public class OperatorGraphMapper implements Function<PrologGraph, OperatorGraph>
     }
 
 
-    int counter = 0;
-    for (int i = 0; i < graphs.size(); ++i) {
-      PrologGraph graph = graphs.get(i);
-      if ((graph.size() + 2) != opGraphs.get(i).size()) { //+2 since add operator and arc
-        counter++;
-      }
-    }
-    System.out.println("\nCounter = " + counter);
-
+    System.out.println(graphs.get(0));
+    System.out.println("\n"+opGraphs.get(0));
 
   }
 
