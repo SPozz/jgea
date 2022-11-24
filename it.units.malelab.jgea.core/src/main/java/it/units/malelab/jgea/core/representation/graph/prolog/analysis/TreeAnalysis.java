@@ -270,38 +270,38 @@ public class TreeAnalysis {
     List<String> operators = new ArrayList<>();
     List<String> operatorsLabels = new ArrayList<>();
 
-    String subTree = "findall(VV,(type(VV,input); type(VV,constant)),VAR),\n" +
-            "random_member(V,VAR),\n" +
-            "retract(value(V,_)),\n" +
-            "retract(type(V,_)),\n" +
-            "operator_val(OpVal),\n" +
-            "assert(type(V,operator)),\n" +
-            "assert(value(V,OpVal)),\n" +
-            "gensym(nod,N1),\n" +
-            "assert(node_id(N1)),\n" +
-            "assert(start(N1,0)),\n" +
-            "n_input(NInp),\n" +
-            "InpMax is NInp -1,\n" +
-            "(   maybe ->  assert(type(N1,input)),\n" +
-            "                     random(0, InpMax, InpVal),\n" +
-            "                     assert(value(N1,InpVal)); \n" +
-            "    assert(type(N1,constant)),\n" +
-            "                     random(0,10,V1Val),\n" +
-            "                     assert(value(N1,V1Val)) ),\n" +
-            "gensym(nod,N2),\n" +
-            "assert(node_id(N2)),\n" +
-            "assert(start(N2,0)),\n" +
-            "(   maybe ->  assert(type(N2,input)),\n" +
-            "                     random(0, InpMax, InpVal2),\n" +
-            "                     assert(value(N2,InpVal2)); \n" +
-            "    assert(type(N2,constant)),\n" +
-            "                     random(0,10,V2Val),\n" +
-            "                     assert(value(N2,V2Val)) ),\n" +
-            "gensym(edge,E1),\n" +
-            "gensym(edge,E2),\n" +
-            "assert(edge_id(E1)),\n" +
-            "assert(edge_id(E2)),\n" +
-            "assert(edge(N1,V,E1)),\n" +
+    String subTree = "findall(VV,(type(VV,input); type(VV,constant)),VAR)," +
+            "random_member(V,VAR)," +
+            "retract(value(V,_))," +
+            "retract(type(V,_))," +
+            "operator_val(OpVal)," +
+            "assert(type(V,operator))," +
+            "assert(value(V,OpVal))," +
+            "gensym(nod,N1)," +
+            "assert(node_id(N1))," +
+            "assert(start(N1,0))," +
+            "n_input(NInp)," +
+            "InpMax is NInp -1," +
+            "(   maybe ->  assert(type(N1,input))," +
+            "                     random(0, InpMax, InpVal)," +
+            "                     assert(value(N1,InpVal)); " +
+            "    assert(type(N1,constant))," +
+            "                     random(0,10,V1Val)," +
+            "                     assert(value(N1,V1Val)) )," +
+            "gensym(nod,N2)," +
+            "assert(node_id(N2))," +
+            "assert(start(N2,0))," +
+            "(   maybe ->  assert(type(N2,input))," +
+            "                     random(0, InpMax, InpVal2)," +
+            "                     assert(value(N2,InpVal2)); " +
+            "    assert(type(N2,constant))," +
+            "                     random(0,10,V2Val)," +
+            "                     assert(value(N2,V2Val)) )," +
+            "gensym(edge,E1)," +
+            "gensym(edge,E2)," +
+            "assert(edge_id(E1))," +
+            "assert(edge_id(E2))," +
+            "assert(edge(N1,V,E1))," +
             "assert(edge(N2,V,E2)).";
     operators.add(subTree);
     operatorsLabels.add("subTree");
