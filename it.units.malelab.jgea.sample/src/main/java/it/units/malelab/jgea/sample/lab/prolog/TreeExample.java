@@ -151,7 +151,7 @@ public class TreeExample implements Runnable {
             "operator_val(/).",
             "n_input(3).",
             "input_val(X) :- n_input(Max), integer(X), X>=0, X<Max.",
-            "constant_val(X) :- integer(X), X>=0, X< 10.",
+            "constant_val(X) :- float(X), X>=0.0, X< 2.0",
             "start_outdegree(S) :- findall(E, edge(S,_,E), RES), length(RES,N1), N1 == 0.",
             "node_outdegree(S) :- findall(E, edge(S,_,E), RES), length(RES,N1), N1 == 1.",
             "operator_indegree(T) :- findall(E, edge(_,T,E), RES), length(RES,N1), N1 == 2.",
@@ -187,7 +187,7 @@ public class TreeExample implements Runnable {
             "                     random(0, InpMax, InpVal)," +
             "                     assert(value(N1,InpVal)); " +
             "    assert(type(N1,constant))," +
-            "                     random(0,10,V1Val)," +
+            "                     random(0.0,2.0,V1Val)," +
             "                     assert(value(N1,V1Val)) )," +
             "gensym(nod,N2)," +
             "assert(node_id(N2))," +
@@ -196,7 +196,7 @@ public class TreeExample implements Runnable {
             "                     random(0, InpMax, InpVal2)," +
             "                     assert(value(N2,InpVal2)); " +
             "    assert(type(N2,constant))," +
-            "                     random(0,10,V2Val)," +
+            "                     random(0.0,2.0,V2Val)," +
             "                     assert(value(N2,V2Val)) )," +
             "gensym(edge,E1)," +
             "gensym(edge,E2)," +
@@ -244,7 +244,7 @@ public class TreeExample implements Runnable {
             "   random(0,InpMax,InpVal)," +
             "   assert(value(N1,InpVal));" +
             "assert(type(T,input))," +
-            "   random(0,10,V1Val)," +
+            "   random(0.0,2.0,V1Val)," +
             "   assert(value(N1,V1Val)) ).";
     operators.add(removeLeaves);
 
