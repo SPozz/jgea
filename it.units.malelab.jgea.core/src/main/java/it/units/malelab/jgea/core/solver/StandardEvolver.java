@@ -57,20 +57,18 @@ public class StandardEvolver<T extends POSetPopulationState<G, S, Q>, P extends 
   private final Map<GeneticOperator<G>, Integer> changes = new HashMap<>();
 
 
-
-
   public StandardEvolver(
-      Function<? super G, ? extends S> solutionMapper,
-      Factory<? extends G> genotypeFactory,
-      int populationSize,
-      Predicate<? super T> stopCondition,
-      Map<GeneticOperator<G>, Double> operators,
-      Selector<? super Individual<? super G, ? super S, ? super Q>> parentSelector,
-      Selector<? super Individual<? super G, ? super S, ? super Q>> unsurvivalSelector,
-      int offspringSize,
-      boolean overlapping,
-      boolean remap,
-      BiFunction<P, RandomGenerator, T> stateInitializer
+          Function<? super G, ? extends S> solutionMapper,
+          Factory<? extends G> genotypeFactory,
+          int populationSize,
+          Predicate<? super T> stopCondition,
+          Map<GeneticOperator<G>, Double> operators,
+          Selector<? super Individual<? super G, ? super S, ? super Q>> parentSelector,
+          Selector<? super Individual<? super G, ? super S, ? super Q>> unsurvivalSelector,
+          int offspringSize,
+          boolean overlapping,
+          boolean remap,
+          BiFunction<P, RandomGenerator, T> stateInitializer
   ) {
     super(solutionMapper, genotypeFactory, populationSize, stopCondition);
     this.operators = operators;
@@ -81,17 +79,15 @@ public class StandardEvolver<T extends POSetPopulationState<G, S, Q>, P extends 
     this.remap = remap;
     this.stateInitializer = stateInitializer;
 
-    for (GeneticOperator<G> op : this.operators.keySet()){
-      this.changes.put(op,0);
-      this.usage.put(op,0);
+    for (GeneticOperator<G> op : this.operators.keySet()) {
+      this.changes.put(op, 0);
+      this.usage.put(op, 0);
     }
   }
 
   protected Collection<Individual<G, S, Q>> buildOffspring(
-      T state, P problem, RandomGenerator random, ExecutorService executor
+          T state, P problem, RandomGenerator random, ExecutorService executor
   ) throws SolverException {
-
-
 
 
     Collection<G> offspringGenotypes = new ArrayList<>();
@@ -99,21 +95,19 @@ public class StandardEvolver<T extends POSetPopulationState<G, S, Q>, P extends 
       GeneticOperator<G> operator = Misc.pickRandomly(operators, random);
 
       int tmpUsage = usage.get(operator);
-      usage.put(operator,++tmpUsage);
+      usage.put(operator, ++tmpUsage);
 
       List<G> parentGenotypes = new ArrayList<>(operator.arity());
       for (int j = 0; j < operator.arity(); j++) {
         Individual<G, S, Q> parent = parentSelector.select(state.getPopulation(), random);
         parentGenotypes.add(parent.genotype());
       }
-      List<? extends G> newOffsprings = operator.apply(parentGenotypes,random);
+      List<? extends G> newOffsprings = operator.apply(parentGenotypes, random);
       offspringGenotypes.addAll(newOffsprings);
 //      offspringGenotypes.addAll(operator.apply(parentGenotypes, random));
-
-
-      if (!newOffsprings.get(0).equals(parentGenotypes.get(0))){
+      if (!newOffsprings.get(0).equals(parentGenotypes.get(0))) {
         int tmpChange = changes.get(operator);
-        changes.put(operator,++tmpChange);
+        changes.put(operator, ++tmpChange);
       }
 
 
@@ -127,11 +121,11 @@ public class StandardEvolver<T extends POSetPopulationState<G, S, Q>, P extends 
   }
 
   protected Collection<Individual<G, S, Q>> trimPopulation(
-      Collection<Individual<G, S, Q>> population, P problem, RandomGenerator random
+          Collection<Individual<G, S, Q>> population, P problem, RandomGenerator random
   ) {
     PartiallyOrderedCollection<Individual<G, S, Q>> orderedPopulation = new DAGPartiallyOrderedCollection<>(
-        population,
-        comparator(problem)
+            population,
+            comparator(problem)
     );
     while (orderedPopulation.size() > populationSize) {
       Individual<G, S, Q> toRemoveIndividual = unsurvivalSelector.select(orderedPopulation, random);
@@ -147,12 +141,12 @@ public class StandardEvolver<T extends POSetPopulationState<G, S, Q>, P extends 
     if (overlapping) {
       if (remap) {
         offspring.addAll(map(
-            List.of(),
-            state.getPopulation().all(),
-            solutionMapper,
-            problem.qualityFunction(),
-            executor,
-            state
+                List.of(),
+                state.getPopulation().all(),
+                solutionMapper,
+                problem.qualityFunction(),
+                executor,
+                state
         ));
       } else {
         offspring.addAll(state.getPopulation().all());
@@ -167,11 +161,11 @@ public class StandardEvolver<T extends POSetPopulationState<G, S, Q>, P extends 
     state.updateElapsedMillis();
   }
 
-  public Map<GeneticOperator<G>,Integer> getUsage(){
+  public Map<GeneticOperator<G>, Integer> getUsage() {
     return usage;
   }
 
-  public Map<GeneticOperator<G>,Integer> getChanges(){
+  public Map<GeneticOperator<G>, Integer> getChanges() {
     return changes;
   }
 
