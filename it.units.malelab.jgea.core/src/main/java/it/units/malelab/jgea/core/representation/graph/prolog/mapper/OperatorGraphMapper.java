@@ -50,8 +50,6 @@ public class OperatorGraphMapper implements Function<PrologGraph, OperatorGraph>
       } else if (node.get("type").toString().equalsIgnoreCase("input")) {
         final int inputIndex = Integer.parseInt(node.get("value").toString());
         tmpNode = new Input(inputIndex);
-        idToNode.put(node.get("node_id").toString(), tmpNode);
-        intermediateGraph.addNode(tmpNode);
       } else {
         throw new UnsupportedOperationException("Not acceptable type");
       }
