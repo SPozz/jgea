@@ -7,7 +7,7 @@ public class Polynomial2 extends SyntheticSymbolicRegressionProblem {
       super(
               v -> {
                 double x = v[0];
-                return x * x + x + 1;
+                return x * x + x;
               },
               MathUtils.pairwise(MathUtils.equispacedValues(-1, 1, .01)),
               MathUtils.pairwise(MathUtils.equispacedValues(-1, 1, .01)),
