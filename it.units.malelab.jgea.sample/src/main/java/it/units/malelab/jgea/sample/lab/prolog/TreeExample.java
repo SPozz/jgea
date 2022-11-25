@@ -11,9 +11,7 @@ import it.units.malelab.jgea.core.selector.Tournament;
 import it.units.malelab.jgea.core.solver.*;
 import it.units.malelab.jgea.core.solver.state.POSetPopulationState;
 import it.units.malelab.jgea.core.util.Misc;
-import it.units.malelab.jgea.problem.symbolicregression.Nguyen7;
-import it.units.malelab.jgea.problem.symbolicregression.SymbolicRegressionFitness;
-import it.units.malelab.jgea.problem.symbolicregression.SyntheticSymbolicRegressionProblem;
+import it.units.malelab.jgea.problem.symbolicregression.*;
 import it.units.malelab.jgea.sample.lab.TuiExample;
 import it.units.malelab.jgea.tui.TerminalMonitor;
 
@@ -42,14 +40,17 @@ public class TreeExample implements Runnable {
           ":- dynamic edge/3.");
   private final List<String> structuralRules;
   private final PrologGraph originGraph;
-  private final List<String> operators;
+  private final List<List<String>> opLabelsDescription;
 
-  public TreeExample(int minDim, int maxDim, List<String> operators, List<String> structuralRules) {
+  private final List<String> factoryOperators;
+
+  public TreeExample(int minDim, int maxDim, List<String> factoryOperators, List<List<String>> opLabelsDescription, List<String> structuralRules) {
     executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() - 1);
     this.minDim = minDim;
     this.maxDim = maxDim;
-    this.operators = operators;
+    this.opLabelsDescription = opLabelsDescription;
     this.structuralRules = structuralRules;
+    this.factoryOperators = factoryOperators;
 
     PrologGraph origin = new PrologGraph();
     LinkedHashMap<String, Object> node1 = new LinkedHashMap<>();
@@ -86,25 +87,35 @@ public class TreeExample implements Runnable {
                     Misc.concat(List.of(
                             BASIC_FUNCTIONS,
                             DOUBLE_FUNCTIONS,
-                            List.of(solution().of(best())) //.reformat("%20.20s")
+                            List.of(solution().reformat("%25.100s").of(best()))
                     )),
                     List.of()
             );
-    List<Integer> seeds = List.of(1, 2, 3, 4, 5);
-    SyntheticSymbolicRegressionProblem p = new Nguyen7(SymbolicRegressionFitness.Metric.MSE, 1);
+    List<Integer> seeds = List.of(1, 2); //, 3);//, 4, 5);
+    SyntheticSymbolicRegressionProblem p = new Polynomial2(SymbolicRegressionFitness.Metric.MSE);
     List<IterativeSolver<? extends POSetPopulationState<PrologGraph, RealFunction, Double>, SyntheticSymbolicRegressionProblem,
             RealFunction>> solvers = new ArrayList<>();
 
     Map<GeneticOperator<PrologGraph>, Double> operatorsMap = new HashMap<>();
-    final double weight = 1.0d / operators.size();
-    for (String op : operators)
-      operatorsMap.put(new PrologOperator(op, domainDefinition, structuralRules), weight);
+    final double weight = 1.0d / opLabelsDescription.size();
+    for (List<String> op : opLabelsDescription)
+      operatorsMap.put(new PrologOperator(op.get(0), op.get(1), domainDefinition, structuralRules), weight);
 
-    solvers.add(new StandardEvolver<>(
-            new OperatorGraphMapper().andThen(og -> (RealFunction) input -> og.apply(input)[0]),
-            new PrologGraphFactory(minDim, maxDim, originGraph, operators, domainDefinition, structuralRules),
+
+    StandardEvolver stdEvolver = new StandardEvolver<>(
+            new OperatorGraphMapper().andThen(og -> new RealFunction() {
+              @Override
+              public double apply(double... input) {
+                return og.apply(input)[0];
+              }
+
+              public String toString() {
+                return og.toString();
+              }
+            }),
+            new PrologGraphFactory(minDim, maxDim, originGraph, factoryOperators, domainDefinition, structuralRules),
             100,
-            StopConditions.nOfIterations(500),
+            StopConditions.nOfIterations(50), //500
             operatorsMap,
             new Tournament(5),
             new Last(),
@@ -112,7 +123,9 @@ public class TreeExample implements Runnable {
             true,
             false,
             (srp, rnd) -> new POSetPopulationState<>()
-    ));
+    );
+
+    solvers.add(stdEvolver);
 
     int counter = 0;
     for (int seed : seeds) {
@@ -140,8 +153,32 @@ public class TreeExample implements Runnable {
         }
       }
     }
+
+    Map<PrologOperator, Integer> changes = stdEvolver.getChanges();
+    Map<PrologOperator, Integer> usages = stdEvolver.getUsage();
+    Set<PrologOperator> operatorsSet = changes.keySet();
+
+
+    double sum = 0d;
+    for (PrologOperator op : operatorsSet) {
+      sum += usages.get(op);
+    }
+
+    String leftAlignFormat = "| %-15s | %-5d | %-1.3f | %-5d | %-1.3f |%n";
+    System.out.format("+-----------------+-------+-------+-------+-------+%n");
+    System.out.format("| Operator        |  use  |   %%   |  chg  |   %%   |%n");
+    System.out.format("+-----------------+-------+-------+-------+-------+%n");
+    for (PrologOperator op : operatorsSet) {
+      System.out.printf(leftAlignFormat, op.getLabel(), usages.get(op), (double) usages.get(op) / sum, changes.get(op), ((double) changes.get(op)) / (usages.get(op)));
+    }
+    System.out.format("+-----------------+-------+-------+-------+-------+%n");
+
+    System.out.println("Total usages: " + (int) sum);
+
+
     tm.shutdown();
   }
+
 
   public static void main(String[] args) {
     final List<String> structuralRules = Arrays.asList(
@@ -151,7 +188,9 @@ public class TreeExample implements Runnable {
             "operator_val(/).",
             "n_input(1).",
             "input_val(X) :- n_input(Max), integer(X), X>=0, X<Max.",
-            "constant_val(X) :- float(X), X>=0.0, X< 2.0",
+            "max_const(2.0).",
+            "min_const(0.0).",
+            "constant_val(X) :- max_const(Max), float(X), X>=0.0, X< Max.",
             "start_outdegree(S) :- findall(E, edge(S,_,E), RES), length(RES,N1), N1 == 0.",
             "node_outdegree(S) :- findall(E, edge(S,_,E), RES), length(RES,N1), N1 == 1.",
             "operator_indegree(T) :- findall(E, edge(_,T,E), RES), length(RES,N1), N1 == 2.",
@@ -169,9 +208,10 @@ public class TreeExample implements Runnable {
                     "    foreach(findall(C,type(C,constant),C), maplist(leaf_indegree,C)).");
 
     //// Operators
-    List<String> operators = new ArrayList<>();
+    List<List<String>> operators = new ArrayList<>();
+    List<String> factoryOperators = new ArrayList<>();
 
-    String subTree = "findall(VV,(type(VV,input); type(VV,constant)),VAR)," +
+    String addSubTree = "findall(VV,(type(VV,input); type(VV,constant)),VAR)," +
             "random_member(V,VAR)," +
             "retract(value(V,_))," +
             "retract(type(V,_))," +
@@ -181,13 +221,12 @@ public class TreeExample implements Runnable {
             "gensym(nod,N1)," +
             "assert(node_id(N1))," +
             "assert(start(N1,0))," +
-            "n_input(NInp)," +
-            "InpMax is NInp -1," +
+            "n_input(InpMax)," +
             "(   maybe ->  assert(type(N1,input))," +
             "                     random(0, InpMax, InpVal)," +
             "                     assert(value(N1,InpVal)); " +
             "    assert(type(N1,constant))," +
-            "                     random(0.0,2.0,V1Val)," +
+            "                     random(0,2.0,V1Val)," +
             "                     assert(value(N1,V1Val)) )," +
             "gensym(nod,N2)," +
             "assert(node_id(N2))," +
@@ -196,7 +235,7 @@ public class TreeExample implements Runnable {
             "                     random(0, InpMax, InpVal2)," +
             "                     assert(value(N2,InpVal2)); " +
             "    assert(type(N2,constant))," +
-            "                     random(0.0,2.0,V2Val)," +
+            "                     random(0,2.0,V2Val)," +
             "                     assert(value(N2,V2Val)) )," +
             "gensym(edge,E1)," +
             "gensym(edge,E2)," +
@@ -204,51 +243,60 @@ public class TreeExample implements Runnable {
             "assert(edge_id(E2))," +
             "assert(edge(N1,V,E1))," +
             "assert(edge(N2,V,E2)).";
-    operators.add(subTree);
+    operators.add(Arrays.asList("addSubTree", addSubTree));
+    factoryOperators.add(addSubTree);
 
     String changeOperator = "findall(OP,type(OP,operator), Operators)," +
             "random_member(O, Operators)," +
             "retract(value(O,_))," +
             "findall(V,operator_val(V),Values)," +
-            "random_member(X,Values)," +
-            "assert(value(O,X))";
-    operators.add(changeOperator);
+            "random_member(NewVal,Values)," +
+            "assert(value(O,NewVal)).";
+    operators.add(Arrays.asList("changeOperator", changeOperator));
+    factoryOperators.add(changeOperator);
 
     String changeConstant = "findall(CON,type(CON,constant), Constants)," +
             "random_member(O, Constants)," +
             "retract(value(O,_))," +
-            "random(0.0,2.0,X)," +
+//            "max_const(ConstMax)," +
+//            "min_const(ConstMin)," +
+//            "random(ConstMin,ConstMax,X)," +
+            "random(0.0000001,2.0,X)," +
             "assert(value(O,X)).";
-    operators.add(changeConstant);
+    operators.add(Arrays.asList("changeConstant", changeConstant));
 
-    String removeLeaves = "findall(VV,(node_id(VV),(type(VV,variable); type(VV,input)),LeavesID)," +
-            "random_member(V,LeavesID)," +
-            "edge(V,T,ID)," +
-            "retract(edge_id(ID))," +
-            "retract(edge(V,T,ID))," +
-            "retract(node_id(V))," +
-            "retract(start(V,0))," +
-            "retract(type(V,_))," +
-            "edge(S,T,ID2)," +
-            "retract(node_id(S))," +
-            "retract(start(S,0))," +
+    String dropSubTree = "findall(Leaf , ((type(Leaf,constant);type(Leaf,input)),edge(Leaf,Operator,_),dif(Leaf,Leaf2)," +
+            "edge(Leaf2,Operator,_),(type(Leaf2,constant);type(Leaf2,input)))" +
+            "        ,Leaves)," +
+            "random_member(L1,Leaves)," +
+            "edge(L1,S,Edge1)," +
+            "edge(L2,S,Edge2)," +
+            "retract(edge(L1,S,Edge1))," +
+            "retract(edge_id(Edge1))," +
+            "retract(edge(L2,S,Edge2))," +
+            "retract(edge_id(Edge2))," +
+            "retract(node_id(L1))," +
+            "retract(node_id(L2))," +
+            "retract(start(L1,0))," +
+            "retract(start(L2,0))," +
+            "retract(value(L1,_))," +
+            "retract(value(L2,_))," +
+            "retract(type(L1,_))," +
+            "retract(type(L2,_))," +
+            "n_input(InpMax)," +
+//            "max_const(ConstMax)," +
+//            "min_const(ConstMin)," +
             "retract(type(S,_))," +
             "retract(value(S,_))," +
-            "retract(edge_id(ID2))," +
-            "retract(edge(S,T,ID2))," +
-            "retract(type(T,_))," +
-            "retract(value(T,_))," +
-            "n_input(NInp)," +
-            "InpMax is NInp -1," +
-            "(maybe -> assert(type(T,variable))," +
-            "   random(0,InpMax,InpVal)," +
-            "   assert(value(N1,InpVal));" +
-            "assert(type(T,input))," +
-            "   random(0.0,2.0,V1Val)," +
-            "   assert(value(N1,V1Val)) ).";
-    operators.add(removeLeaves);
+            "(   maybe ->  assert(type(S,input))," +
+            "     random(0, InpMax, InpVal)," +
+            "     assert(value(S,InpVal)); " +
+            "assert(type(S,constant))," +
+            "     random(0.0000001,2.0,V1Val)," +
+            "     assert(value(S,V1Val)) ).";
+    operators.add(Arrays.asList("dropSubTree", dropSubTree));
 
-    String swapEdges = "findall(VV,(type(VV,variable); type(VV,input) ),Leaves)," +
+    String swapLeaves = "findall(VV,(type(VV,variable); type(VV,input) ),Leaves)," +
             "random_member(V1,Leaves)," +
             "random_member(V2,Leaves)," +
             "edge(V1,T1,Id1)," +
@@ -257,7 +305,7 @@ public class TreeExample implements Runnable {
             "retract(edge(V2,T2,Id2))," +
             "assert(edge(V1,T2,Id1))," +
             "assert(edge(V2,T1,Id2)).";
-    operators.add(swapEdges);
+    operators.add(Arrays.asList("swapLeaves", swapLeaves));
 
     String constToInput = "findall(Con,type(Con,constant),Constants)," +
             "random_member(C,Constants)," +
@@ -267,18 +315,20 @@ public class TreeExample implements Runnable {
             "n_input(Max)," +
             "random(0,Max,NewVal)," +
             "assert(value(C,NewVal)).";
-    operators.add(constToInput);
+    operators.add(Arrays.asList("constToInput", constToInput));
 
     String inpToConst = "findall(Inp,type(Inp,input),Inputs)," +
             "random_member(I,Inputs)," +
             "retract(type(I,input))," +
             "retract(value(I,_))," +
             "assert(type(I,constant))," +
-            "random(0.0,2.0,NewVal)," +
+//            "max_const(ConstMax)," +
+//            "min_const(ConstMin)," +
+            "random(0.0000001,2.0,NewVal)," +
             "assert(value(I,NewVal)).";
-    operators.add(inpToConst);
+    operators.add(Arrays.asList("inpToConst", inpToConst));
 
-    new TreeExample(5, 30, operators, structuralRules).run();
+    new TreeExample(5, 25, factoryOperators, operators, structuralRules).run();
   }
 
 }
