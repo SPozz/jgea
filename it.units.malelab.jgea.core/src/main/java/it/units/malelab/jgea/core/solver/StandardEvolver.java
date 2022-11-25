@@ -30,10 +30,7 @@ import it.units.malelab.jgea.core.selector.Selector;
 import it.units.malelab.jgea.core.solver.state.POSetPopulationState;
 import it.units.malelab.jgea.core.util.Misc;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -54,6 +51,13 @@ public class StandardEvolver<T extends POSetPopulationState<G, S, Q>, P extends 
   protected final boolean overlapping;
   protected final boolean remap;
   protected final BiFunction<P, RandomGenerator, T> stateInitializer;
+
+
+  private final Map<GeneticOperator<G>, Integer> usage = new HashMap<>();
+  private final Map<GeneticOperator<G>, Integer> changes = new HashMap<>();
+
+
+
 
   public StandardEvolver(
       Function<? super G, ? extends S> solutionMapper,
@@ -76,20 +80,43 @@ public class StandardEvolver<T extends POSetPopulationState<G, S, Q>, P extends 
     this.overlapping = overlapping;
     this.remap = remap;
     this.stateInitializer = stateInitializer;
+
+    for (GeneticOperator<G> op : this.operators.keySet()){
+      this.changes.put(op,0);
+      this.usage.put(op,0);
+    }
   }
 
   protected Collection<Individual<G, S, Q>> buildOffspring(
       T state, P problem, RandomGenerator random, ExecutorService executor
   ) throws SolverException {
+
+
+
+
     Collection<G> offspringGenotypes = new ArrayList<>();
     while (offspringGenotypes.size() < offspringSize) {
       GeneticOperator<G> operator = Misc.pickRandomly(operators, random);
+
+      int tmpUsage = usage.get(operator);
+      usage.put(operator,++tmpUsage);
+
       List<G> parentGenotypes = new ArrayList<>(operator.arity());
       for (int j = 0; j < operator.arity(); j++) {
         Individual<G, S, Q> parent = parentSelector.select(state.getPopulation(), random);
         parentGenotypes.add(parent.genotype());
       }
-      offspringGenotypes.addAll(operator.apply(parentGenotypes, random));
+      List<? extends G> newOffsprings = operator.apply(parentGenotypes,random);
+      offspringGenotypes.addAll(newOffsprings);
+//      offspringGenotypes.addAll(operator.apply(parentGenotypes, random));
+
+
+      if (!newOffsprings.get(0).equals(parentGenotypes.get(0))){
+        int tmpChange = changes.get(operator);
+        changes.put(operator,++tmpChange);
+      }
+
+
     }
     return map(offspringGenotypes, List.of(), solutionMapper, problem.qualityFunction(), executor, state);
   }
@@ -138,6 +165,14 @@ public class StandardEvolver<T extends POSetPopulationState<G, S, Q>, P extends 
     state.setPopulation(new DAGPartiallyOrderedCollection<>(offspring, comparator(problem)));
     state.incNOfIterations();
     state.updateElapsedMillis();
+  }
+
+  public Map<GeneticOperator<G>,Integer> getUsage(){
+    return usage;
+  }
+
+  public Map<GeneticOperator<G>,Integer> getChanges(){
+    return changes;
   }
 
 }

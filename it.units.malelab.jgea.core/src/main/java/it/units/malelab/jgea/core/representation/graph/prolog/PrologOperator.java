@@ -11,7 +11,10 @@ public class PrologOperator implements Mutation<PrologGraph> {
   private final List<String> domainDefinition;
   private final List<String> structuralRules;
 
-  public PrologOperator(String operatorDescription, List<String> domainDefinition, List<String> domainStructuralRules) {
+  private final String label;
+
+  public PrologOperator(String label, String operatorDescription, List<String> domainDefinition, List<String> domainStructuralRules) {
+    this.label = label;
     this.operatorDescription = operatorDescription;
     this.domainDefinition = domainDefinition;
     this.structuralRules = domainStructuralRules;
@@ -20,5 +23,9 @@ public class PrologOperator implements Mutation<PrologGraph> {
   @Override
   public PrologGraph mutate(PrologGraph graph, RandomGenerator random) {
     return PrologGraphUtils.applyOperator(operatorDescription, graph, domainDefinition, structuralRules);
+  }
+
+  public String getLabel() {
+    return this.label;
   }
 }
