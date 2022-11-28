@@ -1,0 +1,17 @@
+operator_val(+).
+operator_val(*).
+operator_val(-).
+operator_val(/).
+n_input(1).
+input_val(X) :- n_input(Max), integer(X), X>=0, X<Max.
+max_const(2.0).
+min_const(0.0).
+constant_val(X) :- max_const(Max), float(X), X>=0.0, X< Max.
+start_outdegree(S) :- findall(E, edge(S,_,E), RES), length(RES,N1), N1 == 0.
+node_outdegree(S) :- findall(E, edge(S,_,E), RES), length(RES,N1), N1 == 1.
+operator_indegree(T) :- findall(E, edge(_,T,E), RES), length(RES,N1), N1 == 2.
+leaf_indegree(T) :- findall(E, edge(_,T,E), RES), length(RES,N1), N1 == 0.
+check_start :- findall(N,start(N,1), N),length(N,N1), N1 == 1.
+start_connected(N) :- start(N,1).
+start_connected(N) :- edge(N,X,_), start_connected(X).
+is_valid :- check_start, foreach(findall(N,node_id(N),Node),maplist(start_connected,Node)), foreach(findall(T,(node_id(T),start(T,1)),T), maplist(start_outdegree,T)), foreach(findall(T,(node_id(T),start(T,0)),T), maplist(node_outdegree,T)), foreach(findall(O,type(O,operator),O), maplist(operator_indegree,O)), foreach(findall(V,type(V,input),V), maplist(leaf_indegree,V)), foreach(findall(C,type(C,constant),C), maplist(leaf_indegree,C)).
