@@ -91,7 +91,7 @@ public class TreeExample implements Runnable {
                     )),
                     List.of()
             );
-    List<Integer> seeds = List.of(1, 2, 3, 4, 5);
+    List<Integer> seeds = List.of(1, 2); //, 3, 4, 5);
     SyntheticSymbolicRegressionProblem p = new Polynomial2(SymbolicRegressionFitness.Metric.MSE);
     List<IterativeSolver<? extends POSetPopulationState<PrologGraph, RealFunction, Double>, SyntheticSymbolicRegressionProblem,
             RealFunction>> solvers = new ArrayList<>();
@@ -115,7 +115,7 @@ public class TreeExample implements Runnable {
             }),
             new PrologGraphFactory(minDim, maxDim, originGraph, factoryOperators, domainDefinition, structuralRules),
             100,
-            StopConditions.nOfIterations(500),
+            StopConditions.nOfIterations(75), //500
             operatorsMap,
             new Tournament(5),
             new Last(),
@@ -319,7 +319,7 @@ public class TreeExample implements Runnable {
             "assert(value(I,NewVal)).";
     operators.add(Arrays.asList("inpToConst", inpToConst));
 
-    String innerSubtree = "findall((O1,O2,IDD),(type(O1,operator),type(O2,operator),edge(O1,O2,IDD)),Operators)," +
+    String innerSubTree = "findall((O1,O2,IDD),(type(O1,operator),type(O2,operator),edge(O1,O2,IDD)),Operators)," +
             "random_member((Op2,Op1,IdOld),Operators)," +
             "gensym(nod,N1)," +
             "assert(node_id(N1))," +
@@ -346,8 +346,8 @@ public class TreeExample implements Runnable {
             "assert(edge_id(E2))," +
             "assert(edge(N2,N1,E1))," +
             "assert(edge(Op2,N1,E2)).";
-    operators.add(Arrays.asList("innerSubtree",innerSubtree));
-    factoryOperators.add(innerSubtree);
+    operators.add(Arrays.asList("innerSubTree",innerSubTree));
+    factoryOperators.add(innerSubTree);
 
     new TreeExample(5, 37, factoryOperators, operators, structuralRules).run();
   }
