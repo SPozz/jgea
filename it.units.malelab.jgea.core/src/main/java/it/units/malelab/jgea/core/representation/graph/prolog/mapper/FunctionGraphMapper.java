@@ -23,7 +23,10 @@ public class FunctionGraphMapper implements Function<PrologGraph, FunctionGraph>
 
   public FunctionGraph apply(PrologGraph prologFfnn) {
     LinkedHashGraph<Node, Double> intermediateGraph = new LinkedHashGraph<>();
-    int index = 0;
+    int inputIndex = 0;
+    int functionIndex = 0;
+    int outputIndex = 0;
+    int variableIndex = 0;
     LinkedHashMap<String, Node> idToNode = new LinkedHashMap<>();
     Set<Integer> levels = new HashSet<>();
     for (Map<String, Object> node : prologFfnn.nodes()) {
@@ -37,16 +40,17 @@ public class FunctionGraphMapper implements Function<PrologGraph, FunctionGraph>
       Node tmpNode;
       final int nodeLevel = Integer.parseInt(node.get("layer").toString());
       if (nodeLevel == minLevel) {
-        tmpNode = new Input(index);
+        tmpNode = new Input(inputIndex, variableIndex); //WIP
+        inputIndex++;
       } else if (nodeLevel == maxLevel) {
-        tmpNode = new Output(index);
+        tmpNode = new Output(outputIndex);
+        outputIndex++;
       } else {
-        tmpNode = new FunctionNode(index, function);
+        tmpNode = new FunctionNode(functionIndex, function);
+        functionIndex++;
       }
-
       idToNode.put(node.get("node_id").toString(), tmpNode);
       intermediateGraph.addNode(tmpNode);
-      index++;
     }
 
     for (Graph.Arc<Map<String, Object>> arc : prologFfnn.arcs()) {
