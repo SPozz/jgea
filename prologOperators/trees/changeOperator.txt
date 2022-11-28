@@ -1,0 +1,1 @@
+findall(OP,type(OP,operator), Operators), random_member(O, Operators), retract(value(O,_)), findall(V,operator_val(V),Values), random_member(NewVal,Values), assert(value(O,NewVal)).

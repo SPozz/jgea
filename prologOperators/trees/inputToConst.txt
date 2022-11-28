@@ -1,0 +1,1 @@
+findall(Inp,type(Inp,input),Inputs), random_member(I,Inputs), retract(type(I,input)), retract(value(I,_)), assert(type(I,constant)), random(0.0000001,2.0,NewVal), assert(value(I,NewVal)).

@@ -1,0 +1,1 @@
+findall(VV,(type(VV,variable); type(VV,input) ),Leaves), random_member(V1,Leaves), random_member(V2,Leaves), edge(V1,T1,Id1), edge(V2,T2,Id2), retract(edge(V1,T1,Id1)), retract(edge(V2,T2,Id2)), assert(edge(V1,T2,Id1)), assert(edge(V2,T1,Id2)).

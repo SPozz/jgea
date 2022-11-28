@@ -1,0 +1,1 @@
+findall(Con,type(Con,constant),Constants), random_member(C,Constants), retract(type(C,constant)), retract(value(C,_)), assert(type(C,input)), n_input(Max), random(0,Max,NewVal), assert(value(C,NewVal)).
