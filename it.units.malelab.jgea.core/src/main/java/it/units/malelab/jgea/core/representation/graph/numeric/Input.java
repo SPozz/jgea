@@ -22,7 +22,7 @@ import it.units.malelab.jgea.core.representation.graph.Node;
  * @author eric
  */
 public class Input extends Node {
-  protected final int variableIndex;
+  public final int variableIndex;
 
   public Input(int index, int variableIndex) {
     super(index);
