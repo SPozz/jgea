@@ -15,10 +15,17 @@ import it.units.malelab.jgea.problem.symbolicregression.*;
 import it.units.malelab.jgea.sample.lab.TuiExample;
 import it.units.malelab.jgea.tui.TerminalMonitor;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static it.units.malelab.jgea.sample.lab.TuiExample.*;
 import static it.units.malelab.jgea.core.listener.NamedFunctions.*;
@@ -62,7 +69,7 @@ public class TreeExample implements Runnable {
     node2.put("node_id", "second");
     node2.put("start", 0);
     node2.put("type", "constant");
-    node2.put("value", 1.0d);
+    node2.put("value", 0.5d); // con + 1 è facile..
     LinkedHashMap<String, Object> node3 = new LinkedHashMap<>();
     node3.put("node_id", "third");
     node3.put("start", 0);
@@ -181,175 +188,32 @@ public class TreeExample implements Runnable {
 
 
   public static void main(String[] args) {
-    final List<String> structuralRules = Arrays.asList(
-            "operator_val(+).",
-            "operator_val(*).",
-            "operator_val(-).",
-            "operator_val(/).",
-            "n_input(1).",
-            "input_val(X) :- n_input(Max), integer(X), X>=0, X<Max.",
-            "max_const(2.0).",
-            "min_const(0.0).",
-            "constant_val(X) :- max_const(Max), float(X), X>=0.0, X< Max.",
-            "start_outdegree(S) :- findall(E, edge(S,_,E), RES), length(RES,N1), N1 == 0.",
-            "node_outdegree(S) :- findall(E, edge(S,_,E), RES), length(RES,N1), N1 == 1.",
-            "operator_indegree(T) :- findall(E, edge(_,T,E), RES), length(RES,N1), N1 == 2.",
-            "leaf_indegree(T) :- findall(E, edge(_,T,E), RES), length(RES,N1), N1 == 0.",
-            "check_start :- findall(N,start(N,1), N),length(N,N1), N1 == 1.",
-            "start_connected(N) :- start(N,1).",
-            "start_connected(N) :- edge(N,X,_), start_connected(X).",
-            "is_valid :- " +
-                    "    check_start," +
-                    "    foreach(findall(N,node_id(N),Node),maplist(start_connected,Node))," +
-                    "    foreach(findall(T,(node_id(T),start(T,1)),T), maplist(start_outdegree,T))," +
-                    "    foreach(findall(T,(node_id(T),start(T,0)),T), maplist(node_outdegree,T))," +
-                    "    foreach(findall(O,type(O,operator),O), maplist(operator_indegree,O))," +
-                    "    foreach(findall(V,type(V,input),V), maplist(leaf_indegree,V))," +
-                    "    foreach(findall(C,type(C,constant),C), maplist(leaf_indegree,C)).");
-
-    //// Operators
+    File folder = new File("C:\\Users\\Simone\\Desktop\\GitHub_Tesi\\jgea\\prolog\\trees\\operators");
+    List<String> factoryFiles = Arrays.asList("addSubTree.txt", "innerSubTree.txt");
     List<List<String>> operators = new ArrayList<>();
     List<String> factoryOperators = new ArrayList<>();
+    List<String> structuralRules;
 
-    String addSubTree = "findall(VV,(type(VV,input); type(VV,constant)),VAR)," +
-            "random_member(V,VAR)," +
-            "retract(value(V,_))," +
-            "retract(type(V,_))," +
-            "operator_val(OpVal)," +
-            "assert(type(V,operator))," +
-            "assert(value(V,OpVal))," +
-            "gensym(nod,N1)," +
-            "assert(node_id(N1))," +
-            "assert(start(N1,0))," +
-            "n_input(InpMax)," +
-            "(   maybe ->  assert(type(N1,input))," +
-            "                     random(0, InpMax, InpVal)," +
-            "                     assert(value(N1,InpVal)); " +
-            "    assert(type(N1,constant))," +
-            "                     random(0,2.0,V1Val)," +
-            "                     assert(value(N1,V1Val)) )," +
-            "gensym(nod,N2)," +
-            "assert(node_id(N2))," +
-            "assert(start(N2,0))," +
-            "(   maybe ->  assert(type(N2,input))," +
-            "                     random(0, InpMax, InpVal2)," +
-            "                     assert(value(N2,InpVal2)); " +
-            "    assert(type(N2,constant))," +
-            "                     random(0,2.0,V2Val)," +
-            "                     assert(value(N2,V2Val)) )," +
-            "gensym(edge,E1)," +
-            "gensym(edge,E2)," +
-            "assert(edge_id(E1))," +
-            "assert(edge_id(E2))," +
-            "assert(edge(N1,V,E1))," +
-            "assert(edge(N2,V,E2)).";
-    operators.add(Arrays.asList("addSubTree", addSubTree));
-    factoryOperators.add(addSubTree);
-
-    String changeOperator = "findall(OP,type(OP,operator), Operators)," +
-            "random_member(O, Operators)," +
-            "retract(value(O,_))," +
-            "findall(V,operator_val(V),Values)," +
-            "random_member(NewVal,Values)," +
-            "assert(value(O,NewVal)).";
-    operators.add(Arrays.asList("changeOperator", changeOperator));
-    factoryOperators.add(changeOperator);
-
-    String changeConstant = "findall(CON,type(CON,constant), Constants)," +
-            "random_member(O, Constants)," +
-            "retract(value(O,_))," +
-            "random(0.001,2.0,NewVal)," +
-            "assert(value(O,NewVal)).";
-    operators.add(Arrays.asList("changeConstant", changeConstant));
-
-    String dropSubTree = "findall((Leaf1,Leaf2,Root,Edg1,Edg2) , ((type(Leaf1,constant);type(Leaf1,input)),edge(Leaf1,Root,Edg1),dif(Leaf1,Leaf2)," +
-            "edge(Leaf2,Root,Edg2),(type(Leaf2,constant);type(Leaf2,input)))" +
-            "        ,Leaves)," +
-            "random_member((L1,L2,S,Edge1,Edge2),Leaves)," +
-            "retract(edge(L1,S,Edge1))," +
-            "retract(edge_id(Edge1))," +
-            "retract(edge(L2,S,Edge2))," +
-            "retract(edge_id(Edge2))," +
-            "retract(node_id(L1))," +
-            "retract(node_id(L2))," +
-            "retract(start(L1,0))," +
-            "retract(start(L2,0))," +
-            "retract(value(L1,_))," +
-            "retract(value(L2,_))," +
-            "retract(type(L1,_))," +
-            "retract(type(L2,_))," +
-            "n_input(InpMax)," +
-            "retract(type(S,_))," +
-            "retract(value(S,_))," +
-            "(   maybe ->  assert(type(S,input))," +
-            "     random(0, InpMax, InpVal)," +
-            "     assert(value(S,InpVal)); " +
-            "assert(type(S,constant))," +
-            "     random(0.001,2.0,V1Val)," +
-            "     assert(value(S,V1Val)) ).";
-    operators.add(Arrays.asList("dropSubTree", dropSubTree));
-
-    String swapLeaves = "findall(VV,(type(VV,variable); type(VV,input) ),Leaves)," +
-            "random_member(V1,Leaves)," +
-            "random_member(V2,Leaves)," +
-            "edge(V1,T1,Id1)," +
-            "edge(V2,T2,Id2)," +
-            "retract(edge(V1,T1,Id1))," +
-            "retract(edge(V2,T2,Id2))," +
-            "assert(edge(V1,T2,Id1))," +
-            "assert(edge(V2,T1,Id2)).";
-    operators.add(Arrays.asList("swapLeaves", swapLeaves));
-
-    String constToInput = "findall(Con,type(Con,constant),Constants)," +
-            "random_member(C,Constants)," +
-            "retract(type(C,constant))," +
-            "retract(value(C,_))," +
-            "assert(type(C,input))," +
-            "n_input(Max)," +
-            "random(0,Max,NewVal)," +
-            "assert(value(C,NewVal)).";
-    operators.add(Arrays.asList("constToInput", constToInput));
-
-    String inpToConst = "findall(Inp,type(Inp,input),Inputs)," +
-            "random_member(I,Inputs)," +
-            "retract(type(I,input))," +
-            "retract(value(I,_))," +
-            "assert(type(I,constant))," +
-            "random(0.001,2.0,NewVal)," +
-            "assert(value(I,NewVal)).";
-    operators.add(Arrays.asList("inpToConst", inpToConst));
-
-    String innerSubTree = "findall((O1,O2,IDD),(type(O1,operator),type(O2,operator),edge(O1,O2,IDD)),Operators)," +
-            "random_member((Op2,Op1,IdOld),Operators)," +
-            "gensym(nod,N1)," +
-            "assert(node_id(N1))," +
-            "assert(start(N1,0))," +
-            "assert(type(N1,operator))," +
-            "findall(OVal,operator_val(OVal),OValues)," +
-            "random_member(NewOp,OValues)," +
-            "assert(value(N1,NewOp))," +
-            "n_input(InpMax)," +
-            "gensym(nod,N2)," +
-            "assert(node_id(N2))," +
-            "assert(start(N2,0))," +
-            "(   maybe ->  assert(type(N2,input))," +
-            "                     random(0, InpMax, InpVal2)," +
-            "                     assert(value(N2,InpVal2)); " +
-            "    assert(type(N2,constant))," +
-            "                     random(0.001,2.0,V2Val)," +
-            "                     assert(value(N2,V2Val)) )," +
-            "retract(edge(Op2,Op1,IdOld))," +
-            "assert(edge(N1,Op1,IdOld))," +
-            "gensym(edg,E1)," +
-            "gensym(edg,E2)," +
-            "assert(edge_id(E1))," +
-            "assert(edge_id(E2))," +
-            "assert(edge(N2,N1,E1))," +
-            "assert(edge(Op2,N1,E2)).";
-    operators.add(Arrays.asList("innerSubTree",innerSubTree));
-    factoryOperators.add(innerSubTree);
+    try {
+      // structuralRules
+      Stream<String> rulesPath = Files.lines(Paths.get("C:\\Users\\Simone\\Desktop\\GitHub_Tesi\\jgea\\prolog\\trees\\structuralRules.txt"));
+      structuralRules = rulesPath.collect(Collectors.toList());
+      // operators
+      for (File file : folder.listFiles()) {
+        String operator = Files.readString(file.toPath());
+        operators.add(Arrays.asList(file.getName().replace(".txt", ""), operator));
+      }
+      // factory
+      for (String fileName : factoryFiles) {
+        factoryOperators.add(Files.readString(Path.of(folder + "\\" + fileName)));
+      }
+    } catch (IOException any) {
+      throw new UnsupportedOperationException("IOException in main.");
+    }
 
     new TreeExample(5, 37, factoryOperators, operators, structuralRules).run();
+
+
   }
 
 }
