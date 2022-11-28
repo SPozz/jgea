@@ -258,9 +258,6 @@ public class TreeExample implements Runnable {
     String changeConstant = "findall(CON,type(CON,constant), Constants)," +
             "random_member(O, Constants)," +
             "retract(value(O,_))," +
-//            "max_const(ConstMax)," +
-//            "min_const(ConstMin)," +
-//            "random(ConstMin,ConstMax,X)," +
             "random(0.000001,2.0,NewVal)," +
             "assert(value(O,NewVal)).";
     operators.add(Arrays.asList("changeConstant", changeConstant));
@@ -320,8 +317,6 @@ public class TreeExample implements Runnable {
             "retract(type(I,input))," +
             "retract(value(I,_))," +
             "assert(type(I,constant))," +
-//            "max_const(ConstMax)," +
-//            "min_const(ConstMin)," +
             "random(0.0000001,2.0,NewVal)," +
             "assert(value(I,NewVal)).";
     operators.add(Arrays.asList("inpToConst", inpToConst));
