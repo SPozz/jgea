@@ -26,7 +26,7 @@ public class FunctionGraphMapper implements Function<PrologGraph, FunctionGraph>
     int inputIndex = 0;
     int functionIndex = 0;
     int outputIndex = 0;
-    int variableIndex = 0;
+    int variableIndex = 0; // here we don't have same input twice
     LinkedHashMap<String, Node> idToNode = new LinkedHashMap<>();
     Set<Integer> levels = new HashSet<>();
     for (Map<String, Object> node : prologFfnn.nodes()) {
@@ -52,7 +52,6 @@ public class FunctionGraphMapper implements Function<PrologGraph, FunctionGraph>
       idToNode.put(node.get("node_id").toString(), tmpNode);
       intermediateGraph.addNode(tmpNode);
     }
-
     for (Graph.Arc<Map<String, Object>> arc : prologFfnn.arcs()) {
       Node source = idToNode.get((String) arc.getSource().get("node_id"));
       Node target = idToNode.get((String) arc.getTarget().get("node_id"));
