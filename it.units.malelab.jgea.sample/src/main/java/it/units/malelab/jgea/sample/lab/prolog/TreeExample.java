@@ -91,7 +91,7 @@ public class TreeExample implements Runnable {
                     )),
                     List.of()
             );
-    List<Integer> seeds = List.of(1, 2); //, 3);//, 4, 5);
+    List<Integer> seeds = List.of(1, 2, 3, 4, 5);
     SyntheticSymbolicRegressionProblem p = new Polynomial2(SymbolicRegressionFitness.Metric.MSE);
     List<IterativeSolver<? extends POSetPopulationState<PrologGraph, RealFunction, Double>, SyntheticSymbolicRegressionProblem,
             RealFunction>> solvers = new ArrayList<>();
@@ -115,7 +115,7 @@ public class TreeExample implements Runnable {
             }),
             new PrologGraphFactory(minDim, maxDim, originGraph, factoryOperators, domainDefinition, structuralRules),
             100,
-            StopConditions.nOfIterations(50), //500
+            StopConditions.nOfIterations(500),
             operatorsMap,
             new Tournament(5),
             new Last(),
@@ -261,16 +261,14 @@ public class TreeExample implements Runnable {
 //            "max_const(ConstMax)," +
 //            "min_const(ConstMin)," +
 //            "random(ConstMin,ConstMax,X)," +
-            "random(0.0000001,2.0,X)," +
-            "assert(value(O,X)).";
+            "random(0.000001,2.0,NewVal)," +
+            "assert(value(O,NewVal)).";
     operators.add(Arrays.asList("changeConstant", changeConstant));
 
-    String dropSubTree = "findall(Leaf , ((type(Leaf,constant);type(Leaf,input)),edge(Leaf,Operator,_),dif(Leaf,Leaf2)," +
-            "edge(Leaf2,Operator,_),(type(Leaf2,constant);type(Leaf2,input)))" +
+    String dropSubTree = "findall((Leaf1,Leaf2,Root,Edg1,Edg2) , ((type(Leaf1,constant);type(Leaf1,input)),edge(Leaf1,Root,Edg1),dif(Leaf1,Leaf2)," +
+            "edge(Leaf2,Root,Edg2),(type(Leaf2,constant);type(Leaf2,input)))" +
             "        ,Leaves)," +
-            "random_member(L1,Leaves)," +
-            "edge(L1,S,Edge1)," +
-            "edge(L2,S,Edge2)," +
+            "random_member((L1,L2,S,Edge1,Edge2),Leaves)," +
             "retract(edge(L1,S,Edge1))," +
             "retract(edge_id(Edge1))," +
             "retract(edge(L2,S,Edge2))," +
@@ -284,15 +282,15 @@ public class TreeExample implements Runnable {
             "retract(type(L1,_))," +
             "retract(type(L2,_))," +
             "n_input(InpMax)," +
-//            "max_const(ConstMax)," +
-//            "min_const(ConstMin)," +
+            "max_const(ConstMax)," +
+            "min_const(ConstMin)," +
             "retract(type(S,_))," +
             "retract(value(S,_))," +
             "(   maybe ->  assert(type(S,input))," +
             "     random(0, InpMax, InpVal)," +
             "     assert(value(S,InpVal)); " +
             "assert(type(S,constant))," +
-            "     random(0.0000001,2.0,V1Val)," +
+            "     random(ConstMin,ConstMax,V1Val)," +
             "     assert(value(S,V1Val)) ).";
     operators.add(Arrays.asList("dropSubTree", dropSubTree));
 
@@ -328,7 +326,7 @@ public class TreeExample implements Runnable {
             "assert(value(I,NewVal)).";
     operators.add(Arrays.asList("inpToConst", inpToConst));
 
-    new TreeExample(5, 25, factoryOperators, operators, structuralRules).run();
+    new TreeExample(5, 37, factoryOperators, operators, structuralRules).run();
   }
 
 }
