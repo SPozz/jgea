@@ -29,10 +29,6 @@ public class Input extends Node {
     this.variableIndex = variableIndex;
   }
 
-  public int getVariableIndex() {
-    return variableIndex;
-  }
-
   @Override
   public String toString() {
     return "i" + getIndex();
