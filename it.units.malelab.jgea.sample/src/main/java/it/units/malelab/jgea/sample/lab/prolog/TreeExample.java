@@ -258,7 +258,7 @@ public class TreeExample implements Runnable {
     String changeConstant = "findall(CON,type(CON,constant), Constants)," +
             "random_member(O, Constants)," +
             "retract(value(O,_))," +
-            "random(0.000001,2.0,NewVal)," +
+            "random(0.001,2.0,NewVal)," +
             "assert(value(O,NewVal)).";
     operators.add(Arrays.asList("changeConstant", changeConstant));
 
@@ -279,15 +279,13 @@ public class TreeExample implements Runnable {
             "retract(type(L1,_))," +
             "retract(type(L2,_))," +
             "n_input(InpMax)," +
-            "max_const(ConstMax)," +
-            "min_const(ConstMin)," +
             "retract(type(S,_))," +
             "retract(value(S,_))," +
             "(   maybe ->  assert(type(S,input))," +
             "     random(0, InpMax, InpVal)," +
             "     assert(value(S,InpVal)); " +
             "assert(type(S,constant))," +
-            "     random(ConstMin,ConstMax,V1Val)," +
+            "     random(0.001,2.0,V1Val)," +
             "     assert(value(S,V1Val)) ).";
     operators.add(Arrays.asList("dropSubTree", dropSubTree));
 
@@ -317,9 +315,39 @@ public class TreeExample implements Runnable {
             "retract(type(I,input))," +
             "retract(value(I,_))," +
             "assert(type(I,constant))," +
-            "random(0.0000001,2.0,NewVal)," +
+            "random(0.001,2.0,NewVal)," +
             "assert(value(I,NewVal)).";
     operators.add(Arrays.asList("inpToConst", inpToConst));
+
+    String innerSubtree = "findall((O1,O2,IDD),(type(O1,operator),type(O2,operator),edge(O1,O2,IDD)),Operators)," +
+            "random_member((Op2,Op1,IdOld),Operators)," +
+            "gensym(nod,N1)," +
+            "assert(node_id(N1))," +
+            "assert(start(N1,0))," +
+            "assert(type(N1,operator))," +
+            "findall(OVal,operator_val(OVal),OValues)," +
+            "random_member(NewOp,OValues)," +
+            "assert(value(N1,NewOp))," +
+            "n_input(InpMax)," +
+            "gensym(nod,N2)," +
+            "assert(node_id(N2))," +
+            "assert(start(N2,0))," +
+            "(   maybe ->  assert(type(N2,input))," +
+            "                     random(0, InpMax, InpVal2)," +
+            "                     assert(value(N2,InpVal2)); " +
+            "    assert(type(N2,constant))," +
+            "                     random(0.001,2.0,V2Val)," +
+            "                     assert(value(N2,V2Val)) )," +
+            "retract(edge(Op2,Op1,IdOld))," +
+            "assert(edge(N1,Op1,IdOld))," +
+            "gensym(edg,E1)," +
+            "gensym(edg,E2)," +
+            "assert(edge_id(E1))," +
+            "assert(edge_id(E2))," +
+            "assert(edge(N2,N1,E1))," +
+            "assert(edge(Op2,N1,E2)).";
+    operators.add(Arrays.asList("innerSubtree",innerSubtree));
+    factoryOperators.add(innerSubtree);
 
     new TreeExample(5, 37, factoryOperators, operators, structuralRules).run();
   }
