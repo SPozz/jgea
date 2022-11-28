@@ -52,7 +52,7 @@ public class ShallowSparseFactory implements IndependentFactory<Graph<Node, Doub
     Constant constant = new Constant(0, 1d);
     g.addNode(constant);
     for (int i = 0; i < nInputs; i++) {
-      inputs[i] = new Input(i);
+      inputs[i] = new Input(i,0);
       g.addNode(inputs[i]);
     }
     for (int o = 0; o < nOutputs; o++) {

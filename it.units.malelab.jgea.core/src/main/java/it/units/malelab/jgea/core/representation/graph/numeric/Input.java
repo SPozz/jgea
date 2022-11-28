@@ -22,12 +22,26 @@ import it.units.malelab.jgea.core.representation.graph.Node;
  * @author eric
  */
 public class Input extends Node {
-  public Input(int index) {
+  protected final int variableIndex;
+
+  public Input(int index, int variableIndex) {
     super(index);
+    this.variableIndex = variableIndex;
   }
 
   @Override
   public String toString() {
     return "i" + getIndex();
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o)
+      return true;
+    if (o == null || getClass() != o.getClass())
+      return false;
+    Input node = (Input) o;
+    return (index == node.index && variableIndex == node.variableIndex);
+
   }
 }
