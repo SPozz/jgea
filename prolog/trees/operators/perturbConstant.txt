@@ -1,0 +1,1 @@
+findall((C,V),(type(C,constant),value(C,V)),Constants),random_member((Id,Val),Constants),Min is Val - 0.5,Max is Val + 0.5,random(Min, Max, NewVal),constant_val(NewVal),retract(value(Id,Val)),assert(value(Id,NewVal)).
