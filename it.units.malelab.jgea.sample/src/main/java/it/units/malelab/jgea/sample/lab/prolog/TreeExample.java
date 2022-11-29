@@ -1,5 +1,6 @@
 package it.units.malelab.jgea.sample.lab.prolog;
 
+import it.units.malelab.jgea.core.listener.NamedFunction;
 import it.units.malelab.jgea.core.operator.GeneticOperator;
 import it.units.malelab.jgea.core.representation.graph.numeric.RealFunction;
 import it.units.malelab.jgea.core.representation.graph.prolog.PrologGraph;
@@ -27,10 +28,32 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static it.units.malelab.jgea.sample.lab.TuiExample.*;
 import static it.units.malelab.jgea.core.listener.NamedFunctions.*;
 
 public class TreeExample implements Runnable {
+
+  public final static List<NamedFunction<? super POSetPopulationState<?, ?, ?>, ?>> BASIC_FUNCTIONS =
+          List.of(
+                  iterations(),
+                  births(),
+                  elapsedSeconds(),
+                  size().of(all()),
+                  size().of(firsts()),
+                  size().of(lasts()),
+                  uniqueness().of(each(genotype())).of(all()),
+                  uniqueness().of(each(solution())).of(all()),
+                  uniqueness().of(each(fitness())).of(all()),
+                  size().of(genotype()).of(best()),
+//                  size().of(solution()).of(best()),
+                  fitnessMappingIteration().of(best())
+          );
+
+  public final static List<NamedFunction<? super POSetPopulationState<?, ?, ? extends Double>, ?>> DOUBLE_FUNCTIONS =
+          List.of(
+                  fitness().reformat("%5.3f").of(best()),
+                  hist(8).of(each(fitness())).of(all()),
+                  max(Double::compare).reformat("%5.3f").of(each(fitness())).of(all())
+          );
   private final static Logger L = Logger.getLogger(TuiExample.class.getName());
 
   private final ExecutorService executorService;
@@ -98,7 +121,7 @@ public class TreeExample implements Runnable {
                     )),
                     List.of()
             );
-    List<Integer> seeds = List.of(1, 2); //, 3, 4, 5);
+    List<Integer> seeds = List.of(1, 2, 3, 4, 5);
     SyntheticSymbolicRegressionProblem p = new Polynomial2(SymbolicRegressionFitness.Metric.MSE);
     List<IterativeSolver<? extends POSetPopulationState<PrologGraph, RealFunction, Double>, SyntheticSymbolicRegressionProblem,
             RealFunction>> solvers = new ArrayList<>();
@@ -122,7 +145,7 @@ public class TreeExample implements Runnable {
             }),
             new PrologGraphFactory(minDim, maxDim, originGraph, factoryOperators, domainDefinition, structuralRules),
             100,
-            StopConditions.nOfIterations(75), //500
+            StopConditions.nOfIterations(500),
             operatorsMap,
             new Tournament(5),
             new Last(),
