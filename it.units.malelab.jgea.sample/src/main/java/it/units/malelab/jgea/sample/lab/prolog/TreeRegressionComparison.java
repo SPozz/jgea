@@ -70,8 +70,10 @@ public class TreeRegressionComparison extends Worker {
             ":- dynamic edge_id/1.",
             ":- dynamic edge/3.");
 
-    final File folderAllOperators = new File("C:\\Users\\Simone\\Desktop\\GitHub_Tesi\\jgea\\prolog\\trees\\operators");
-    final File folderSelectionOperators = new File("C:\\Users\\Simone\\Desktop\\GitHub_Tesi\\jgea\\prolog\\trees\\operators\\selection");
+    final String path = "C:\\Users\\Simone\\Desktop\\GitHub_Tesi\\jgea\\prolog\\trees\\operators\\";
+    final File folderFactory = new File(path + "factory");
+    final File folderAllOperators = new File(path +"others");
+    final File folderSelectionOperators = new File(path+"selection");
     final List<String> factoryFiles = Arrays.asList("addSubTree.txt", "innerSubTree.txt");
     List<List<String>> prologOperatorsAll = new ArrayList<>();
     List<List<String>> prologOperatorSelection = new ArrayList<>();
@@ -94,7 +96,7 @@ public class TreeRegressionComparison extends Worker {
       prologOperatorsAll.addAll(prologOperatorSelection);
       // factory
       for (String fileName : factoryFiles) {
-        factoryOperators.add(Files.readString(Path.of(folderAllOperators + "\\" + fileName)));
+        factoryOperators.add(Files.readString(Path.of(folderFactory + "\\" + fileName)));
       }
     } catch (IOException any) {
       throw new UnsupportedOperationException("IOException in main.");
