@@ -99,10 +99,16 @@ public class TreeRegressionComparison extends Worker {
     } catch (IOException any) {
       throw new UnsupportedOperationException("IOException in main.");
     }
-    Map<GeneticOperator<PrologGraph>, Double> operatorsMap = new HashMap<>();
+
+    Map<GeneticOperator<PrologGraph>, Double> prologSelOperatorsMap = new HashMap<>();
+    final double weightSel = 1.0d / prologOperatorSelection.size();
+    for (List<String> op : prologOperatorSelection)
+      prologSelOperatorsMap.put(new PrologOperator(op.get(0), op.get(1), domainDefinition, structuralRules), weightSel);
+
+    Map<GeneticOperator<PrologGraph>, Double> prologAllOperatorsMap = new HashMap<>();
     final double weight = 1.0d / prologOperatorsAll.size();
     for (List<String> op : prologOperatorsAll)
-      operatorsMap.put(new PrologOperator(op.get(0), op.get(1), domainDefinition, structuralRules), weight);
+      prologAllOperatorsMap.put(new PrologOperator(op.get(0), op.get(1), domainDefinition, structuralRules), weight);
 
     List<SyntheticSymbolicRegressionProblem> problems = List.of(
             new Nguyen7(metric, 1),
@@ -153,7 +159,7 @@ public class TreeRegressionComparison extends Worker {
             RealFunction,
             Double>, SyntheticSymbolicRegressionProblem, RealFunction>>> solvers = new TreeMap<>();
 
-    solvers.put("enfdiv-all", p -> new StandardWithEnforcedDiversityEvolver<>(
+    solvers.put("prolog-enfdiv-all", p -> new StandardWithEnforcedDiversityEvolver<>(
             new OperatorGraphMapper().andThen(og -> new RealFunction() {
               @Override
               public double apply(double... input) {
@@ -167,7 +173,7 @@ public class TreeRegressionComparison extends Worker {
             new PrologGraphFactory(minDim, maxDim, originGraph, factoryOperators, domainDefinition, structuralRules),
             nPop,
             StopConditions.nOfIterations(nIterations),
-            operatorsMap,
+            prologAllOperatorsMap,
             new Tournament(nTournament),
             new Last(),
             nPop,
@@ -177,7 +183,7 @@ public class TreeRegressionComparison extends Worker {
             diversityMaxAttempts
     ));
 
-    solvers.put("enfdiv-selection", p -> new StandardWithEnforcedDiversityEvolver<>(
+    solvers.put("prolog-enfdiv-selection", p -> new StandardWithEnforcedDiversityEvolver<>(
             new OperatorGraphMapper().andThen(og -> new RealFunction() {
               @Override
               public double apply(double... input) {
@@ -191,7 +197,7 @@ public class TreeRegressionComparison extends Worker {
             new PrologGraphFactory(minDim, maxDim, originGraph, factoryOperators, domainDefinition, structuralRules),
             nPop,
             StopConditions.nOfIterations(nIterations),
-            operatorsMap,
+            prologSelOperatorsMap,
             new Tournament(nTournament),
             new Last(),
             nPop,
