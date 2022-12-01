@@ -49,7 +49,7 @@ public class TreeRegressionComparison extends Worker {
   @Override
   public void run() {
     final int nPop = i(a("nPop", "100"));
-    final int maxHeight = i(a("maxHeight", "10"));
+    final int maxHeight = i(a("maxHeight", "15"));
     final int nTournament = 5;
     final int diversityMaxAttempts = 100;
     final int nIterations = i(a("nIterations", "100"));
