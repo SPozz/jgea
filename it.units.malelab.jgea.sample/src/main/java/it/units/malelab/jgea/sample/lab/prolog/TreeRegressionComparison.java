@@ -55,7 +55,7 @@ public class TreeRegressionComparison extends Worker {
     final int nIterations = i(a("nIterations", "100"));
     final int[] seeds = ri(a("seed", "0:10"));
     Element.Operator[] gadivOperators = new Element.Operator[]{Element.Operator.ADDITION, Element.Operator.SUBTRACTION,
-            Element.Operator.MULTIPLICATION, Element.Operator.PROT_DIVISION, Element.Operator.PROT_LOG};
+            Element.Operator.MULTIPLICATION, Element.Operator.PROT_DIVISION};
     double[] constants = new double[]{0.1, 1d, 10d};
     final int minDim = 5;
     final int maxDim = 34;
