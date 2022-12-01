@@ -217,7 +217,12 @@ public class TreeRegressionRunnable implements Runnable {
 
 
   public static void main(String[] args) {
-    File folder = new File("C:\\Users\\Simone\\Desktop\\GitHub_Tesi\\jgea\\prolog\\trees\\operators");
+    String folder = "C:\\Users\\Simone\\Desktop\\GitHub_Tesi\\jgea\\prolog\\trees\\operators\\";
+    File selectionOperatorsFolder = new File(folder + "selection");
+    File allOperatorsFolder = new File(folder + "others");
+    final File folderFactory = new File(folder + "factory");
+
+
     List<String> factoryFiles = Arrays.asList("addSubTree.txt", "innerSubTree.txt");
     List<List<String>> operators = new ArrayList<>();
     List<String> factoryOperators = new ArrayList<>();
@@ -228,13 +233,17 @@ public class TreeRegressionRunnable implements Runnable {
       Stream<String> rulesPath = Files.lines(Paths.get("C:\\Users\\Simone\\Desktop\\GitHub_Tesi\\jgea\\prolog\\trees\\structuralRules.txt"));
       structuralRules = rulesPath.collect(Collectors.toList());
       // operators
-      for (File file : folder.listFiles()) {
+      for (File file : selectionOperatorsFolder.listFiles()) {
+        String operator = Files.readString(file.toPath());
+        operators.add(Arrays.asList(file.getName().replace(".txt", ""), operator));
+      }
+      for (File file : allOperatorsFolder.listFiles()) {
         String operator = Files.readString(file.toPath());
         operators.add(Arrays.asList(file.getName().replace(".txt", ""), operator));
       }
       // factory
       for (String fileName : factoryFiles) {
-        factoryOperators.add(Files.readString(Path.of(folder + "\\" + fileName)));
+        factoryOperators.add(Files.readString(Path.of(folderFactory + "\\" + fileName)));
       }
     } catch (IOException any) {
       throw new UnsupportedOperationException("IOException in main.");
