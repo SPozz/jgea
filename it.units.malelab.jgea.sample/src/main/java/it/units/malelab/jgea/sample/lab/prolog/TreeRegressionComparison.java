@@ -53,7 +53,7 @@ public class TreeRegressionComparison extends Worker {
     final int nTournament = 5;
     final int diversityMaxAttempts = 100;
     final int nIterations = i(a("nIterations", "100"));
-    final int[] seeds = ri(a("seed", "0:1"));
+    final int[] seeds = ri(a("seed", "0:10"));
     Element.Operator[] gadivOperators = new Element.Operator[]{Element.Operator.ADDITION, Element.Operator.SUBTRACTION,
             Element.Operator.MULTIPLICATION, Element.Operator.PROT_DIVISION, Element.Operator.PROT_LOG};
     double[] constants = new double[]{0.1, 1d, 10d};
@@ -72,12 +72,14 @@ public class TreeRegressionComparison extends Worker {
 
     final String path = "C:\\Users\\Simone\\Desktop\\GitHub_Tesi\\jgea\\prolog\\trees\\operators\\";
     final File folderFactory = new File(path + "factory");
-    final File folderAllOperators = new File(path +"others");
-    final File folderSelectionOperators = new File(path+"selection");
-    final List<String> factoryFiles = Arrays.asList("addSubTree.txt", "innerSubTree.txt");
+    final File folderAllOperators = new File(path + "others");
+    final File folderSelectionOperators = new File(path + "selection");
+    final List<String> factoryFilesAll = Arrays.asList("addSubTree.txt", "innerSubTree.txt", "innerSubTree.txt");
+    final List<String> factoryFilesSel = Arrays.asList("addSubTree.txt");
     List<List<String>> prologOperatorsAll = new ArrayList<>();
     List<List<String>> prologOperatorSelection = new ArrayList<>();
-    List<String> factoryOperators = new ArrayList<>();
+    List<String> factoryOperatorsAll = new ArrayList<>();
+    List<String> factoryOperatorsSelection = new ArrayList<>();
     List<String> structuralRules;
     try {
       // structuralRules
@@ -94,9 +96,12 @@ public class TreeRegressionComparison extends Worker {
         prologOperatorsAll.add(Arrays.asList(file.getName().replace(".txt", ""), operator));
       }
       prologOperatorsAll.addAll(prologOperatorSelection);
-      // factory
-      for (String fileName : factoryFiles) {
-        factoryOperators.add(Files.readString(Path.of(folderFactory + "\\" + fileName)));
+      // factoryALL
+      for (String fileName : factoryFilesAll) {
+        factoryOperatorsAll.add(Files.readString(Path.of(folderFactory + "\\" + fileName)));
+      }
+      for (String fileName : factoryFilesSel) {
+        factoryOperatorsSelection.add(Files.readString(Path.of(folderFactory + "\\" + fileName)));
       }
     } catch (IOException any) {
       throw new UnsupportedOperationException("IOException in main.");
@@ -116,7 +121,8 @@ public class TreeRegressionComparison extends Worker {
             new Nguyen7(metric, 1),
             new Polynomial2(metric),
             new Polynomial3(metric),
-            new Polynomial4(metric)
+            new Polynomial4(metric),
+            new Keijzer6(metric)
     );
 
     //consumers
@@ -152,7 +158,7 @@ public class TreeRegressionComparison extends Worker {
 
     listenerFactory = ListenerFactory.all(List.of(
             listenerFactory,
-            new CSVPrinter<>(functions, kFunctions, new File("C:\\Users\\Simone\\Desktop\\GitHub_Tesi\\jgea_data\\Evolution\\Trees\\Comparison1.csv"))
+            new CSVPrinter<>(functions, kFunctions, new File("C:\\Users\\Simone\\Desktop\\GitHub_Tesi\\jgea_data\\Evolution\\Trees\\Complete.csv"))
     ));
 
 
@@ -172,7 +178,7 @@ public class TreeRegressionComparison extends Worker {
                 return og.toString();
               }
             }),
-            new PrologGraphFactory(minDim, maxDim, originGraph, factoryOperators, domainDefinition, structuralRules),
+            new PrologGraphFactory(minDim, maxDim, originGraph, factoryOperatorsAll, domainDefinition, structuralRules),
             nPop,
             StopConditions.nOfIterations(nIterations),
             prologAllOperatorsMap,
@@ -185,7 +191,7 @@ public class TreeRegressionComparison extends Worker {
             diversityMaxAttempts
     ));
 
-    solvers.put("prolog-enfdiv-selection", p -> new StandardWithEnforcedDiversityEvolver<>(
+    solvers.put("prolog-enfdiv-sel", p -> new StandardWithEnforcedDiversityEvolver<>(
             new OperatorGraphMapper().andThen(og -> new RealFunction() {
               @Override
               public double apply(double... input) {
@@ -196,7 +202,7 @@ public class TreeRegressionComparison extends Worker {
                 return og.toString();
               }
             }),
-            new PrologGraphFactory(minDim, maxDim, originGraph, factoryOperators, domainDefinition, structuralRules),
+            new PrologGraphFactory(minDim, maxDim, originGraph, factoryOperatorsSelection, domainDefinition, structuralRules),
             nPop,
             StopConditions.nOfIterations(nIterations),
             prologSelOperatorsMap,

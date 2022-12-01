@@ -24,13 +24,14 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static it.units.malelab.jgea.core.listener.NamedFunctions.*;
 
-public class TreeExample implements Runnable {
+public class TreeRegressionRunnable implements Runnable {
 
   public final static List<NamedFunction<? super POSetPopulationState<?, ?, ?>, ?>> BASIC_FUNCTIONS =
           List.of(
@@ -74,7 +75,7 @@ public class TreeExample implements Runnable {
 
   private final List<String> factoryOperators;
 
-  public TreeExample(int minDim, int maxDim, List<String> factoryOperators, List<List<String>> opLabelsDescription, List<String> structuralRules) {
+  public TreeRegressionRunnable(int minDim, int maxDim, List<String> factoryOperators, List<List<String>> opLabelsDescription, List<String> structuralRules) {
     executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() - 1);
     this.minDim = minDim;
     this.maxDim = maxDim;
@@ -121,8 +122,8 @@ public class TreeExample implements Runnable {
                     )),
                     List.of()
             );
-    List<Integer> seeds = List.of(1, 2, 3, 4, 5);
-    SyntheticSymbolicRegressionProblem p = new Polynomial2(SymbolicRegressionFitness.Metric.MSE);
+    List<Integer> seeds = List.of(1);//, 2, 3, 4, 5);
+    SyntheticSymbolicRegressionProblem p = new Polynomial3(SymbolicRegressionFitness.Metric.MSE);
     List<IterativeSolver<? extends POSetPopulationState<PrologGraph, RealFunction, Double>, SyntheticSymbolicRegressionProblem,
             RealFunction>> solvers = new ArrayList<>();
 
@@ -145,7 +146,7 @@ public class TreeExample implements Runnable {
             }),
             new PrologGraphFactory(minDim, maxDim, originGraph, factoryOperators, domainDefinition, structuralRules),
             100,
-            StopConditions.nOfIterations(500),
+            StopConditions.nOfIterations(200), //500
             operatorsMap,
             new Tournament(5),
             new Last(),
@@ -194,17 +195,22 @@ public class TreeExample implements Runnable {
       sum += usages.get(op);
     }
 
-    String leftAlignFormat = "| %-15s | %-5d | %-1.3f | %-5d | %-1.3f |%n";
-    System.out.format("+-----------------+-------+-------+-------+-------+%n");
-    System.out.format("| Operator        |  use  |   %%   |  chg  |   %%   |%n");
-    System.out.format("+-----------------+-------+-------+-------+-------+%n");
+    String leftAlignFormat = "| %-20s | %-5d | %-1.3f | %-5d | %-1.3f |%n";
+    System.out.format("+----------------------+-------+-------+-------+-------+%n");
+    System.out.format("| Operator             |  use  |   %%   |  chg  |   %%   |%n");
+    System.out.format("+----------------------+-------+-------+-------+-------+%n");
     for (PrologOperator op : operatorsSet) {
       System.out.printf(leftAlignFormat, op.getLabel(), usages.get(op), (double) usages.get(op) / sum, changes.get(op), ((double) changes.get(op)) / (usages.get(op)));
     }
-    System.out.format("+-----------------+-------+-------+-------+-------+%n");
+    System.out.format("+----------------------+-------+-------+-------+-------+%n");
 
     System.out.println("Total usages: " + (int) sum);
 
+    try {
+      TimeUnit.SECONDS.sleep(10);
+    } catch (InterruptedException any) {
+      System.out.println("InterruptedException");
+    }
 
     tm.shutdown();
   }
@@ -234,7 +240,7 @@ public class TreeExample implements Runnable {
       throw new UnsupportedOperationException("IOException in main.");
     }
 
-    new TreeExample(5, 37, factoryOperators, operators, structuralRules).run();
+    new TreeRegressionRunnable(5, 29, factoryOperators, operators, structuralRules).run();
 
 
   }
