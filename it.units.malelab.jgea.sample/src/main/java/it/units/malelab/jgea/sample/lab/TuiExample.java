@@ -1,6 +1,7 @@
 package it.units.malelab.jgea.sample.lab;
 
 import it.units.malelab.jgea.core.listener.NamedFunction;
+import it.units.malelab.jgea.core.listener.XYPlotTableBuilder;
 import it.units.malelab.jgea.core.representation.grammar.Grammar;
 import it.units.malelab.jgea.core.representation.grammar.cfggp.GrammarBasedSubtreeMutation;
 import it.units.malelab.jgea.core.representation.grammar.cfggp.GrammarRampedHalfAndHalf;
@@ -67,16 +68,23 @@ public class TuiExample implements Runnable {
   public void run() {
     TerminalMonitor<? super POSetPopulationState<?, ?, ? extends Double>, Map<String, Object>> tm =
         new TerminalMonitor<>(
-        Misc.concat(List.of(BASIC_FUNCTIONS, DOUBLE_FUNCTIONS)),
-        List.of()
-    );
+            Misc.concat(List.of(BASIC_FUNCTIONS, DOUBLE_FUNCTIONS)),
+            List.of(),
+            List.of(
+                new XYPlotTableBuilder<>(
+                    iterations(),
+                    List.of(fitness().reformat("%5.3f").of(best()).as(Number.class))
+                ),
+                new XYPlotTableBuilder<>(iterations(), List.of(uniqueness().of(each(genotype())).of(all())))
+            )
+        );
     List<Integer> seeds = List.of(1, 2, 3, 4, 5);
     SyntheticSymbolicRegressionProblem p = new Nguyen7(SymbolicRegressionFitness.Metric.MSE, 1);
     Grammar<String> srGrammar;
     try {
       srGrammar = Grammar.fromFile(new File("grammars/symbolic" + "-regression-nguyen7" + ".bnf"));
     } catch (IOException e) {
-      e.printStackTrace();
+      L.severe(String.format("Cannot load grammar: %s", e));
       return;
     }
     List<IterativeSolver<? extends POSetPopulationState<?, RealFunction, Double>, SyntheticSymbolicRegressionProblem,

@@ -17,10 +17,9 @@
 package it.units.malelab.jgea.telegram;
 
 import com.pengrad.telegrambot.TelegramBot;
-import com.pengrad.telegrambot.request.SendDocument;
-import com.pengrad.telegrambot.request.SendMessage;
-import com.pengrad.telegrambot.request.SendPhoto;
-import com.pengrad.telegrambot.request.SendVideo;
+import com.pengrad.telegrambot.request.*;
+import com.pengrad.telegrambot.response.GetChatMemberCountResponse;
+import com.pengrad.telegrambot.response.GetChatResponse;
 import com.pengrad.telegrambot.response.SendResponse;
 
 import javax.imageio.ImageIO;
@@ -93,5 +92,17 @@ public class TelegramClient {
     }
   }
 
+  public String getChatInfo() {
+    GetChatResponse chatResponse = bot.execute(new GetChat(chatId));
+    GetChatMemberCountResponse chatMemberCountResponse = bot.execute(new GetChatMemberCount(chatId));
+    String title = chatResponse.chat().title();
+    if (title==null) {
+      title = chatResponse.chat().firstName()+" "+chatResponse.chat().lastName();
+    }
+    return "%s (%d members)".formatted(
+        title,
+        chatMemberCountResponse.count()
+    );
+  }
 
 }

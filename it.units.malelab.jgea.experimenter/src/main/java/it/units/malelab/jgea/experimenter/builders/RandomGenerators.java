@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Eric Medvet <eric.medvet@gmail.com> (as eric)
+ * Copyright 2022 Eric Medvet <eric.medvet@gmail.com> (as eric)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,25 @@
  * limitations under the License.
  */
 
-package it.units.malelab.jgea.core.representation.graph.numeric;
+package it.units.malelab.jgea.experimenter.builders;
 
-import it.units.malelab.jgea.core.representation.graph.Node;
+import it.units.malelab.jnb.core.Param;
+
+import java.util.Random;
+import java.util.random.RandomGenerator;
 
 /**
- * @author eric
+ * @author "Eric Medvet" on 2022/08/11 for 2d-robot-evolution
  */
-public class Input extends Node {
-  protected final int variableIndex;
+public class RandomGenerators {
 
-  public Input(int index, int variableIndex) {
-    super(index);
-    this.variableIndex = variableIndex;
+  private RandomGenerators() {
   }
 
-  @Override
-  public String toString() {
-    return "i" + getIndex();
+  @SuppressWarnings("unused")
+  public static RandomGenerator defaultRG(@Param(value = "seed", dI = 0) int seed) {
+    return new Random(seed);
   }
+
 }
+

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Eric Medvet <eric.medvet@gmail.com> (as eric)
+ * Copyright 2022 eric
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,18 @@
  * limitations under the License.
  */
 
-package it.units.malelab.jgea.core.representation.graph.numeric;
+package it.units.malelab.jgea.experimenter.builders;
 
-import it.units.malelab.jgea.core.representation.graph.Node;
+import java.util.function.Function;
 
-/**
- * @author eric
- */
-public class Input extends Node {
-  protected final int variableIndex;
+public class Functions {
 
-  public Input(int index, int variableIndex) {
-    super(index);
-    this.variableIndex = variableIndex;
+  private Functions() {
   }
 
-  @Override
-  public String toString() {
-    return "i" + getIndex();
+  @SuppressWarnings("unused")
+  public static <T> Function<T, T> identity() {
+    return t -> t;
   }
+
 }

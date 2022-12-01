@@ -25,7 +25,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>jgea.sample</artifactId>
+    <artifactId>jgea.experimenter</artifactId>
     <packaging>jar</packaging>
 
     <dependencies>
@@ -36,18 +36,18 @@
         </dependency>
         <dependency>
             <groupId>it.units.malelab</groupId>
-            <artifactId>jgea.experimenter</artifactId>
-            <version>${revision}</version>
-        </dependency>
-        <dependency>
-            <groupId>it.units.malelab</groupId>
-            <artifactId>jgea.problem</artifactId>
-            <version>${revision}</version>
-        </dependency>
-        <dependency>
-            <groupId>it.units.malelab</groupId>
             <artifactId>jgea.tui</artifactId>
             <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>it.units.malelab</groupId>
+            <artifactId>jgea.telegram</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>it.units.malelab</groupId>
+            <artifactId>jnb.core</artifactId>
+            <version>1.0.1</version>
         </dependency>
     </dependencies>
 
