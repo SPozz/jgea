@@ -189,7 +189,7 @@ public class OperatorGraph implements Function<double[], double[]>, Sized, Seria
 
   private double outValue(Node node, double[] input) {
     if (node instanceof Input) {
-      return input[node.getIndex()];
+      return input[((Input) node).getVariableIndex()];
     }
     if (node instanceof Constant) {
       return ((Constant) node).getValue();
