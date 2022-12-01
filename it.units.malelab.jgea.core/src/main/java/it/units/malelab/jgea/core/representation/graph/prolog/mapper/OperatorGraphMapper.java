@@ -46,7 +46,7 @@ public class OperatorGraphMapper implements Function<PrologGraph, OperatorGraph>
         }
       } else if (node.get("type").toString().equalsIgnoreCase("constant")) {
         final String valueString = node.get("value").toString();
-        final double value = Math.round(Double.parseDouble(valueString)*1000d)/1000d; //not necessary
+        final double value =Double.parseDouble(valueString);
         tmpNode = new Constant(constIndex, value);
         constIndex++;
       } else if (node.get("type").toString().equalsIgnoreCase("input")) {
