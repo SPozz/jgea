@@ -45,7 +45,6 @@ public class TreeRegressionRunnable implements Runnable {
                   uniqueness().of(each(solution())).of(all()),
                   uniqueness().of(each(fitness())).of(all()),
                   size().of(genotype()).of(best()),
-//                  size().of(solution()).of(best()),
                   fitnessMappingIteration().of(best())
           );
 
@@ -155,7 +154,6 @@ public class TreeRegressionRunnable implements Runnable {
             false,
             (srp, rnd) -> new POSetPopulationState<>()
     );
-
     solvers.add(stdEvolver);
 
     int counter = 0;
@@ -228,18 +226,30 @@ public class TreeRegressionRunnable implements Runnable {
     List<String> factoryOperators = new ArrayList<>();
     List<String> structuralRules;
 
-    try {
-      // structuralRules
-      Stream<String> rulesPath = Files.lines(Paths.get("C:\\Users\\Simone\\Desktop\\GitHub_Tesi\\jgea\\prolog\\trees\\structuralRules.txt"));
+    // structuralRules
+    try (Stream<String> rulesPath = Files.lines(Paths.get("C:\\Users\\Simone\\Desktop\\GitHub_Tesi\\jgea\\prolog\\trees\\structuralRules.txt"))) {
       structuralRules = rulesPath.collect(Collectors.toList());
+    } catch (IOException e) {
+      throw new UnsupportedOperationException("structural rules not found in given path");
+    }
+
+    try {
       // operators
-      for (File file : selectionOperatorsFolder.listFiles()) {
-        String operator = Files.readString(file.toPath());
-        operators.add(Arrays.asList(file.getName().replace(".txt", ""), operator));
+      File[] filesSel = selectionOperatorsFolder.listFiles();
+      if (filesSel != null) {
+        for (File file : filesSel) {
+          String operator = Files.readString(file.toPath());
+          operators.add(Arrays.asList(file.getName().replace(".txt", ""), operator));
+        }
+      } else {
+        throw new UnsupportedOperationException("No files defined in operator selection");
       }
-      for (File file : allOperatorsFolder.listFiles()) {
-        String operator = Files.readString(file.toPath());
-        operators.add(Arrays.asList(file.getName().replace(".txt", ""), operator));
+      File[] filesOthers = allOperatorsFolder.listFiles();
+      if (filesOthers != null) {
+        for (File file : filesOthers) {
+          String operator = Files.readString(file.toPath());
+          operators.add(Arrays.asList(file.getName().replace(".txt", ""), operator));
+        }
       }
       // factory
       for (String fileName : factoryFiles) {

@@ -116,7 +116,6 @@ public class TreeRegressionComparison extends Worker {
         factoryOperatorsAll.add(Files.readString(Path.of(folderOthersOperators + "\\" + fileName)));
       }
       factoryOperatorsAll.addAll(factoryOperatorsSelection);
-
     } catch (IOException any) {
       throw new UnsupportedOperationException("IOException in main.");
     }
