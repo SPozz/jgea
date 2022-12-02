@@ -53,7 +53,7 @@ public class TreeRegressionComparison extends Worker {
     final int diversityMaxAttempts = 100;
     final int nIterations = i(a("nIterations", "100"));
     final int[] seeds = ri(a("seed", "0:10"));
-    final int maxHeight = i(a("maxHeight", "15")); //nonProlog
+    final int maxHeight = i(a("maxHeight", "10")); //nonProlog
     Element.Operator[] gadivOperators = new Element.Operator[]{Element.Operator.ADDITION, Element.Operator.SUBTRACTION,
             Element.Operator.MULTIPLICATION, Element.Operator.PROT_DIVISION};
     double[] constants = new double[]{0.1, 1d, 10d};
