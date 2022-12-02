@@ -49,11 +49,11 @@ public class TreeRegressionComparison extends Worker {
   @Override
   public void run() {
     final int nPop = i(a("nPop", "100"));
-    final int maxHeight = i(a("maxHeight", "15"));
     final int nTournament = 5;
     final int diversityMaxAttempts = 100;
     final int nIterations = i(a("nIterations", "100"));
     final int[] seeds = ri(a("seed", "0:10"));
+    final int maxHeight = i(a("maxHeight", "15")); //nonProlog
     Element.Operator[] gadivOperators = new Element.Operator[]{Element.Operator.ADDITION, Element.Operator.SUBTRACTION,
             Element.Operator.MULTIPLICATION, Element.Operator.PROT_DIVISION};
     double[] constants = new double[]{0.1, 1d, 10d};
@@ -70,39 +70,53 @@ public class TreeRegressionComparison extends Worker {
             ":- dynamic edge_id/1.",
             ":- dynamic edge/3.");
 
-    final String path = "C:\\Users\\Simone\\Desktop\\GitHub_Tesi\\jgea\\prolog\\trees\\operators\\";
-    final File folderFactory = new File(path + "factory");
-    final File folderAllOperators = new File(path + "others");
-    final File folderSelectionOperators = new File(path + "selection");
-    final List<String> factoryFilesAll = Arrays.asList("addSubTree.txt", "innerSubTree.txt", "innerSubTree.txt");
-    final List<String> factoryFilesSel = Arrays.asList("addSubTree.txt");
     List<List<String>> prologOperatorsAll = new ArrayList<>();
     List<List<String>> prologOperatorSelection = new ArrayList<>();
     List<String> factoryOperatorsAll = new ArrayList<>();
     List<String> factoryOperatorsSelection = new ArrayList<>();
     List<String> structuralRules;
-    try {
-      // structuralRules
-      Stream<String> rulesPath = Files.lines(Paths.get("C:\\Users\\Simone\\Desktop\\GitHub_Tesi\\jgea\\prolog\\trees\\structuralRules.txt"));
+
+    // structuralRules
+    try (Stream<String> rulesPath = Files.lines(Paths.get("C:\\Users\\Simone\\Desktop\\GitHub_Tesi\\jgea\\prolog\\trees\\structuralRules.txt"))) {
       structuralRules = rulesPath.collect(Collectors.toList());
-      // Selection operators
-      for (File file : folderSelectionOperators.listFiles()) {
-        String operator = Files.readString(file.toPath());
-        prologOperatorSelection.add(Arrays.asList(file.getName().replace(".txt", ""), operator));
+    } catch (IOException e) {
+      throw new UnsupportedOperationException("structural rules not found in given path");
+    }
+
+    // Selection operators
+    try {
+      final String operatorsPath = "C:\\Users\\Simone\\Desktop\\GitHub_Tesi\\jgea\\prolog\\trees\\operators\\";
+      final File folderSelectionOperators = new File(operatorsPath + "selection");
+      File[] filesSel = folderSelectionOperators.listFiles();
+      if (filesSel == null) {
+        throw new UnsupportedOperationException("No files defined in operator selection");
+      } else {
+        for (File file : filesSel) {
+          String operator = Files.readString(file.toPath());
+          prologOperatorSelection.add(Arrays.asList(file.getName().replace(".txt", ""), operator));
+        }
       }
       // All operators
-      for (File file : folderAllOperators.listFiles()) {
-        String operator = Files.readString(file.toPath());
-        prologOperatorsAll.add(Arrays.asList(file.getName().replace(".txt", ""), operator));
+      final File folderOthersOperators = new File(operatorsPath + "others");
+      File[] filesOthers = folderOthersOperators.listFiles();
+      if (filesOthers != null) { //if null, selection and all coincide
+        for (File file : filesOthers) {
+          String operator = Files.readString(file.toPath());
+          prologOperatorsAll.add(Arrays.asList(file.getName().replace(".txt", ""), operator));
+        }
       }
       prologOperatorsAll.addAll(prologOperatorSelection);
-      // factoryALL
-      for (String fileName : factoryFilesAll) {
-        factoryOperatorsAll.add(Files.readString(Path.of(folderFactory + "\\" + fileName)));
-      }
+      // factories
+      final List<String> factoryFilesSel = Arrays.asList("addSubTree.txt"); //selection
       for (String fileName : factoryFilesSel) {
-        factoryOperatorsSelection.add(Files.readString(Path.of(folderFactory + "\\" + fileName)));
+        factoryOperatorsSelection.add(Files.readString(Path.of(folderSelectionOperators + "\\" + fileName)));
       }
+      final List<String> factoryFilesOthers = Arrays.asList("innerSubTree.txt", "innerSubTree.txt"); //others
+      for (String fileName : factoryFilesOthers) {
+        factoryOperatorsAll.add(Files.readString(Path.of(folderOthersOperators + "\\" + fileName)));
+      }
+      factoryOperatorsAll.addAll(factoryOperatorsSelection);
+
     } catch (IOException any) {
       throw new UnsupportedOperationException("IOException in main.");
     }
@@ -158,7 +172,7 @@ public class TreeRegressionComparison extends Worker {
 
     listenerFactory = ListenerFactory.all(List.of(
             listenerFactory,
-            new CSVPrinter<>(functions, kFunctions, new File("C:\\Users\\Simone\\Desktop\\GitHub_Tesi\\jgea_data\\Evolution\\Trees\\Complete.csv"))
+            new CSVPrinter<>(functions, kFunctions, new File("C:\\Users\\Simone\\Desktop\\GitHub_Tesi\\jgea_data\\Evolution\\Trees\\Testing.csv"))
     ));
 
 
