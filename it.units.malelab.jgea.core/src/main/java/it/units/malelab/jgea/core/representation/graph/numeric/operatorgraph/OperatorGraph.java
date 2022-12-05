@@ -79,41 +79,41 @@ public class OperatorGraph implements Function<double[], double[]>, Sized, Seria
     for (Node n : graph.nodes()) {
       if (!((n instanceof Input) || (n instanceof Output) || (n instanceof OperatorNode) || (n instanceof Constant))) {
         throw new IllegalArgumentException(String.format(
-            "Invalid graph: node %s is of wrong type %s",
-            n,
-            n.getClass()
+                "Invalid graph: node %s is of wrong type %s",
+                n,
+                n.getClass()
         ));
       }
       if ((n instanceof Output) && (graph.predecessors(n).size() > 1)) {
         throw new IllegalArgumentException(String.format(
-            "Invalid graph: output node %s has more than 1 predecessors "
-                + "(%d)",
-            n,
-            graph.predecessors(n).size()
+                "Invalid graph: output node %s has more than 1 predecessors "
+                        + "(%d)",
+                n,
+                graph.predecessors(n).size()
         ));
       }
       if ((n instanceof OperatorNode) && ((graph.predecessors(n).size() < ((OperatorNode) n).getOperator()
-          .minArity()) || (graph.predecessors(n).size() > ((OperatorNode) n).getOperator().maxArity()))) {
+              .minArity()) || (graph.predecessors(n).size() > ((OperatorNode) n).getOperator().maxArity()))) {
         throw new IllegalArgumentException(String.format(
-            "Invalid graph: operator node %s has wrong number of predecessors (%d, outside [%d,%d])",
-            n,
-            graph.predecessors(n).size(),
-            ((OperatorNode) n).getOperator().minArity(),
-            ((OperatorNode) n).getOperator().maxArity()
+                "Invalid graph: operator node %s has wrong number of predecessors (%d, outside [%d,%d])",
+                n,
+                graph.predecessors(n).size(),
+                ((OperatorNode) n).getOperator().minArity(),
+                ((OperatorNode) n).getOperator().maxArity()
         ));
       }
       if ((n instanceof Constant || n instanceof Input) && graph.predecessors(n).size() > 0) {
         throw new IllegalArgumentException(String.format(
-            "Invalid graph: constant/input node %s has more than 0 predecessors (%d)",
-            n,
-            graph.predecessors(n).size()
+                "Invalid graph: constant/input node %s has more than 0 predecessors (%d)",
+                n,
+                graph.predecessors(n).size()
         ));
       }
       if ((n instanceof Output) && graph.successors(n).size() > 0) {
         throw new IllegalArgumentException(String.format(
-            "Invalid graph: output node %s has more than 0 successors " + "(%d)",
-            n,
-            graph.predecessors(n).size()
+                "Invalid graph: output node %s has more than 0 successors " + "(%d)",
+                n,
+                graph.predecessors(n).size()
         ));
       }
     }
@@ -133,7 +133,7 @@ public class OperatorGraph implements Function<double[], double[]>, Sized, Seria
   @Override
   public double[] apply(double[] input) {
     Set<Output> outputs = graph.nodes().stream().filter(n -> n instanceof Output).map(n -> (Output) n).collect(
-        Collectors.toSet());
+            Collectors.toSet());
     int outputSize = outputs.stream().mapToInt(Node::getIndex).max().orElse(0);
     double[] output = new double[outputSize + 1];
     for (Output outputNode : outputs) {
@@ -160,7 +160,7 @@ public class OperatorGraph implements Function<double[], double[]>, Sized, Seria
   @Override
   public String toString() {
     return graph.nodes().stream().filter(n -> n instanceof Output).map(n -> n.toString() + "=" + ((graph.predecessors(n)
-        .isEmpty()) ? "0" : nodeToString(Misc.first(graph.predecessors(n))))).collect(Collectors.joining(";"));
+            .isEmpty()) ? "0" : nodeToString(Misc.first(graph.predecessors(n))))).collect(Collectors.joining(";"));
   }
 
   public int nInputs() {
@@ -195,7 +195,7 @@ public class OperatorGraph implements Function<double[], double[]>, Sized, Seria
       return ((Constant) node).getValue();
     }
     double[] inValues = graph.predecessors(node).stream().sorted(Comparator.comparing((Node n) -> n.getClass()
-        .getName()).thenComparingInt(Node::getIndex)).mapToDouble(n -> outValue(n, input)).toArray();
+            .getName()).thenComparingInt(Node::getIndex)).mapToDouble(n -> outValue(n, input)).toArray();
     if (node instanceof Output) {
       return inValues.length > 0 ? inValues[0] : 0d;
     }
