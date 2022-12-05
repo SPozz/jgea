@@ -121,7 +121,7 @@ public class TreeRegressionRunnable implements Runnable {
                     )),
                     List.of()
             );
-    List<Integer> seeds = List.of(1);//, 2, 3, 4, 5);
+    List<Integer> seeds = List.of(1, 2, 3, 4, 5);
     SyntheticSymbolicRegressionProblem p = new Polynomial3(SymbolicRegressionFitness.Metric.MSE);
     List<IterativeSolver<? extends POSetPopulationState<PrologGraph, RealFunction, Double>, SyntheticSymbolicRegressionProblem,
             RealFunction>> solvers = new ArrayList<>();
@@ -145,7 +145,7 @@ public class TreeRegressionRunnable implements Runnable {
             }),
             new PrologGraphFactory(minDim, maxDim, originGraph, factoryOperators, domainDefinition, structuralRules),
             100,
-            StopConditions.nOfIterations(200), //500
+            StopConditions.nOfIterations(500),
             operatorsMap,
             new Tournament(5),
             new Last(),
