@@ -14,7 +14,6 @@ import java.util.*;
 import java.util.function.Function;
 
 public class FunctionGraphMapper implements Function<PrologGraph, FunctionGraph> {
-
   private final BaseFunction function;
 
   public FunctionGraphMapper(BaseFunction function) {
@@ -26,7 +25,6 @@ public class FunctionGraphMapper implements Function<PrologGraph, FunctionGraph>
     int inputIndex = 0;
     int functionIndex = 0;
     int outputIndex = 0;
-    int variableIndex = 0; // here we don't have same input twice
     LinkedHashMap<String, Node> idToNode = new LinkedHashMap<>();
     Set<Integer> levels = new HashSet<>();
     for (Map<String, Object> node : prologFfnn.nodes()) {
@@ -40,7 +38,7 @@ public class FunctionGraphMapper implements Function<PrologGraph, FunctionGraph>
       Node tmpNode;
       final int nodeLevel = Integer.parseInt(node.get("layer").toString());
       if (nodeLevel == minLevel) {
-        tmpNode = new Input(inputIndex, variableIndex); //WIP
+        tmpNode = new Input(inputIndex, inputIndex);
         inputIndex++;
       } else if (nodeLevel == maxLevel) {
         tmpNode = new Output(outputIndex);
@@ -60,6 +58,4 @@ public class FunctionGraphMapper implements Function<PrologGraph, FunctionGraph>
     }
     return new FunctionGraph(intermediateGraph);
   }
-
-
 }
