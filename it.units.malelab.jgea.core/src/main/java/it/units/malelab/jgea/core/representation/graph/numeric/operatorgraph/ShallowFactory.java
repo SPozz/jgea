@@ -49,16 +49,12 @@ public class ShallowFactory implements IndependentFactory<Graph<Node, OperatorGr
     Input[] inputs = new Input[nInputs];
     Output[] outputs = new Output[nOutputs];
     for (int i = 0; i < nInputs; i++) {
-      inputs[i] = new Input(i,0);
+      inputs[i] = new Input(i, i);
       g.addNode(inputs[i]);
     }
     for (int o = 0; o < nOutputs; o++) {
       outputs[o] = new Output(o);
       g.addNode(outputs[o]);
-    }
-    for (int i = 0; i < nInputs; i++) {
-      inputs[i] = new Input(i,0);
-      g.addNode(inputs[i]);
     }
     for (Constant constant : constants) {
       g.addNode(constant);

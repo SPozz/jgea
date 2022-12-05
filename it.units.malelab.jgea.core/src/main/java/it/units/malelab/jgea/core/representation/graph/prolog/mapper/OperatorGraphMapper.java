@@ -21,9 +21,8 @@ public class OperatorGraphMapper implements Function<PrologGraph, OperatorGraph>
     LinkedHashGraph<Node, OperatorGraph.NonValuedArc> intermediateGraph = new LinkedHashGraph<>();
     int constIndex = 0;
     int operatorIndex = 0;
-    int variableIndex;
+    int inputIndex = 0;
     LinkedHashMap<String, Node> idToNode = new LinkedHashMap<>();
-    LinkedHashMap<Integer, Integer> inputToVariableIndex = new LinkedHashMap<>();
     final BaseOperator[] baseOperators = new BaseOperator[]{BaseOperator.ADDITION, BaseOperator.DIVISION, BaseOperator.MULTIPLICATION, BaseOperator.SUBTRACTION};
     final String[] baseOperatorsString = new String[baseOperators.length];
     for (int i = 0; i < baseOperators.length; ++i) {
@@ -46,18 +45,13 @@ public class OperatorGraphMapper implements Function<PrologGraph, OperatorGraph>
         }
       } else if (node.get("type").toString().equalsIgnoreCase("constant")) {
         final String valueString = node.get("value").toString();
-        final double value =Double.parseDouble(valueString);
+        final double value = Double.parseDouble(valueString);
         tmpNode = new Constant(constIndex, value);
         constIndex++;
       } else if (node.get("type").toString().equalsIgnoreCase("input")) {
-        final int inputIndex = Integer.parseInt(node.get("value").toString());
-        if (inputToVariableIndex.containsKey(inputIndex)) {
-          variableIndex = inputToVariableIndex.get(inputIndex) + 1;
-        } else {
-          variableIndex = 0;
-        }
-        inputToVariableIndex.put(inputIndex, variableIndex);
+        final int variableIndex = Integer.parseInt(node.get("value").toString());
         tmpNode = new Input(inputIndex, variableIndex);
+        inputIndex++;
       } else {
         throw new UnsupportedOperationException("Not acceptable type");
       }

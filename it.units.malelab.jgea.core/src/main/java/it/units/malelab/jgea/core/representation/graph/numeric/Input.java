@@ -29,19 +29,12 @@ public class Input extends Node {
     this.variableIndex = variableIndex;
   }
 
-  @Override
-  public String toString() {
-    return "i" + getIndex();
+  public int getVariableIndex() {
+    return variableIndex;
   }
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o)
-      return true;
-    if (o == null || getClass() != o.getClass())
-      return false;
-    Input node = (Input) o;
-    return (index == node.index && variableIndex == node.variableIndex);
-
+  public String toString() {
+    return "i" + getVariableIndex();
   }
 }
