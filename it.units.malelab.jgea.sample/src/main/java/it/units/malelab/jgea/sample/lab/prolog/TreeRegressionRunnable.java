@@ -262,9 +262,9 @@ public class TreeRegressionRunnable implements Runnable {
     final double minConst = 0;
     final double maxConst = 2.0d;
     final int nInput = 1;
-    structuralRules.add(0,"n_input("+nInput+").");
-    structuralRules.add(0,"max_const("+maxConst+").");
-    structuralRules.add(0,"min_const("+minConst+").");
+    structuralRules.add(0, "n_input(" + nInput + ").");
+    structuralRules.add(0, "max_const(" + maxConst + ").");
+    structuralRules.add(0, "min_const(" + minConst + ").");
 
     new TreeRegressionRunnable(5, 29, factoryOperators, operators, structuralRules).run();
 
