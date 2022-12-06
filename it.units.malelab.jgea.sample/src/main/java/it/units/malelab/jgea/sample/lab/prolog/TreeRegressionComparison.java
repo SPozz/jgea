@@ -53,19 +53,22 @@ public class TreeRegressionComparison extends Worker {
     final int diversityMaxAttempts = 100;
     final int nIterations = i(a("nIterations", "100"));
     final int[] seeds = ri(a("seed", "0:2"));//TODO 30
+
     Element.Operator[] gpOperators = new Element.Operator[]{Element.Operator.ADDITION, Element.Operator.SUBTRACTION,
             Element.Operator.MULTIPLICATION, Element.Operator.DIVISION};
-    double[] constants = new double[]{0.1, 1d, 10d};
-    final int minDim = 5;
-    final int maxDim = 125;
-    final int minFactoryHeight = (int) (Math.log(minDim + 2.0 + 1.0) / Math.log(2)) - 1;
-    final int maxFactoryHeight = (int) (Math.log(maxDim + 2.0 + 1.0) / Math.log(2)) - 1;
-    final int maxHeight = i(a("maxHeight", "10")); // nonProlog
-    final SymbolicRegressionFitness.Metric metric = SymbolicRegressionFitness.Metric.MSE;
+    double[] gpConstants = new double[]{0.1, 1d, 10d};
+
+    final int minFactoryDim = 5;
+    final int maxFactoryDim = 125;
+    final int minFactoryHeight = (int) (Math.log(minFactoryDim + 2.0 + 1.0) / Math.log(2)) - 1;
+    final int maxFactoryHeight = (int) (Math.log(maxFactoryDim + 2.0 + 1.0) / Math.log(2)) - 1;
+    final int maxHeight = i(a("maxHeight", "10")); // nonProlog graphs
+
     final double minConst = 0.0;
     final double maxConst = 2.0;
     final int nInput = 1;
 
+    final SymbolicRegressionFitness.Metric metric = SymbolicRegressionFitness.Metric.MSE;
 
     final PrologGraph originGraph = getOrigin();
     final List<String> domainDefinition = Arrays.asList(
@@ -191,7 +194,7 @@ public class TreeRegressionComparison extends Worker {
                 return og.toString();
               }
             }),
-            new PrologGraphFactory(minDim, maxDim, originGraph, factoryOperatorsAll, domainDefinition, structuralRules),
+            new PrologGraphFactory(minFactoryDim, maxFactoryDim, originGraph, factoryOperatorsAll, domainDefinition, structuralRules),
             nPop,
             StopConditions.nOfIterations(nIterations),
             prologAllOperatorsMap,
@@ -215,7 +218,7 @@ public class TreeRegressionComparison extends Worker {
                 return og.toString();
               }
             }),
-            new PrologGraphFactory(minDim, maxDim, originGraph, factoryOperatorsSelection, domainDefinition, structuralRules),
+            new PrologGraphFactory(minFactoryDim, maxFactoryDim, originGraph, factoryOperatorsSelection, domainDefinition, structuralRules),
             nPop,
             StopConditions.nOfIterations(nIterations),
             prologSelOperatorsMap,
@@ -236,7 +239,7 @@ public class TreeRegressionComparison extends Worker {
                       .sequential()
                       .map(Element.Variable::new)
                       .toArray(Element.Variable[]::new)),
-              IndependentFactory.picker(Arrays.stream(constants)
+              IndependentFactory.picker(Arrays.stream(gpConstants)
                       .mapToObj(Element.Constant::new)
                       .toArray(Element.Constant[]::new))
       );
