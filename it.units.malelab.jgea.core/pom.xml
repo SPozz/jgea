@@ -54,7 +54,7 @@
             <artifactId>jpl</artifactId>
             <version>8.4.1</version>
             <scope>system</scope>
-            <systemPath>C:/Users/Simone/Downloads/UniTS/02)Magistrale/Tesi/packages-jpl-8.4.1.jar</systemPath>
+            <systemPath>C:${file.separator}Users${file.separator}Simone${file.separator}Downloads${file.separator}UniTS${file.separator}02)Magistrale${file.separator}Tesi${file.separator}packages-jpl-8.4.1.jar</systemPath>
         </dependency>
     </dependencies>
 </project>
