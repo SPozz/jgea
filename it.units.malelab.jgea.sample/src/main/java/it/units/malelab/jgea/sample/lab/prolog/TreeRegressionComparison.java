@@ -52,7 +52,7 @@ public class TreeRegressionComparison extends Worker {
     final int nTournament = 5;
     final int diversityMaxAttempts = 100;
     final int nIterations = i(a("nIterations", "100"));
-    final int[] seeds = ri(a("seed", "0:30"));
+    final int[] seeds = ri(a("seed", "0:2"));//TODO 30
     Element.Operator[] gpOperators = new Element.Operator[]{Element.Operator.ADDITION, Element.Operator.SUBTRACTION,
             Element.Operator.MULTIPLICATION, Element.Operator.DIVISION};
     double[] constants = new double[]{0.1, 1d, 10d};
@@ -81,13 +81,12 @@ public class TreeRegressionComparison extends Worker {
     List<String> factoryOperatorsSelection = new ArrayList<>();
 
     // structuralRules
-    List<String> structuralRulesBase;
+    List<String> structuralRules;
     try (Stream<String> rulesPath = Files.lines(Paths.get("C:\\Users\\Simone\\Desktop\\GitHub_Tesi\\jgea\\prolog\\trees\\structuralRules.txt"))) {
-      structuralRulesBase = rulesPath.collect(Collectors.toList());
+      structuralRules = rulesPath.collect(Collectors.toList());
     } catch (IOException e) {
       throw new UnsupportedOperationException("structural rules not found in given path");
     }
-    List<String> structuralRules = new ArrayList<>(structuralRulesBase);
     structuralRules.add(0, "n_input(" + nInput + ").");
     structuralRules.add(0, "max_const(" + maxConst + ").");
     structuralRules.add(0, "min_const(" + minConst + ").");
