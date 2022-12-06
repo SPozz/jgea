@@ -52,14 +52,20 @@ public class TreeRegressionComparison extends Worker {
     final int nTournament = 5;
     final int diversityMaxAttempts = 100;
     final int nIterations = i(a("nIterations", "100"));
-    final int[] seeds = ri(a("seed", "0:10"));
-    final int maxHeight = i(a("maxHeight", "10")); //nonProlog
-    Element.Operator[] gadivOperators = new Element.Operator[]{Element.Operator.ADDITION, Element.Operator.SUBTRACTION,
-            Element.Operator.MULTIPLICATION, Element.Operator.PROT_DIVISION};
+    final int[] seeds = ri(a("seed", "0:30"));
+    Element.Operator[] gpOperators = new Element.Operator[]{Element.Operator.ADDITION, Element.Operator.SUBTRACTION,
+            Element.Operator.MULTIPLICATION, Element.Operator.DIVISION};
     double[] constants = new double[]{0.1, 1d, 10d};
     final int minDim = 5;
-    final int maxDim = 34;
+    final int maxDim = 125;
+    final int minFactoryHeight = (int) (Math.log(minDim + 2.0 + 1.0) / Math.log(2)) - 1;
+    final int maxFactoryHeight = (int) (Math.log(maxDim + 2.0 + 1.0) / Math.log(2)) - 1;
+    final int maxHeight = i(a("maxHeight", "10")); // nonProlog
     final SymbolicRegressionFitness.Metric metric = SymbolicRegressionFitness.Metric.MSE;
+    final double minConst = 0.0;
+    final double maxConst = 2.0;
+    final int nInput = 1;
+
 
     final PrologGraph originGraph = getOrigin();
     final List<String> domainDefinition = Arrays.asList(
@@ -69,26 +75,22 @@ public class TreeRegressionComparison extends Worker {
             ":- dynamic value/2.",
             ":- dynamic edge_id/1.",
             ":- dynamic edge/3.");
-
     List<List<String>> prologOperatorsAll = new ArrayList<>();
     List<List<String>> prologOperatorSelection = new ArrayList<>();
     List<String> factoryOperatorsAll = new ArrayList<>();
     List<String> factoryOperatorsSelection = new ArrayList<>();
-    List<String> structuralRules;
 
     // structuralRules
+    List<String> structuralRulesBase;
     try (Stream<String> rulesPath = Files.lines(Paths.get("C:\\Users\\Simone\\Desktop\\GitHub_Tesi\\jgea\\prolog\\trees\\structuralRules.txt"))) {
-      structuralRules = rulesPath.collect(Collectors.toList());
+      structuralRulesBase = rulesPath.collect(Collectors.toList());
     } catch (IOException e) {
       throw new UnsupportedOperationException("structural rules not found in given path");
     }
-
-    final double minConst = 0;
-    final double maxConst = 2.0d;
-    final int nInput = 1;
-    structuralRules.add(0,"n_input("+nInput+").");
-    structuralRules.add(0,"max_const("+maxConst+").");
-    structuralRules.add(0,"min_const("+minConst+").");
+    List<String> structuralRules = new ArrayList<>(structuralRulesBase);
+    structuralRules.add(0, "n_input(" + nInput + ").");
+    structuralRules.add(0, "max_const(" + maxConst + ").");
+    structuralRules.add(0, "min_const(" + minConst + ").");
 
     // Selection operators
     try {
@@ -127,21 +129,14 @@ public class TreeRegressionComparison extends Worker {
       throw new UnsupportedOperationException("IOException in main.");
     }
 
-    Map<GeneticOperator<PrologGraph>, Double> prologSelOperatorsMap = new HashMap<>();
-    final double weightSel = 1.0d / prologOperatorSelection.size();
-    for (List<String> op : prologOperatorSelection)
-      prologSelOperatorsMap.put(new PrologOperator(op.get(0), op.get(1), domainDefinition, structuralRules), weightSel);
-
-    Map<GeneticOperator<PrologGraph>, Double> prologAllOperatorsMap = new HashMap<>();
-    final double weight = 1.0d / prologOperatorsAll.size();
-    for (List<String> op : prologOperatorsAll)
-      prologAllOperatorsMap.put(new PrologOperator(op.get(0), op.get(1), domainDefinition, structuralRules), weight);
+    Map<GeneticOperator<PrologGraph>, Double> prologSelOperatorsMap = mapOperatorsEqualWeight(prologOperatorSelection, domainDefinition, structuralRules);
+    Map<GeneticOperator<PrologGraph>, Double> prologAllOperatorsMap = mapOperatorsEqualWeight(prologOperatorsAll, domainDefinition, structuralRules);
 
     List<SyntheticSymbolicRegressionProblem> problems = List.of(
-            new Nguyen7(metric, 1),
-            new Polynomial2(metric),
-            new Polynomial3(metric),
             new Polynomial4(metric),
+            new Nguyen7(metric, 1),
+//            new Vladislavleva4(metric, 1),
+//            new Pagie1(metric),
             new Keijzer6(metric)
     );
 
@@ -175,7 +170,6 @@ public class TreeRegressionComparison extends Worker {
                     functions,
                     kFunctions
             );
-
     listenerFactory = ListenerFactory.all(List.of(
             listenerFactory,
             new CSVPrinter<>(functions, kFunctions, new File("C:\\Users\\Simone\\Desktop\\GitHub_Tesi\\jgea_data\\Evolution\\Trees\\Testing.csv"))
@@ -253,10 +247,10 @@ public class TreeRegressionComparison extends Worker {
                       vars(p.qualityFunction().arity())
               )).andThen(MathUtils.linearScaler(p.qualityFunction())),
               new RampedHalfAndHalf<>(
-                      4,
-                      maxHeight,
+                      minFactoryHeight,
+                      maxFactoryHeight,
                       Element.Operator.arityFunction(),
-                      IndependentFactory.picker(gadivOperators),
+                      IndependentFactory.picker(gpOperators),
                       terminalFactory
               ),
               nPop,
@@ -268,7 +262,7 @@ public class TreeRegressionComparison extends Worker {
                               maxHeight,
                               new GrowTreeBuilder<>(
                                       Element.Operator.arityFunction(),
-                                      IndependentFactory.picker(gadivOperators),
+                                      IndependentFactory.picker(gpOperators),
                                       terminalFactory
                               )
                       ),
@@ -324,6 +318,14 @@ public class TreeRegressionComparison extends Worker {
       }
     }
     listenerFactory.shutdown();
+  }
+
+  private Map<GeneticOperator<PrologGraph>, Double> mapOperatorsEqualWeight(List<List<String>> prologOperators, List<String> domainDefinition, List<String> structuralRules) {
+    Map<GeneticOperator<PrologGraph>, Double> operatorsMap = new HashMap<>();
+    final double weightSel = 1.0d / prologOperators.size();
+    for (List<String> op : prologOperators)
+      operatorsMap.put(new PrologOperator(op.get(0), op.get(1), domainDefinition, structuralRules), weightSel);
+    return operatorsMap;
   }
 
   private PrologGraph getOrigin() {
