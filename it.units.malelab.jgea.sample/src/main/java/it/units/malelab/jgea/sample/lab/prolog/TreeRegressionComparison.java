@@ -52,7 +52,7 @@ public class TreeRegressionComparison extends Worker {
     final int nTournament = 5;
     final int diversityMaxAttempts = 100;
     final int nIterations = i(a("nIterations", "100"));
-    final int[] seeds = ri(a("seed", "0:2"));//TODO 30
+    final int[] seeds = ri(a("seed", "0:30"));
 
     Element.Operator[] gpOperators = new Element.Operator[]{Element.Operator.ADDITION, Element.Operator.SUBTRACTION,
             Element.Operator.MULTIPLICATION, Element.Operator.DIVISION};
