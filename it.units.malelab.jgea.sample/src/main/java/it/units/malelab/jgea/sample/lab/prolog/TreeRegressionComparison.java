@@ -83,6 +83,13 @@ public class TreeRegressionComparison extends Worker {
       throw new UnsupportedOperationException("structural rules not found in given path");
     }
 
+    final double minConst = 0;
+    final double maxConst = 2.0d;
+    final int nInput = 1;
+    structuralRules.add(0,"n_input("+nInput+").");
+    structuralRules.add(0,"max_const("+maxConst+").");
+    structuralRules.add(0,"min_const("+minConst+").");
+
     // Selection operators
     try {
       final String operatorsPath = "C:\\Users\\Simone\\Desktop\\GitHub_Tesi\\jgea\\prolog\\trees\\operators\\";
