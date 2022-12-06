@@ -54,17 +54,7 @@
             <artifactId>jpl</artifactId>
             <version>8.4.1</version>
             <scope>system</scope>
-            <systemPath>C:\Users\Simone\Downloads\UniTS\02)Magistrale\Tesi\packages-jpl-8.4.1.jar</systemPath>
+            <systemPath>C:/Users/Simone/Downloads/UniTS/02)Magistrale/Tesi/packages-jpl-8.4.1.jar</systemPath>
         </dependency>
     </dependencies>
-
-    <!--<repositories>
-        <repository>
-            <id>jitpack.io</id>
-            <name>JitPack Repository</name>
-            <url>https://jitpack.io</url>
-        </repository>
-    </repositories>
--->
-
 </project>
