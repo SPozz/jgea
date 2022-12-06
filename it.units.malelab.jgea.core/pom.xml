@@ -49,12 +49,19 @@
             <artifactId>xchart</artifactId>
             <version>3.8.1</version>
         </dependency>
+<!--        <dependency>-->
+<!--            <groupId>jpl</groupId>-->
+<!--            <artifactId>jpl</artifactId>-->
+<!--            <version>8.4.1</version>-->
+<!--            <scope>system</scope>-->
+<!--            <systemPath>C:${file.separator}Users${file.separator}Simone${file.separator}Downloads${file.separator}UniTS${file.separator}02)Magistrale${file.separator}Tesi${file.separator}packages-jpl-8.4.1.jar</systemPath>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>jpl</groupId>
             <artifactId>jpl</artifactId>
             <version>8.4.1</version>
             <scope>system</scope>
-            <systemPath>C:${file.separator}Users${file.separator}Simone${file.separator}Downloads${file.separator}UniTS${file.separator}02)Magistrale${file.separator}Tesi${file.separator}packages-jpl-8.4.1.jar</systemPath>
+            <systemPath>${project.basedir}${file.separator}packages-jpl-8.4.1.jar</systemPath>
         </dependency>
     </dependencies>
 </project>
