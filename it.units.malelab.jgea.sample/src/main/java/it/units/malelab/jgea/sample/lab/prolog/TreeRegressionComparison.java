@@ -67,7 +67,7 @@ public class TreeRegressionComparison extends Worker {
             new Keijzer6(metric)
     );
 
-    runSameDomain(structuralRules1, problems1, "testingFunctions1.csv");
+    runSameDomain(structuralRules1, problems1, "PolyNguyKeij.csv");
 
     List<String> structuralRules2 = new ArrayList<>(structuralRules);
     structuralRules2.add(0, "n_input(5).");
@@ -80,8 +80,8 @@ public class TreeRegressionComparison extends Worker {
     structuralRules3.add(0, "min_const(0.0).");
 
 
-    runSameDomain(structuralRules2,Arrays.asList(new Vladislavleva4(metric,1)),"testingFunctions2.csv");
-    runSameDomain(structuralRules3,Arrays.asList(new Pagie1(metric)),"testingFunctions3.csv");
+    runSameDomain(structuralRules2,Arrays.asList(new Vladislavleva4(metric,1)),"Vladislav.csv");
+    runSameDomain(structuralRules3,Arrays.asList(new Pagie1(metric)),"Pagie.csv");
 
   }
 
@@ -90,7 +90,7 @@ public class TreeRegressionComparison extends Worker {
     final int nTournament = 5;
     final int diversityMaxAttempts = 100;
     final int nIterations = i(a("nIterations", "100"));
-    final int[] seeds = ri(a("seed", "0:30"));
+    final int[] seeds = ri(a("seed", "0:50"));
 
     Element.Operator[] gpOperators = new Element.Operator[]{Element.Operator.ADDITION, Element.Operator.SUBTRACTION,
             Element.Operator.MULTIPLICATION, Element.Operator.DIVISION};
