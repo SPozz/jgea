@@ -45,9 +45,47 @@ public class TreeRegressionComparison extends Worker {
     new TreeRegressionComparison(args);
   }
 
-
   @Override
   public void run() {
+    final SymbolicRegressionFitness.Metric metric = SymbolicRegressionFitness.Metric.MSE;
+
+    // structuralRules
+    List<String> structuralRules;
+    try (Stream<String> rulesPath = Files.lines(Paths.get("C:\\Users\\Simone\\Desktop\\GitHub_Tesi\\jgea\\prolog\\trees\\structuralRules.txt"))) {
+      structuralRules = rulesPath.collect(Collectors.toList());
+    } catch (IOException e) {
+      throw new UnsupportedOperationException("structural rules not found in given path");
+    }
+
+    List<String> structuralRules1 = new ArrayList<>(structuralRules);
+    structuralRules1.add(0, "n_input(1).");
+    structuralRules1.add(0, "max_const(2.0).");
+    structuralRules1.add(0, "min_const(0.0).");
+    List<SyntheticSymbolicRegressionProblem> problems1 = List.of(
+            new Polynomial4(metric),
+            new Nguyen7(metric, 1),
+            new Keijzer6(metric)
+    );
+
+    runSameDomain(structuralRules1, problems1, "testingFunctions1.csv");
+
+    List<String> structuralRules2 = new ArrayList<>(structuralRules);
+    structuralRules2.add(0, "n_input(5).");
+    structuralRules2.add(0, "max_const(10.0).");
+    structuralRules2.add(0, "min_const(0.0).");
+
+    List<String> structuralRules3 = new ArrayList<>(structuralRules);
+    structuralRules3.add(0, "n_input(2).");
+    structuralRules3.add(0, "max_const(2.0).");
+    structuralRules3.add(0, "min_const(0.0).");
+
+
+    runSameDomain(structuralRules2,Arrays.asList(new Vladislavleva4(metric,1)),"testingFunctions2.csv");
+    runSameDomain(structuralRules3,Arrays.asList(new Pagie1(metric)),"testingFunctions3.csv");
+
+  }
+
+  public void runSameDomain(List<String> structuralRules, List<SyntheticSymbolicRegressionProblem> problems, String filename) {
     final int nPop = i(a("nPop", "100"));
     final int nTournament = 5;
     final int diversityMaxAttempts = 100;
@@ -64,12 +102,6 @@ public class TreeRegressionComparison extends Worker {
     final int maxFactoryHeight = (int) (Math.log(maxFactoryDim + 2.0 + 1.0) / Math.log(2)) - 1;
     final int maxHeight = i(a("maxHeight", "10")); // nonProlog graphs
 
-    final double minConst = 0.0;
-    final double maxConst = 2.0;
-    final int nInput = 1;
-
-    final SymbolicRegressionFitness.Metric metric = SymbolicRegressionFitness.Metric.MSE;
-
     final PrologGraph originGraph = getOrigin();
     final List<String> domainDefinition = Arrays.asList(
             ":- dynamic node_id/1.",
@@ -83,16 +115,6 @@ public class TreeRegressionComparison extends Worker {
     List<String> factoryOperatorsAll = new ArrayList<>();
     List<String> factoryOperatorsSelection = new ArrayList<>();
 
-    // structuralRules
-    List<String> structuralRules;
-    try (Stream<String> rulesPath = Files.lines(Paths.get("C:\\Users\\Simone\\Desktop\\GitHub_Tesi\\jgea\\prolog\\trees\\structuralRules.txt"))) {
-      structuralRules = rulesPath.collect(Collectors.toList());
-    } catch (IOException e) {
-      throw new UnsupportedOperationException("structural rules not found in given path");
-    }
-    structuralRules.add(0, "n_input(" + nInput + ").");
-    structuralRules.add(0, "max_const(" + maxConst + ").");
-    structuralRules.add(0, "min_const(" + minConst + ").");
 
     // Selection operators
     try {
@@ -134,14 +156,6 @@ public class TreeRegressionComparison extends Worker {
     Map<GeneticOperator<PrologGraph>, Double> prologSelOperatorsMap = mapOperatorsEqualWeight(prologOperatorSelection, domainDefinition, structuralRules);
     Map<GeneticOperator<PrologGraph>, Double> prologAllOperatorsMap = mapOperatorsEqualWeight(prologOperatorsAll, domainDefinition, structuralRules);
 
-    List<SyntheticSymbolicRegressionProblem> problems = List.of(
-            new Polynomial4(metric),
-            new Nguyen7(metric, 1),
-//            new Vladislavleva4(metric, 1),
-//            new Pagie1(metric),
-            new Keijzer6(metric)
-    );
-
     //consumers
     List<NamedFunction<? super POSetPopulationState<?, ?, ? extends Double>, ?>> functions = List.of(
             iterations(),
@@ -174,7 +188,7 @@ public class TreeRegressionComparison extends Worker {
             );
     listenerFactory = ListenerFactory.all(List.of(
             listenerFactory,
-            new CSVPrinter<>(functions, kFunctions, new File("C:\\Users\\Simone\\Desktop\\GitHub_Tesi\\jgea_data\\Evolution\\Trees\\PolyNguyKeij.csv"))
+            new CSVPrinter<>(functions, kFunctions, new File("C:\\Users\\Simone\\Desktop\\GitHub_Tesi\\jgea_data\\Evolution\\Trees\\"+filename))
     ));
 
 
