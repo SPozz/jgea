@@ -54,7 +54,7 @@
             <artifactId>jpl</artifactId>
             <version>8.4.1</version>
             <scope>system</scope>
-            <systemPath>${pom.basedir}${file.separator}packages-jpl-8.4.1.jar</systemPath>
+            <systemPath>${pom.basedir}${file.separator}target${file.separator}packages-jpl-8.4.1.jar</systemPath>
         </dependency>
     </dependencies>
 </project>
