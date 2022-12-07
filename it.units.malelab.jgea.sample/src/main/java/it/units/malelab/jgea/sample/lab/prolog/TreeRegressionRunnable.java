@@ -215,7 +215,7 @@ public class TreeRegressionRunnable implements Runnable {
 
 
   public static void main(String[] args) {
-    String folder = ".\\prolog\\trees\\operators\\";
+    String folder = "./prolog/trees/operators/";
     File selectionOperatorsFolder = new File(folder + "selection");
     File allOperatorsFolder = new File(folder + "others");
     final File folderFactory = new File(folder + "factory");
@@ -227,7 +227,7 @@ public class TreeRegressionRunnable implements Runnable {
     List<String> structuralRules;
 
     // structuralRules
-    try (Stream<String> rulesPath = Files.lines(Paths.get(".\\prolog\\trees\\structuralRules.txt"))) {
+    try (Stream<String> rulesPath = Files.lines(Paths.get("./prolog/trees/structuralRules.txt"))) {
       structuralRules = rulesPath.collect(Collectors.toList());
     } catch (IOException e) {
       throw new UnsupportedOperationException("structural rules not found in given path");
@@ -253,7 +253,7 @@ public class TreeRegressionRunnable implements Runnable {
       }
       // factory
       for (String fileName : factoryFiles) {
-        factoryOperators.add(Files.readString(Path.of(folderFactory + "\\" + fileName)));
+        factoryOperators.add(Files.readString(Path.of(folderFactory + "/" + fileName)));
       }
     } catch (IOException any) {
       throw new UnsupportedOperationException("IOException in main.");

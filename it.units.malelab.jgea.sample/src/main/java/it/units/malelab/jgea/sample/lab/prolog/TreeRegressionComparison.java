@@ -51,7 +51,7 @@ public class TreeRegressionComparison extends Worker {
 
     // structuralRules
     List<String> structuralRules;
-    try (Stream<String> rulesPath = Files.lines(Paths.get(".\\prolog\\trees\\structuralRules.txt"))) {
+    try (Stream<String> rulesPath = Files.lines(Paths.get("./prolog/trees/structuralRules.txt"))) {
       structuralRules = rulesPath.collect(Collectors.toList());
     } catch (IOException e) {
       throw new UnsupportedOperationException("structural rules not found in given path");
@@ -118,7 +118,7 @@ public class TreeRegressionComparison extends Worker {
 
     // Selection operators
     try {
-      final String operatorsPath = ".\\prolog\\trees\\operators\\";
+      final String operatorsPath = "./prolog/trees/operators/";
       final File folderSelectionOperators = new File(operatorsPath + "selection");
       File[] filesSel = folderSelectionOperators.listFiles();
       if (filesSel == null) {
@@ -142,11 +142,11 @@ public class TreeRegressionComparison extends Worker {
       // factories
       final List<String> factoryFilesSel = Arrays.asList("addSubTree.txt"); //selection
       for (String fileName : factoryFilesSel) {
-        factoryOperatorsSelection.add(Files.readString(Path.of(folderSelectionOperators + "\\" + fileName)));
+        factoryOperatorsSelection.add(Files.readString(Path.of(folderSelectionOperators + "/" + fileName)));
       }
       final List<String> factoryFilesOthers = Arrays.asList("innerSubTree.txt", "innerSubTree.txt"); //others
       for (String fileName : factoryFilesOthers) {
-        factoryOperatorsAll.add(Files.readString(Path.of(folderOthersOperators + "\\" + fileName)));
+        factoryOperatorsAll.add(Files.readString(Path.of(folderOthersOperators + "/" + fileName)));
       }
       factoryOperatorsAll.addAll(factoryOperatorsSelection);
     } catch (IOException any) {
@@ -188,7 +188,7 @@ public class TreeRegressionComparison extends Worker {
             );
     listenerFactory = ListenerFactory.all(List.of(
             listenerFactory,
-            new CSVPrinter<>(functions, kFunctions, new File(".\\prolog\\results\\"+filename))
+            new CSVPrinter<>(functions, kFunctions, new File("./prolog/results/"+filename))
     ));
 
 
