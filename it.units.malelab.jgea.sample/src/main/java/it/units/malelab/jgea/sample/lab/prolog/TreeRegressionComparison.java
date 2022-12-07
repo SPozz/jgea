@@ -51,7 +51,7 @@ public class TreeRegressionComparison extends Worker {
 
     // structuralRules
     List<String> structuralRules;
-    try (Stream<String> rulesPath = Files.lines(Paths.get("C:\\Users\\Simone\\Desktop\\GitHub_Tesi\\jgea\\prolog\\trees\\structuralRules.txt"))) {
+    try (Stream<String> rulesPath = Files.lines(Paths.get(".\\prolog\\trees\\structuralRules.txt"))) {
       structuralRules = rulesPath.collect(Collectors.toList());
     } catch (IOException e) {
       throw new UnsupportedOperationException("structural rules not found in given path");
@@ -118,7 +118,7 @@ public class TreeRegressionComparison extends Worker {
 
     // Selection operators
     try {
-      final String operatorsPath = "C:\\Users\\Simone\\Desktop\\GitHub_Tesi\\jgea\\prolog\\trees\\operators\\";
+      final String operatorsPath = ".\\prolog\\trees\\operators\\";
       final File folderSelectionOperators = new File(operatorsPath + "selection");
       File[] filesSel = folderSelectionOperators.listFiles();
       if (filesSel == null) {
@@ -188,7 +188,7 @@ public class TreeRegressionComparison extends Worker {
             );
     listenerFactory = ListenerFactory.all(List.of(
             listenerFactory,
-            new CSVPrinter<>(functions, kFunctions, new File("C:\\Users\\Simone\\Desktop\\GitHub_Tesi\\jgea_data\\Evolution\\Trees\\"+filename))
+            new CSVPrinter<>(functions, kFunctions, new File(".\\prolog\\results\\"+filename))
     ));
 
 
