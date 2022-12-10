@@ -31,7 +31,7 @@ import java.util.stream.Stream;
 
 import static it.units.malelab.jgea.core.listener.NamedFunctions.*;
 
-public class TreeRegressionRunnable implements Runnable {
+public class TreeRegressionSingleProblem implements Runnable {
 
   public final static List<NamedFunction<? super POSetPopulationState<?, ?, ?>, ?>> BASIC_FUNCTIONS =
           List.of(
@@ -74,7 +74,7 @@ public class TreeRegressionRunnable implements Runnable {
 
   private final List<String> factoryOperators;
 
-  public TreeRegressionRunnable(int minDim, int maxDim, List<String> factoryOperators, List<List<String>> opLabelsDescription, List<String> structuralRules) {
+  public TreeRegressionSingleProblem(int minDim, int maxDim, List<String> factoryOperators, List<List<String>> opLabelsDescription, List<String> structuralRules) {
     executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() - 1);
     this.minDim = minDim;
     this.maxDim = maxDim;
@@ -266,7 +266,7 @@ public class TreeRegressionRunnable implements Runnable {
     structuralRules.add(0, "max_const(" + maxConst + ").");
     structuralRules.add(0, "min_const(" + minConst + ").");
 
-    new TreeRegressionRunnable(5, 29, factoryOperators, operators, structuralRules).run();
+    new TreeRegressionSingleProblem(5, 29, factoryOperators, operators, structuralRules).run();
 
 
   }
