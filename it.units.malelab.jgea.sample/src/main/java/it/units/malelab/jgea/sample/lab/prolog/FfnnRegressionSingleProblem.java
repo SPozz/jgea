@@ -97,7 +97,7 @@ public class FfnnRegressionSingleProblem implements Runnable {
     edge.put("weight", 0.5d);
     origin.addNode(node1);
     origin.addNode(node2);
-    origin.setArcValue(node2, node1, edge);
+    origin.setArcValue(node1, node2, edge);
     this.originGraph = origin;
   }
 
@@ -215,14 +215,14 @@ public class FfnnRegressionSingleProblem implements Runnable {
 
     List<List<String>> operators = new ArrayList<>();
     List<String> factoryOperators = new ArrayList<>();
-    List<String> structuralRules;
+//    List<String> structuralRules;
 
-    // structuralRules
-    try (Stream<String> rulesPath = Files.lines(Paths.get("./prolog/ffnn/structuralRules.txt"))) {
-      structuralRules = rulesPath.collect(Collectors.toList());
-    } catch (IOException e) {
-      throw new UnsupportedOperationException("structural rules not found in given path");
-    }
+//    // structuralRules
+//    try (Stream<String> rulesPath = Files.lines(Paths.get("./prolog/ffnn/structuralRules.txt"))) {
+//      structuralRules = rulesPath.collect(Collectors.toList());
+//    } catch (IOException e) {
+//      throw new UnsupportedOperationException("structural rules not found in given path");
+//    }
 
     try {
       // operators
@@ -255,10 +255,35 @@ public class FfnnRegressionSingleProblem implements Runnable {
       throw new UnsupportedOperationException("IOException in main.");
     }
 
-    final double minWeight = 0;
-    final double maxWeight = 2.0d;
-    structuralRules.add(0, "max_weight(" + maxWeight + ").");
-    structuralRules.add(0, "min_weight(" + minWeight + ").");
+    final List<String> structuralRules = Arrays.asList(
+            "max_weight(1.0).",
+            "min_weight(0.0).",
+            "min_level(M) :- findall(L,layer(_,L),Layers), min_list(Layers,M).",
+            "max_level(M) :- findall(L,layer(_,L),Layers), max_list(Layers,M).",
+            "level(X) :- " +
+                    "    float(X), max_level(Max), min_level(Min), " +
+                    "                            X =< Max, X >= Min.",
+            "weight_val(X) :- " +
+                    "    max_weight(Max), min_weight(Min),float(X), " +
+                    "                            X < Max, X >= Min.",
+            "edg_consist_from_node(N) :-" +
+                    "  layer(N,M)," +
+                    "  findall(L,(layer(T,L),edge(N,T,_), L =\\= M + 1),RES)," +
+                    "                                   length(RES,Z), Z == 0.",
+            "random_pair(Z1,Z2,List) :-" +
+                    "    random_member(Z1,List)," +
+                    "    random_member(Z2,List)," +
+                    "    Z1 \\== Z2.",
+            "is_valid :- " +
+                    "    foreach( findall(N,node_id(N),N)," +
+                    "        maplist(edg_consist_from_node,N)" +
+                    "    )."
+    );
+
+//    final double minWeight = 0;
+//    final double maxWeight = 1.0d;
+//    structuralRules.add(0, "max_weight(" + maxWeight + ").");
+//    structuralRules.add(0, "min_weight(" + minWeight + ").");
 
     new FfnnRegressionSingleProblem(5, 29, factoryOperators, operators, structuralRules).run();
   }
