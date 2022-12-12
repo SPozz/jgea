@@ -210,7 +210,7 @@ public class FfnnRegressionSingleProblem implements Runnable {
   public static void main(String[] args) {
     String folder = "./prolog/ffnn/operators/";
     File selectionOperatorsFolder = new File(folder + "selection");
-    File allOperatorsFolder = new File(folder + "others");
+    File othersOperatorsFolder = new File(folder + "others");
     final File factoryFolder = new File(folder + "factory");
 
     List<List<String>> operators = new ArrayList<>();
@@ -233,9 +233,9 @@ public class FfnnRegressionSingleProblem implements Runnable {
           operators.add(Arrays.asList(file.getName().replace(".txt", ""), operator));
         }
       } else {
-        throw new UnsupportedOperationException("No files defined in operator selection");
+        System.out.println("No files defined in operator selection. Using only others.");
       }
-      File[] filesOthers = allOperatorsFolder.listFiles();
+      File[] filesOthers = othersOperatorsFolder.listFiles();
       if (filesOthers != null) {
         for (File file : filesOthers) {
           String operator = Files.readString(file.toPath());
