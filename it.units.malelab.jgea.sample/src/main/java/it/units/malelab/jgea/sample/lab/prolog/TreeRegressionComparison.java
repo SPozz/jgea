@@ -80,8 +80,8 @@ public class TreeRegressionComparison extends Worker {
     structuralRules3.add(0, "min_const(0.0).");
 
 
-    runSameDomain(structuralRules2,Arrays.asList(new Vladislavleva4(metric,1)),"Vladislav.csv");
-    runSameDomain(structuralRules3,Arrays.asList(new Pagie1(metric)),"Pagie.csv");
+    runSameDomain(structuralRules2, Arrays.asList(new Vladislavleva4(metric, 1)), "Vladislav.csv");
+    runSameDomain(structuralRules3, Arrays.asList(new Pagie1(metric)), "Pagie.csv");
 
   }
 
@@ -188,7 +188,7 @@ public class TreeRegressionComparison extends Worker {
             );
     listenerFactory = ListenerFactory.all(List.of(
             listenerFactory,
-            new CSVPrinter<>(functions, kFunctions, new File("./prolog/results/"+filename))
+            new CSVPrinter<>(functions, kFunctions, new File("./prolog/results/" + filename))
     ));
 
 
@@ -355,7 +355,7 @@ public class TreeRegressionComparison extends Worker {
     node2.put("node_id", "second");
     node2.put("start", 0);
     node2.put("type", "constant");
-    node2.put("value", 0.5d); // con + 1 è facile..
+    node2.put("value", 1d);
     LinkedHashMap<String, Object> node3 = new LinkedHashMap<>();
     node3.put("node_id", "third");
     node3.put("start", 0);
