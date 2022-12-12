@@ -2,6 +2,6 @@ min_level(M) :- findall(L,layer(_,L),Layers), min_list(Layers,M).
 max_level(M) :- findall(L,layer(_,L),Layers), max_list(Layers,M).
 level(X) :- float(X), max_level(Max), min_level(Min), X =< Max, X >= Min.
 weight_val(X) :- max_weight(Max), min_weight(Min),float(X), X < Max, X >= Min.
-edg_consist_from_node(N) :-layer(N,M),findall(L,(layer(T,L),edge(N,T,_), L =\\1),RES), length(RES,Z), Z == 0.
-random_pair(Z1,Z2,List) :-random_member(Z1,List),random_member(Z2,List),Z1 \\== Z2.
-is_valid :- foreach( findall(N,node_id(N),N),maplist(edg_consist_from_node,N)).
+edg_consist_from_node(N) :- layer(N,M), findall(L,(layer(T,L),edge(N,T,_), L =\\= M + 1),RES), length(RES,Z), Z == 0.
+random_pair(Z1,Z2,List) :- random_member(Z1,List), random_member(Z2,List), Z1 \\== Z2.
+is_valid :- foreach( findall(N,node_id(N),N), maplist(edg_consist_from_node,N)).
