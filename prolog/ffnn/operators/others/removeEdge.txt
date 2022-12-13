@@ -1,0 +1,1 @@
+findall(ID,edge_id(ID),Edges), random_member(E,Edges), retract(weight(E,_)), retract(edge_id(E)).
