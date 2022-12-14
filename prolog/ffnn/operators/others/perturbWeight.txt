@@ -1,0 +1,1 @@
+findall((A,B),weight(A,B), Weighted),random_member((ID,W), Weighted),Min is W - 0.1,Max is W + 0.1,random(Min,Max,X),weight_val(X),retract(weight(ID,W)),assert(weight(ID,X)).
