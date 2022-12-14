@@ -1,0 +1,1 @@
+max_level(X),Y is X +1,gensym(nod,N),assert(node_id(N)),assert(layer(N,Y)),findall(Nod,layer(Nod,X),Nodes),random_member(M1,Nodes),gensym(edge_id,E1),assert(edge_id(E1)),assert(edge(M1,N,E1)),random(0.0,1.0,W1),assert(weight(E1,W1)).
