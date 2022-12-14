@@ -1,0 +1,1 @@
+findall((SS,TT,EE,LL),(edge(SS,TT,EE),layer(TT,LL)),Edges),random_member((S,T,E,L),Edges),findall(NN,layer(NN,L),Nodes),random_member(NewTarget,Nodes),retract(edge(S,T,E)),assert(edge(S,NewTarget,E)).
