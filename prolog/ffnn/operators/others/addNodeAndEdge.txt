@@ -1,1 +1,1 @@
-max_level(Max),min_level(Min),LBound is Min+1,random_between(LBound,Max,L),LL is L-1,findall(M,(node_id(M),layer(M,LL)),Nodes),random(0.0,1.0,W),gensym(nod,N),assert(node_id(N)),assert(layer(N,L)),random_member(X,Nodes),gensym(edg,E),assert(edge_id(E)),assert(edge(X,N,E)),assert(weight(E,W)).
+max_level(Max),min_level(Min),LBound is Min+1,random(LBound,Max,L),LL is L-1,findall(M,(node_id(M),layer(M,LL)),Nodes),random(0.0,1.0,W),gensym(nod,N),assert(node_id(N)),assert(layer(N,L)),random_member(X,Nodes),gensym(edg,E),assert(edge_id(E)),assert(edge(X,N,E)),assert(weight(E,W)).
