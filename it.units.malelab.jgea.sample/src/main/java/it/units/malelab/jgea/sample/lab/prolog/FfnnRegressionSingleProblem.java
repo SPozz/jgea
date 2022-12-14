@@ -92,12 +92,21 @@ public class FfnnRegressionSingleProblem implements Runnable {
     LinkedHashMap<String, Object> node2 = new LinkedHashMap<>();
     node2.put("node_id", "second");
     node2.put("layer", 1);
-    LinkedHashMap<String, Object> edge = new LinkedHashMap<>();
-    edge.put("edge_id", "firstEdge");
-    edge.put("weight", 0.5d);
+    LinkedHashMap<String, Object> node4 = new LinkedHashMap<>();
+    node4.put("node_id", "fourth");
+    node4.put("layer", 2);
+    LinkedHashMap<String, Object> edge1 = new LinkedHashMap<>();
+    edge1.put("edge_id", "firstEdge");
+    edge1.put("weight", 0.5d);
+    LinkedHashMap<String, Object> edge2 = new LinkedHashMap<>();
+    edge2.put("edge_id", "secondEdge");
+    edge2.put("weight", 0.2d);
     origin.addNode(node1);
     origin.addNode(node2);
-    origin.setArcValue(node1, node2, edge);
+    origin.addNode(node4);
+    origin.setArcValue(node1, node2, edge1);
+    origin.setArcValue(node2, node4, edge2);
+
     this.originGraph = origin;
   }
 
@@ -112,8 +121,8 @@ public class FfnnRegressionSingleProblem implements Runnable {
                     )),
                     List.of()
             );
-    List<Integer> seeds = List.of(1, 2, 3, 4, 5);
-    SyntheticSymbolicRegressionProblem p = new Polynomial4(SymbolicRegressionFitness.Metric.MSE);
+    List<Integer> seeds = List.of(1, 2);//, 3, 4, 5);
+    SyntheticSymbolicRegressionProblem p = new Polynomial2(SymbolicRegressionFitness.Metric.MSE);
     List<IterativeSolver<? extends POSetPopulationState<PrologGraph, RealFunction, Double>, SyntheticSymbolicRegressionProblem,
             RealFunction>> solvers = new ArrayList<>();
 
@@ -122,13 +131,13 @@ public class FfnnRegressionSingleProblem implements Runnable {
     for (List<String> op : opLabelsDescription)
       operatorsMapFfnn.put(new PrologOperator(op.get(0), op.get(1), domainDefinition, structuralRules), weight);
 
-    BaseFunction function = BaseFunction.IDENTITY;
+    BaseFunction identity = BaseFunction.IDENTITY;
 
     StandardEvolver stdEvolver = new StandardEvolver<>(
-            new FunctionGraphMapper(function).andThen(fg -> new RealFunction() {
+            new FunctionGraphMapper(identity).andThen(fg -> new RealFunction() {
               @Override
               public double apply(double... input) {
-                return fg.apply(input)[0]; //TODO: cosa mettere invece di indice 0?
+                return fg.apply(input)[0];
               }
 
               public String toString() {
@@ -136,8 +145,8 @@ public class FfnnRegressionSingleProblem implements Runnable {
               }
             }),
             new PrologGraphFactory(minDim, maxDim, originGraph, factoryOperators, domainDefinition, structuralRules),
-            100,
-            StopConditions.nOfIterations(500),
+            50, //100
+            StopConditions.nOfIterations(40), //100
             operatorsMapFfnn,
             new Tournament(5),
             new Last(),
@@ -255,9 +264,16 @@ public class FfnnRegressionSingleProblem implements Runnable {
       throw new UnsupportedOperationException("IOException in main.");
     }
 
+    final double minWeight = 0;
+    final double maxWeight = 1.0;
+    final int nInput = 1;
+    final int nOutput = 1;
+
     final List<String> structuralRules = Arrays.asList(
-            "max_weight(1.0).",
-            "min_weight(0.0).",
+            "max_weight(" + maxWeight + ").",
+            "min_weight(" + minWeight + ").",
+            "n_input(" + nInput + ").",
+            "n_output(" + nOutput + ").",
             "min_level(M) :- findall(L,layer(_,L),Layers), min_list(Layers,M).",
             "max_level(M) :- findall(L,layer(_,L),Layers), max_list(Layers,M).",
             "level(X) :- " +
@@ -274,18 +290,16 @@ public class FfnnRegressionSingleProblem implements Runnable {
                     "    random_member(Z1,List)," +
                     "    random_member(Z2,List)," +
                     "    Z1 \\== Z2.",
-            "is_valid :- " +
-                    "    foreach( findall(N,node_id(N),N)," +
-                    "        maplist(edg_consist_from_node,N)" +
-                    "    )."
+            "retract_list([X | Xs], P) :- Z =.. [P, X], retract(Z), retract_list(Xs, P).",
+            "retract_list([], _) :- true.",
+            "retract_list([X|Xs],P,S) :- Z=.. [P,X,S], retract(Z), retract_list(Xs,P,S).",
+            "retract_list([],_,_) :- true.",
+            "check_inp :- n_input(N), min_level(Min), findall(ID,layer(ID,Min),Inputs), length(Inputs, L), L == N.",
+            "check_out :- n_output(N), max_level(Max), findall(ID,layer(ID,Max),Outputs), length(Outputs, L), L == N.",
+            "is_valid :- check_inp, check_out, foreach(findall(N,node_id(N),N),maplist(edg_consist_from_node,N))."
     );
 
-//    final double minWeight = 0;
-//    final double maxWeight = 1.0d;
-//    structuralRules.add(0, "max_weight(" + maxWeight + ").");
-//    structuralRules.add(0, "min_weight(" + minWeight + ").");
-
-    new FfnnRegressionSingleProblem(5, 29, factoryOperators, operators, structuralRules).run();
+    new FfnnRegressionSingleProblem(5, 50, factoryOperators, operators, structuralRules).run();
   }
 
 }
