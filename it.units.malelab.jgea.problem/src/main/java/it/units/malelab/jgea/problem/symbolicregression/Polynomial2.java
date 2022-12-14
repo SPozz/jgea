@@ -9,7 +9,7 @@ public class Polynomial2 extends SyntheticSymbolicRegressionProblem {
               double x = v[0];
               return x * x + x + 1.0d;
             },
-            MathUtils.pairwise(MathUtils.equispacedValues(-1, 1, .01)),
+            MathUtils.pairwise(MathUtils.equispacedValues(-5, 5, .01)),
             MathUtils.pairwise(MathUtils.equispacedValues(-1, 1, .01)),
             metric
     );

@@ -62,6 +62,7 @@ public class TreeRegressionComparison extends Worker {
     structuralRules1.add(0, "max_const(2.0).");
     structuralRules1.add(0, "min_const(0.0).");
     List<SyntheticSymbolicRegressionProblem> problems1 = List.of(
+            new Polynomial2(metric),
             new Polynomial4(metric),
             new Nguyen7(metric, 1),
             new Keijzer6(metric)
