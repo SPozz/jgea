@@ -35,7 +35,7 @@ import java.util.stream.Stream;
 import static it.units.malelab.jgea.core.listener.NamedFunctions.*;
 import static it.units.malelab.jgea.core.listener.NamedFunctions.best;
 
-public class FfnnRegressionSingleProblem implements Runnable {
+public class FfnnSingleProblem implements Runnable {
   public final static List<NamedFunction<? super POSetPopulationState<?, ?, ?>, ?>> BASIC_FUNCTIONS =
           List.of(
                   iterations(),
@@ -77,7 +77,7 @@ public class FfnnRegressionSingleProblem implements Runnable {
 
   private final List<String> factoryOperators;
 
-  public FfnnRegressionSingleProblem(int minDim, int maxDim, List<String> factoryOperators, List<List<String>> opLabelsDescription, List<String> structuralRules) {
+  public FfnnSingleProblem(int minDim, int maxDim, List<String> factoryOperators, List<List<String>> opLabelsDescription, List<String> structuralRules) {
     executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() - 1);
     this.minDim = minDim;
     this.maxDim = maxDim;
@@ -121,8 +121,10 @@ public class FfnnRegressionSingleProblem implements Runnable {
                     )),
                     List.of()
             );
-    List<Integer> seeds = List.of(1, 2);//, 3, 4, 5);
-    SyntheticSymbolicRegressionProblem p = new Polynomial2(SymbolicRegressionFitness.Metric.MSE);
+    List<Integer> seeds = List.of(1, 2, 3, 4, 5);
+    SyntheticSymbolicRegressionProblem p = new Nguyen7(SymbolicRegressionFitness.Metric.MSE,1); //n_input(1)
+//    SyntheticSymbolicRegressionProblem p = new Pagie1(SymbolicRegressionFitness.Metric.MSE); //n_input(2)
+//    SyntheticSymbolicRegressionProblem p = new Vladislavleva4(SymbolicRegressionFitness.Metric.MSE,1); //n_input(5)
     List<IterativeSolver<? extends POSetPopulationState<PrologGraph, RealFunction, Double>, SyntheticSymbolicRegressionProblem,
             RealFunction>> solvers = new ArrayList<>();
 
@@ -131,10 +133,10 @@ public class FfnnRegressionSingleProblem implements Runnable {
     for (List<String> op : opLabelsDescription)
       operatorsMapFfnn.put(new PrologOperator(op.get(0), op.get(1), domainDefinition, structuralRules), weight);
 
-    BaseFunction identity = BaseFunction.IDENTITY;
+    BaseFunction tanh = BaseFunction.TANH;
 
     StandardEvolver stdEvolver = new StandardEvolver<>(
-            new FunctionGraphMapper(identity).andThen(fg -> new RealFunction() {
+            new FunctionGraphMapper(tanh).andThen(fg -> new RealFunction() {
               @Override
               public double apply(double... input) {
                 return fg.apply(input)[0];
@@ -145,8 +147,8 @@ public class FfnnRegressionSingleProblem implements Runnable {
               }
             }),
             new PrologGraphFactory(minDim, maxDim, originGraph, factoryOperators, domainDefinition, structuralRules),
-            50, //100
-            StopConditions.nOfIterations(40), //100
+            100,
+            StopConditions.nOfIterations(50),
             operatorsMapFfnn,
             new Tournament(5),
             new Last(),
@@ -207,7 +209,7 @@ public class FfnnRegressionSingleProblem implements Runnable {
     System.out.println("Total usages: " + (int) sum);
 
     try {
-      TimeUnit.SECONDS.sleep(10);
+      TimeUnit.SECONDS.sleep(6);
     } catch (InterruptedException any) {
       System.out.println("InterruptedException");
     }
@@ -224,14 +226,14 @@ public class FfnnRegressionSingleProblem implements Runnable {
 
     List<List<String>> operators = new ArrayList<>();
     List<String> factoryOperators = new ArrayList<>();
-//    List<String> structuralRules;
+    List<String> structuralRules;
 
-//    // structuralRules
-//    try (Stream<String> rulesPath = Files.lines(Paths.get("./prolog/ffnn/structuralRules.txt"))) {
-//      structuralRules = rulesPath.collect(Collectors.toList());
-//    } catch (IOException e) {
-//      throw new UnsupportedOperationException("structural rules not found in given path");
-//    }
+    // structuralRules
+    try (Stream<String> rulesPath = Files.lines(Paths.get("./prolog/ffnn/structuralRules.txt"))) {
+      structuralRules = rulesPath.collect(Collectors.toList());
+    } catch (IOException e) {
+      throw new UnsupportedOperationException("structural rules not found in given path");
+    }
 
     try {
       // operators
@@ -264,42 +266,16 @@ public class FfnnRegressionSingleProblem implements Runnable {
       throw new UnsupportedOperationException("IOException in main.");
     }
 
-    final double minWeight = 0;
+    final double minWeight = 0.0;
     final double maxWeight = 1.0;
     final int nInput = 1;
     final int nOutput = 1;
+    structuralRules.add(0, "max_weight(" + maxWeight + ").");
+    structuralRules.add(0, "min_weight(" + minWeight + ").");
+    structuralRules.add(0, "n_input(" + nInput + ").");
+    structuralRules.add(0, "n_output(" + nOutput + ").");
 
-    final List<String> structuralRules = Arrays.asList(
-            "max_weight(" + maxWeight + ").",
-            "min_weight(" + minWeight + ").",
-            "n_input(" + nInput + ").",
-            "n_output(" + nOutput + ").",
-            "min_level(M) :- findall(L,layer(_,L),Layers), min_list(Layers,M).",
-            "max_level(M) :- findall(L,layer(_,L),Layers), max_list(Layers,M).",
-            "level(X) :- " +
-                    "    float(X), max_level(Max), min_level(Min), " +
-                    "                            X =< Max, X >= Min.",
-            "weight_val(X) :- " +
-                    "    max_weight(Max), min_weight(Min),float(X), " +
-                    "                            X < Max, X >= Min.",
-            "edg_consist_from_node(N) :-" +
-                    "  layer(N,M)," +
-                    "  findall(L,(layer(T,L),edge(N,T,_), L =\\= M + 1),RES)," +
-                    "                                   length(RES,Z), Z == 0.",
-            "random_pair(Z1,Z2,List) :-" +
-                    "    random_member(Z1,List)," +
-                    "    random_member(Z2,List)," +
-                    "    Z1 \\== Z2.",
-            "retract_list([X | Xs], P) :- Z =.. [P, X], retract(Z), retract_list(Xs, P).",
-            "retract_list([], _) :- true.",
-            "retract_list([X|Xs],P,S) :- Z=.. [P,X,S], retract(Z), retract_list(Xs,P,S).",
-            "retract_list([],_,_) :- true.",
-            "check_inp :- n_input(N), min_level(Min), findall(ID,layer(ID,Min),Inputs), length(Inputs, L), L == N.",
-            "check_out :- n_output(N), max_level(Max), findall(ID,layer(ID,Max),Outputs), length(Outputs, L), L == N.",
-            "is_valid :- check_inp, check_out, foreach(findall(N,node_id(N),N),maplist(edg_consist_from_node,N))."
-    );
-
-    new FfnnRegressionSingleProblem(5, 50, factoryOperators, operators, structuralRules).run();
+    new FfnnSingleProblem(5, 20, factoryOperators, operators, structuralRules).run();
   }
 
 }
