@@ -2,7 +2,7 @@ min_level(M) :- findall(L,layer(_,L),Layers), min_list(Layers,M).
 max_level(M) :- findall(L,layer(_,L),Layers), max_list(Layers,M).
 level(X) :- integer(X), max_level(Max), min_level(Min), X =< Max, X >= Min.
 weight_val(X) :- max_weight(Max), min_weight(Min),float(X), X < Max, X >= Min.
-edg_consist_from_node(N) :- layer(N,M), findall(L,(layer(T,L),edge(N,T,_), L =\\= M + 1),RES), length(RES,Z), Z == 0.
+edg_consist_from_node(N) :- layer(N,M), findall(L,(layer(T,L),edge(N,T,_), L =\= M + 1),RES), length(RES,Z), Z == 0.
 retract_list([X | Xs], P) :- Z =.. [P, X], retract(Z), retract_list(Xs, P).
 retract_list([], _) :- true.
 retract_list([X|Xs],P,S) :- Z=.. [P,X,S], retract(Z), retract_list(Xs,P,S).
