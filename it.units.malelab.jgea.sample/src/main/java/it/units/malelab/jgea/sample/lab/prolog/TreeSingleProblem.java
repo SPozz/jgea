@@ -31,7 +31,7 @@ import java.util.stream.Stream;
 
 import static it.units.malelab.jgea.core.listener.NamedFunctions.*;
 
-public class TreeRegressionSingleProblem implements Runnable {
+public class TreeSingleProblem implements Runnable {
 
   public final static List<NamedFunction<? super POSetPopulationState<?, ?, ?>, ?>> BASIC_FUNCTIONS =
           List.of(
@@ -74,7 +74,7 @@ public class TreeRegressionSingleProblem implements Runnable {
 
   private final List<String> factoryOperators;
 
-  public TreeRegressionSingleProblem(int minDim, int maxDim, List<String> factoryOperators, List<List<String>> opLabelsDescription, List<String> structuralRules) {
+  public TreeSingleProblem(int minDim, int maxDim, List<String> factoryOperators, List<List<String>> opLabelsDescription, List<String> structuralRules) {
     executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() - 1);
     this.minDim = minDim;
     this.maxDim = maxDim;
@@ -145,7 +145,7 @@ public class TreeRegressionSingleProblem implements Runnable {
             }),
             new PrologGraphFactory(minDim, maxDim, originGraph, factoryOperators, domainDefinition, structuralRules),
             100,
-            StopConditions.nOfIterations(500),
+            StopConditions.nOfIterations(100),
             operatorsMap,
             new Tournament(5),
             new Last(),
@@ -266,7 +266,7 @@ public class TreeRegressionSingleProblem implements Runnable {
     structuralRules.add(0, "max_const(" + maxConst + ").");
     structuralRules.add(0, "min_const(" + minConst + ").");
 
-    new TreeRegressionSingleProblem(5, 29, factoryOperators, operators, structuralRules).run();
+    new TreeSingleProblem(5, 29, factoryOperators, operators, structuralRules).run();
 
 
   }
