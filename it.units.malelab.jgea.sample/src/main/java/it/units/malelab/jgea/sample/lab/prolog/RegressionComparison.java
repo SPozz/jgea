@@ -35,14 +35,14 @@ import static it.units.malelab.jgea.core.listener.NamedFunctions.*;
 import static it.units.malelab.jgea.sample.Args.i;
 import static it.units.malelab.jgea.sample.Args.ri;
 
-public class TreeRegressionComparison extends Worker {
+public class RegressionComparison extends Worker {
 
-  public TreeRegressionComparison(String[] args) {
+  public RegressionComparison(String[] args) {
     super(args);
   }
 
   public static void main(String[] args) {
-    new TreeRegressionComparison(args);
+    new RegressionComparison(args);
   }
 
   @Override
@@ -97,65 +97,65 @@ public class TreeRegressionComparison extends Worker {
             Element.Operator.MULTIPLICATION, Element.Operator.DIVISION};
     double[] gpConstants = new double[]{0.1, 1d, 10d};
 
-    final int minFactoryDim = 5;
-    final int maxFactoryDim = 125;
-    final int minFactoryHeight = (int) (Math.log(minFactoryDim + 2.0 + 1.0) / Math.log(2)) - 1;
-    final int maxFactoryHeight = (int) (Math.log(maxFactoryDim + 2.0 + 1.0) / Math.log(2)) - 1;
-    final int maxHeight = i(a("maxHeight", "10")); // nonProlog graphs
+    final int minTreeFactoryDim = 5;
+    final int maxTreeFactoryDim = 125;
+    final int minTreeFactoryHeight = (int) (Math.log(minTreeFactoryDim + 2.0 + 1.0) / Math.log(2)) - 1;
+    final int maxTreeFactoryHeight = (int) (Math.log(maxTreeFactoryDim + 2.0 + 1.0) / Math.log(2)) - 1;
+    final int maxTreeHeight = i(a("maxTreeHeight", "10")); // nonProlog graphs
 
-    final PrologGraph originGraph = getOrigin();
-    final List<String> domainDefinition = Arrays.asList(
+    final PrologGraph treeOrigin = getTreeOrigin();
+    final List<String> treeDomain = Arrays.asList(
             ":- dynamic node_id/1.",
             ":- dynamic start/2.",
             ":- dynamic type/2.",
             ":- dynamic value/2.",
             ":- dynamic edge_id/1.",
             ":- dynamic edge/3.");
-    List<List<String>> prologOperatorsAll = new ArrayList<>();
-    List<List<String>> prologOperatorSelection = new ArrayList<>();
-    List<String> factoryOperatorsAll = new ArrayList<>();
-    List<String> factoryOperatorsSelection = new ArrayList<>();
+    List<List<String>> treePrologOperatorsAll = new ArrayList<>();
+    List<List<String>> treePrologOperatorSelection = new ArrayList<>();
+    List<String> treeFactoryOperatorsAll = new ArrayList<>();
+    List<String> treeFactoryOperatorsSelection = new ArrayList<>();
 
 
     // Selection operators
     try {
-      final String operatorsPath = "./prolog/trees/operators/";
-      final File folderSelectionOperators = new File(operatorsPath + "selection");
-      File[] filesSel = folderSelectionOperators.listFiles();
+      final String treeOperatorsPath = "./prolog/trees/operators/";
+      final File treeFolderSelection = new File(treeOperatorsPath + "selection");
+      File[] filesSel = treeFolderSelection.listFiles();
       if (filesSel == null) {
         throw new UnsupportedOperationException("No files defined in operator selection");
       } else {
         for (File file : filesSel) {
           String operator = Files.readString(file.toPath());
-          prologOperatorSelection.add(Arrays.asList(file.getName().replace(".txt", ""), operator));
+          treePrologOperatorSelection.add(Arrays.asList(file.getName().replace(".txt", ""), operator));
         }
       }
       // All operators
-      final File folderOthersOperators = new File(operatorsPath + "others");
-      File[] filesOthers = folderOthersOperators.listFiles();
+      final File treeFolderOthers = new File(treeOperatorsPath + "others");
+      File[] filesOthers = treeFolderOthers.listFiles();
       if (filesOthers != null) { //if null, selection and all coincide
         for (File file : filesOthers) {
           String operator = Files.readString(file.toPath());
-          prologOperatorsAll.add(Arrays.asList(file.getName().replace(".txt", ""), operator));
+          treePrologOperatorsAll.add(Arrays.asList(file.getName().replace(".txt", ""), operator));
         }
       }
-      prologOperatorsAll.addAll(prologOperatorSelection);
+      treePrologOperatorsAll.addAll(treePrologOperatorSelection);
       // factories
-      final List<String> factoryFilesSel = Arrays.asList("addSubTree.txt"); //selection
-      for (String fileName : factoryFilesSel) {
-        factoryOperatorsSelection.add(Files.readString(Path.of(folderSelectionOperators + "/" + fileName)));
+      final List<String> treeFactorySelection = Arrays.asList("addSubTree.txt"); //selection
+      for (String fileName : treeFactorySelection) {
+        treeFactoryOperatorsSelection.add(Files.readString(Path.of(treeFolderSelection + "/" + fileName)));
       }
-      final List<String> factoryFilesOthers = Arrays.asList("innerSubTree.txt", "innerSubTree.txt"); //others
-      for (String fileName : factoryFilesOthers) {
-        factoryOperatorsAll.add(Files.readString(Path.of(folderOthersOperators + "/" + fileName)));
+      final List<String> treeFactoryOthers = Arrays.asList("innerSubTree.txt", "innerSubTree.txt"); //others
+      for (String fileName : treeFactoryOthers) {
+        treeFactoryOperatorsAll.add(Files.readString(Path.of(treeFolderOthers + "/" + fileName)));
       }
-      factoryOperatorsAll.addAll(factoryOperatorsSelection);
+      treeFactoryOperatorsAll.addAll(treeFactoryOperatorsSelection);
     } catch (IOException any) {
       throw new UnsupportedOperationException("IOException in main.");
     }
 
-    Map<GeneticOperator<PrologGraph>, Double> prologSelOperatorsMap = mapOperatorsEqualWeight(prologOperatorSelection, domainDefinition, structuralRules);
-    Map<GeneticOperator<PrologGraph>, Double> prologAllOperatorsMap = mapOperatorsEqualWeight(prologOperatorsAll, domainDefinition, structuralRules);
+    Map<GeneticOperator<PrologGraph>, Double> treeSelOperatorsMap = mapOperatorsEqualWeight(treePrologOperatorSelection, treeDomain, structuralRules);
+    Map<GeneticOperator<PrologGraph>, Double> treeAllOperatorsMap = mapOperatorsEqualWeight(treePrologOperatorsAll, treeDomain, structuralRules);
 
     //consumers
     List<NamedFunction<? super POSetPopulationState<?, ?, ? extends Double>, ?>> functions = List.of(
@@ -198,7 +198,7 @@ public class TreeRegressionComparison extends Worker {
             RealFunction,
             Double>, SyntheticSymbolicRegressionProblem, RealFunction>>> solvers = new TreeMap<>();
 
-    solvers.put("prolog-enfdiv-all", p -> new StandardWithEnforcedDiversityEvolver<>(
+    solvers.put("prolog-tree-enfdiv-all", p -> new StandardWithEnforcedDiversityEvolver<>(
             new OperatorGraphMapper().andThen(og -> new RealFunction() {
               @Override
               public double apply(double... input) {
@@ -209,10 +209,10 @@ public class TreeRegressionComparison extends Worker {
                 return og.toString();
               }
             }),
-            new PrologGraphFactory(minFactoryDim, maxFactoryDim, originGraph, factoryOperatorsAll, domainDefinition, structuralRules),
+            new PrologGraphFactory(minTreeFactoryDim, maxTreeFactoryDim, treeOrigin, treeFactoryOperatorsAll, treeDomain, structuralRules),
             nPop,
             StopConditions.nOfIterations(nIterations),
-            prologAllOperatorsMap,
+            treeAllOperatorsMap,
             new Tournament(nTournament),
             new Last(),
             nPop,
@@ -222,7 +222,7 @@ public class TreeRegressionComparison extends Worker {
             diversityMaxAttempts
     ));
 
-    solvers.put("prolog-enfdiv-sel", p -> new StandardWithEnforcedDiversityEvolver<>(
+    solvers.put("prolog-tree-enfdiv-selection", p -> new StandardWithEnforcedDiversityEvolver<>(
             new OperatorGraphMapper().andThen(og -> new RealFunction() {
               @Override
               public double apply(double... input) {
@@ -233,10 +233,10 @@ public class TreeRegressionComparison extends Worker {
                 return og.toString();
               }
             }),
-            new PrologGraphFactory(minFactoryDim, maxFactoryDim, originGraph, factoryOperatorsSelection, domainDefinition, structuralRules),
+            new PrologGraphFactory(minTreeFactoryDim, maxTreeFactoryDim, treeOrigin, treeFactoryOperatorsSelection, treeDomain, structuralRules),
             nPop,
             StopConditions.nOfIterations(nIterations),
-            prologSelOperatorsMap,
+            treeSelOperatorsMap,
             new Tournament(nTournament),
             new Last(),
             nPop,
@@ -264,8 +264,8 @@ public class TreeRegressionComparison extends Worker {
                       vars(p.qualityFunction().arity())
               )).andThen(MathUtils.linearScaler(p.qualityFunction())),
               new RampedHalfAndHalf<>(
-                      minFactoryHeight,
-                      maxFactoryHeight,
+                      minTreeFactoryHeight,
+                      maxTreeFactoryHeight,
                       Element.Operator.arityFunction(),
                       IndependentFactory.picker(gpOperators),
                       terminalFactory
@@ -273,10 +273,10 @@ public class TreeRegressionComparison extends Worker {
               nPop,
               StopConditions.nOfIterations(nIterations),
               Map.of(
-                      new SubtreeCrossover<>(maxHeight),
+                      new SubtreeCrossover<>(maxTreeHeight),
                       0.8d,
                       new SubtreeMutation<>(
-                              maxHeight,
+                              maxTreeHeight,
                               new GrowTreeBuilder<>(
                                       Element.Operator.arityFunction(),
                                       IndependentFactory.picker(gpOperators),
@@ -345,8 +345,8 @@ public class TreeRegressionComparison extends Worker {
     return operatorsMap;
   }
 
-  private PrologGraph getOrigin() {
-    PrologGraph origin = new PrologGraph();
+  private PrologGraph getTreeOrigin() {
+    PrologGraph tree = new PrologGraph();
     LinkedHashMap<String, Object> node1 = new LinkedHashMap<>();
     node1.put("node_id", "first");
     node1.put("start", 1);
@@ -366,12 +366,12 @@ public class TreeRegressionComparison extends Worker {
     edge1.put("edge_id", "firstEdge");
     LinkedHashMap<String, Object> edge2 = new LinkedHashMap<>();
     edge2.put("edge_id", "secondEdge");
-    origin.addNode(node1);
-    origin.addNode(node2);
-    origin.addNode(node3);
-    origin.setArcValue(node2, node1, edge1);
-    origin.setArcValue(node3, node1, edge2);
-    return origin;
+    tree.addNode(node1);
+    tree.addNode(node2);
+    tree.addNode(node3);
+    tree.setArcValue(node2, node1, edge1);
+    tree.setArcValue(node3, node1, edge2);
+    return tree;
   }
 
   private static String[] vars(int n) {
