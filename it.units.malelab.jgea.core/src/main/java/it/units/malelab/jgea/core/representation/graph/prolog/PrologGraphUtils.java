@@ -201,7 +201,7 @@ public class PrologGraphUtils {
 
     // apply operator
     try {
-      Query.hasSolution(operator);
+      Query.allSolutions(operator);
     } catch (PrologException any) {
       return parent;
     }
