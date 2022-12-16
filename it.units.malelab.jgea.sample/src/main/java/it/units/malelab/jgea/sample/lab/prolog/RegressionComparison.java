@@ -51,25 +51,24 @@ public class RegressionComparison extends Worker {
   public void run() {
     final SymbolicRegressionFitness.Metric metric = SymbolicRegressionFitness.Metric.MSE;
 
-    // structuralRules
+    // Trees' structuralRules
     List<String> treeBaseRules;
     try (Stream<String> treeRulesPath = Files.lines(Paths.get("./prolog/trees/structuralRules.txt"))) {
       treeBaseRules = treeRulesPath.collect(Collectors.toList());
     } catch (IOException e) {
       throw new UnsupportedOperationException("Tree's structural rules not found in given path");
     }
-    // structuralRules
-    List<String> ffnnBaseRules = new ArrayList<>();
-//    List<String> ffnnBaseRules; //TODO uncomment here
-//    try (Stream<String> treeRulesPath = Files.lines(Paths.get("TODO"))) { //TODO
-//      ffnnBaseRules = treeRulesPath.collect(Collectors.toList());
-//      ffnnBaseRules.add(0, "max_weight(1.0).");
-//      ffnnBaseRules.add(0, "min_weight(0.0).");
-//      ffnnBaseRules.add(0, "n_output(1).");
-//
-//    } catch (IOException e) {
-//      throw new UnsupportedOperationException("Ffnn's structural rules not found in given path");
-//    }
+    // Ffnn's structuralRules
+    List<String> ffnnBaseRules;
+    try (Stream<String> ffnnRulesPath = Files.lines(Paths.get("./prolog/ffnn/structuralRules.txt"))) {
+      ffnnBaseRules = ffnnRulesPath.collect(Collectors.toList());
+      ffnnBaseRules.add(0, "max_weight(1.0).");
+      ffnnBaseRules.add(0, "min_weight(0.0).");
+      ffnnBaseRules.add(0, "n_output(1).");
+
+    } catch (IOException e) {
+      throw new UnsupportedOperationException("Ffnn's structural rules not found in given path");
+    }
 
     List<String> treeRulesInput1 = new ArrayList<>(treeBaseRules);
     treeRulesInput1.add(0, "n_input(1).");
@@ -142,11 +141,11 @@ public class RegressionComparison extends Worker {
     try {
       final List<String> treeFactorySelection = Arrays.asList("addSubTree.txt"); //selection
       for (String fileName : treeFactorySelection) {
-        treeFactoryOperatorsSelection.add(Files.readString(Path.of(treeOperatorsPath + "selection" + "/" + fileName)));
+        treeFactoryOperatorsSelection.add(Files.readString(Path.of(treeOperatorsPath + "selection/" + fileName)));
       }
       final List<String> treeFactoryOthers = Arrays.asList("innerSubTree.txt", "innerSubTree.txt"); //others
       for (String fileName : treeFactoryOthers) {
-        treeFactoryOperatorsAll.add(Files.readString(Path.of(treeOperatorsPath + "others" + "/" + fileName)));
+        treeFactoryOperatorsAll.add(Files.readString(Path.of(treeOperatorsPath + "others/" + fileName)));
       }
       treeFactoryOperatorsAll.addAll(treeFactoryOperatorsSelection);
     } catch (IOException any) {
@@ -162,24 +161,24 @@ public class RegressionComparison extends Worker {
             ":- dynamic edge/3.",
             ":- dynamic weight/2.");
     final String ffnnOperatorsPath = "./prolog/ffnn/operators/";
-    List<List<String>> ffnnPrologOperatorsSelection = getLabelledOperators(treeOperatorsPath + "selection");
-    List<List<String>> ffnnPrologOperatorsAll = getLabelledOperators(treeOperatorsPath + "others");
-    treePrologOperatorsAll.addAll(treePrologOperatorsSelection);
-    Map<GeneticOperator<PrologGraph>, Double> ffnnSelOperatorsMap = mapOperatorsEqualWeight(treePrologOperatorsSelection, treeDomain, treeStructuralRules);
-    Map<GeneticOperator<PrologGraph>, Double> ffnnAllOperatorsMap = mapOperatorsEqualWeight(treePrologOperatorsAll, treeDomain, treeStructuralRules);
+    List<List<String>> ffnnPrologOperatorsSelection = getLabelledOperators(ffnnOperatorsPath + "selection");
+    List<List<String>> ffnnPrologOperatorsAll = getLabelledOperators(ffnnOperatorsPath + "others");
+    ffnnPrologOperatorsAll.addAll(ffnnPrologOperatorsSelection);
+    Map<GeneticOperator<PrologGraph>, Double> ffnnSelOperatorsMap = mapOperatorsEqualWeight(ffnnPrologOperatorsSelection, ffnnDomain, ffnnStructuralRules);
+    Map<GeneticOperator<PrologGraph>, Double> ffnnAllOperatorsMap = mapOperatorsEqualWeight(ffnnPrologOperatorsAll, ffnnDomain, ffnnStructuralRules);
     // factories
     List<String> ffnnFactoryOperatorsAll = new ArrayList<>();
     List<String> ffnnFactoryOperatorsSelection = new ArrayList<>();
     try {
-      final List<String> treeFactorySelection = Arrays.asList(""); //selection //TODO
-      for (String fileName : treeFactorySelection) {
-        treeFactoryOperatorsSelection.add(Files.readString(Path.of(treeOperatorsPath + "selection" + "/" + fileName)));
+      final List<String> ffnnFactorySelection = Arrays.asList("addEdge.txt", "addFinalLayer.txt", "addInitialLayer.txt", "addNode.txt"); //selection
+      for (String fileName : ffnnFactorySelection) {
+        ffnnFactoryOperatorsSelection.add(Files.readString(Path.of(ffnnOperatorsPath + "selection/" + fileName)));
       }
-      final List<String> treeFactoryOthers = Arrays.asList(".txt", ".txt"); //others //TODO
-      for (String fileName : treeFactoryOthers) {
-        treeFactoryOperatorsAll.add(Files.readString(Path.of(treeOperatorsPath + "others" + "/" + fileName)));
+      final List<String> ffnnFactoryOthers = Arrays.asList("addConnectedNode.txt", "addNodeAndEdge.txt"); //others
+      for (String fileName : ffnnFactoryOthers) {
+        ffnnFactoryOperatorsAll.add(Files.readString(Path.of(ffnnOperatorsPath + "others/" + fileName)));
       }
-      treeFactoryOperatorsAll.addAll(treeFactoryOperatorsSelection);
+      ffnnFactoryOperatorsAll.addAll(ffnnFactoryOperatorsSelection);
     } catch (IOException any) {
       throw new UnsupportedOperationException("IOException in ffnn factories creation.");
     }
@@ -274,53 +273,53 @@ public class RegressionComparison extends Worker {
             diversityMaxAttempts
     ));
 
-//    solvers.put("prolog-ffnn-enfdiv-all", p -> new StandardWithEnforcedDiversityEvolver<>(
-//            new FunctionGraphMapper(BaseFunction.TANH).andThen(fg -> new RealFunction() {
-//              @Override
-//              public double apply(double... input) {
-//                return fg.apply(input)[0];
-//              }
-//
-//              public String toString() {
-//                return fg.toString();
-//              }
-//            }),
-//            new PrologGraphFactory(minFactoryDim, maxFactoryDim, ffnnOrigin, ffnnFactoryOperatorsAll, ffnnDomain, ffnnStructuralRules),
-//            nPop,
-//            StopConditions.nOfIterations(nIterations),
-//            ffnnAllOperatorsMap,
-//            new Tournament(nTournament),
-//            new Last(),
-//            nPop,
-//            true,
-//            false,
-//            (srp, r) -> new POSetPopulationState<>(),
-//            diversityMaxAttempts
-//    ));
-//
-//    solvers.put("prolog-ffnn-enfdiv-selection", p -> new StandardWithEnforcedDiversityEvolver<>(
-//            new FunctionGraphMapper(BaseFunction.TANH).andThen(fg -> new RealFunction() {
-//              @Override
-//              public double apply(double... input) {
-//                return fg.apply(input)[0];
-//              }
-//
-//              public String toString() {
-//                return fg.toString();
-//              }
-//            }),
-//            new PrologGraphFactory(minFactoryDim, maxFactoryDim, ffnnOrigin, ffnnFactoryOperatorsSelection, ffnnDomain, ffnnStructuralRules),
-//            nPop,
-//            StopConditions.nOfIterations(nIterations),
-//            ffnnSelOperatorsMap,
-//            new Tournament(nTournament),
-//            new Last(),
-//            nPop,
-//            true,
-//            false,
-//            (srp, r) -> new POSetPopulationState<>(),
-//            diversityMaxAttempts
-//    ));
+    solvers.put("prolog-ffnn-enfdiv-all", p -> new StandardWithEnforcedDiversityEvolver<>(
+            new FunctionGraphMapper(BaseFunction.TANH).andThen(fg -> new RealFunction() {
+              @Override
+              public double apply(double... input) {
+                return fg.apply(input)[0];
+              }
+
+              public String toString() {
+                return fg.toString();
+              }
+            }),
+            new PrologGraphFactory(minFactoryDim, maxFactoryDim, ffnnOrigin, ffnnFactoryOperatorsAll, ffnnDomain, ffnnStructuralRules),
+            nPop,
+            StopConditions.nOfIterations(nIterations),
+            ffnnAllOperatorsMap,
+            new Tournament(nTournament),
+            new Last(),
+            nPop,
+            true,
+            false,
+            (srp, r) -> new POSetPopulationState<>(),
+            diversityMaxAttempts
+    ));
+
+    solvers.put("prolog-ffnn-enfdiv-selection", p -> new StandardWithEnforcedDiversityEvolver<>(
+            new FunctionGraphMapper(BaseFunction.TANH).andThen(fg -> new RealFunction() {
+              @Override
+              public double apply(double... input) {
+                return fg.apply(input)[0];
+              }
+
+              public String toString() {
+                return fg.toString();
+              }
+            }),
+            new PrologGraphFactory(minFactoryDim, maxFactoryDim, ffnnOrigin, ffnnFactoryOperatorsSelection, ffnnDomain, ffnnStructuralRules),
+            nPop,
+            StopConditions.nOfIterations(nIterations),
+            ffnnSelOperatorsMap,
+            new Tournament(nTournament),
+            new Last(),
+            nPop,
+            true,
+            false,
+            (srp, r) -> new POSetPopulationState<>(),
+            diversityMaxAttempts
+    ));
 
     solvers.put("tree-gadiv", p -> {
       IndependentFactory<Element> terminalFactory = IndependentFactory.oneOf(
