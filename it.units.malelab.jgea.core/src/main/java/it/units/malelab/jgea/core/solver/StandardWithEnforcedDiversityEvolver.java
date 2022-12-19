@@ -39,7 +39,7 @@ import java.util.random.RandomGenerator;
 public class StandardWithEnforcedDiversityEvolver<T extends POSetPopulationState<G, S, Q>,
     P extends QualityBasedProblem<S, Q>, G, S, Q> extends StandardEvolver<T, P, G, S, Q> {
 
-  private final int maxAttempts;
+  protected final int maxAttempts;
 
   public StandardWithEnforcedDiversityEvolver(
       Function<? super G, ? extends S> solutionMapper,
