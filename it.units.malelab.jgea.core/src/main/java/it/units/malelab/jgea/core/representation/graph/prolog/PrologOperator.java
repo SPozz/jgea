@@ -10,7 +10,6 @@ public class PrologOperator implements Mutation<PrologGraph> {
   private final String operatorDescription;
   private final List<String> domainDefinition;
   private final List<String> structuralRules;
-
   private final String label;
 
   public PrologOperator(String label, String operatorDescription, List<String> domainDefinition, List<String> domainStructuralRules) {
