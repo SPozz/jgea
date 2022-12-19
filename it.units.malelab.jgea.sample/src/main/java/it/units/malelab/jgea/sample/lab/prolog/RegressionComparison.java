@@ -58,25 +58,25 @@ public class RegressionComparison extends Worker {
     } catch (IOException e) {
       throw new UnsupportedOperationException("Tree's structural rules not found in given path");
     }
-    // Ffnn's structuralRules
-    List<String> ffnnBaseRules;
-    try (Stream<String> ffnnRulesPath = Files.lines(Paths.get("./prolog/ffnn/structuralRules.txt"))) {
-      ffnnBaseRules = ffnnRulesPath.collect(Collectors.toList());
-      ffnnBaseRules.add(0, "max_weight(1.0).");
-      ffnnBaseRules.add(0, "min_weight(0.0).");
-      ffnnBaseRules.add(0, "n_output(1).");
-
-    } catch (IOException e) {
-      throw new UnsupportedOperationException("Ffnn's structural rules not found in given path");
-    }
+//    // Ffnn's structuralRules
+//    List<String> ffnnBaseRules;
+//    try (Stream<String> ffnnRulesPath = Files.lines(Paths.get("./prolog/ffnn/structuralRules.txt"))) {
+//      ffnnBaseRules = ffnnRulesPath.collect(Collectors.toList());
+//      ffnnBaseRules.add(0, "max_weight(1.0).");
+//      ffnnBaseRules.add(0, "min_weight(0.0).");
+//      ffnnBaseRules.add(0, "n_output(1).");
+//
+//    } catch (IOException e) {
+//      throw new UnsupportedOperationException("Ffnn's structural rules not found in given path");
+//    }
 
     List<String> treeRulesInput1 = new ArrayList<>(treeBaseRules);
     treeRulesInput1.add(0, "n_input(1).");
     treeRulesInput1.add(0, "max_const(2.0).");
     treeRulesInput1.add(0, "min_const(0.0).");
 
-    List<String> ffnnRulesInput1 = new ArrayList<>(ffnnBaseRules);
-    ffnnRulesInput1.add(0, "n_input(1).");
+//    List<String> ffnnRulesInput1 = new ArrayList<>(ffnnBaseRules);
+//    ffnnRulesInput1.add(0, "n_input(1).");
 
     List<SyntheticSymbolicRegressionProblem> problemsInput1 = List.of(
             new Polynomial2(metric),
@@ -84,23 +84,28 @@ public class RegressionComparison extends Worker {
             new Nguyen7(metric, 1),
             new Keijzer6(metric)
     );
-    runSameDomain(treeRulesInput1, ffnnRulesInput1, problemsInput1, "PolyNguyKeij.csv");
+//    runSameDomain(treeRulesInput1, ffnnRulesInput1, problemsInput1, "TESTPolyNguyKeij.csv");
+    runSameDomain(treeRulesInput1, new ArrayList<>(), problemsInput1, "PolyNguyKeij.csv");
 
     List<String> treeRulesInput5 = new ArrayList<>(treeBaseRules);
     treeRulesInput5.add(0, "n_input(5).");
     treeRulesInput5.add(0, "max_const(10.0).");
     treeRulesInput5.add(0, "min_const(0.0).");
-    List<String> ffnnRulesInput5 = new ArrayList<>(ffnnBaseRules);
-    ffnnRulesInput5.add(0, "n_input(5).");
-    runSameDomain(treeRulesInput5, ffnnRulesInput5, Arrays.asList(new Vladislavleva4(metric, 1)), "Vladislav.csv");
+//    List<String> ffnnRulesInput5 = new ArrayList<>(ffnnBaseRules);
+//    ffnnRulesInput5.add(0, "n_input(5).");
+//    runSameDomain(treeRulesInput5, ffnnRulesInput5, Arrays.asList(new Vladislavleva4(metric, 1)), "TESTVladislav.csv");
+    runSameDomain(treeRulesInput5, new ArrayList<>(), Arrays.asList(new Vladislavleva4(metric, 1)), "Vladislav.csv");
+
 
     List<String> treeRulesInput2 = new ArrayList<>(treeBaseRules);
     treeRulesInput2.add(0, "n_input(2).");
     treeRulesInput2.add(0, "max_const(2.0).");
     treeRulesInput2.add(0, "min_const(0.0).");
-    List<String> ffnnRulesInput2 = new ArrayList<>(ffnnBaseRules);
-    ffnnRulesInput2.add(0, "n_input(2).");
-    runSameDomain(treeRulesInput2, ffnnRulesInput2, Arrays.asList(new Pagie1(metric)), "Pagie.csv");
+//    List<String> ffnnRulesInput2 = new ArrayList<>(ffnnBaseRules);
+//    ffnnRulesInput2.add(0, "n_input(2).");
+//    runSameDomain(treeRulesInput2, ffnnRulesInput2, Arrays.asList(new Pagie1(metric)), "TESTPagie.csv");
+    runSameDomain(treeRulesInput2, new ArrayList<>(), Arrays.asList(new Pagie1(metric)), "Pagie.csv");
+
   }
 
   public void runSameDomain(List<String> treeStructuralRules, List<String> ffnnStructuralRules, List<SyntheticSymbolicRegressionProblem> problems, String filename) {
@@ -199,6 +204,9 @@ public class RegressionComparison extends Worker {
             fitnessMappingIteration().of(best()),
             fitness().reformat("%5.3f").of(best()),
             hist(8).of(each(fitness())).of(all()),
+            hist(8).of(each(size().of(genotype()))).of(all()),
+            max(Comparator.comparingDouble(Number::doubleValue)).reformat("%3d").of(each(size().of(genotype()))).of(all()),
+            min(Comparator.comparingDouble(Number::doubleValue)).reformat("%3d").of(each(size().of(genotype()))).of(all()),
             solution().reformat("%100.100s").of(best())
     );
 
@@ -273,53 +281,53 @@ public class RegressionComparison extends Worker {
             diversityMaxAttempts
     ));
 
-    solvers.put("prolog-ffnn-enfdiv-all", p -> new StandardWithEnforcedDiversityEvolver<>(
-            new FunctionGraphMapper(BaseFunction.TANH).andThen(fg -> new RealFunction() {
-              @Override
-              public double apply(double... input) {
-                return fg.apply(input)[0];
-              }
-
-              public String toString() {
-                return fg.toString();
-              }
-            }),
-            new PrologGraphFactory(minFactoryDim, maxFactoryDim, ffnnOrigin, ffnnFactoryOperatorsAll, ffnnDomain, ffnnStructuralRules),
-            nPop,
-            StopConditions.nOfIterations(nIterations),
-            ffnnAllOperatorsMap,
-            new Tournament(nTournament),
-            new Last(),
-            nPop,
-            true,
-            false,
-            (srp, r) -> new POSetPopulationState<>(),
-            diversityMaxAttempts
-    ));
-
-    solvers.put("prolog-ffnn-enfdiv-selection", p -> new StandardWithEnforcedDiversityEvolver<>(
-            new FunctionGraphMapper(BaseFunction.TANH).andThen(fg -> new RealFunction() {
-              @Override
-              public double apply(double... input) {
-                return fg.apply(input)[0];
-              }
-
-              public String toString() {
-                return fg.toString();
-              }
-            }),
-            new PrologGraphFactory(minFactoryDim, maxFactoryDim, ffnnOrigin, ffnnFactoryOperatorsSelection, ffnnDomain, ffnnStructuralRules),
-            nPop,
-            StopConditions.nOfIterations(nIterations),
-            ffnnSelOperatorsMap,
-            new Tournament(nTournament),
-            new Last(),
-            nPop,
-            true,
-            false,
-            (srp, r) -> new POSetPopulationState<>(),
-            diversityMaxAttempts
-    ));
+//    solvers.put("prolog-ffnn-enfdiv-all", p -> new StandardWithEnforcedDiversityEvolver<>(
+//            new FunctionGraphMapper(BaseFunction.TANH).andThen(fg -> new RealFunction() {
+//              @Override
+//              public double apply(double... input) {
+//                return fg.apply(input)[0];
+//              }
+//
+//              public String toString() {
+//                return fg.toString();
+//              }
+//            }),
+//            new PrologGraphFactory(minFactoryDim, maxFactoryDim, ffnnOrigin, ffnnFactoryOperatorsAll, ffnnDomain, ffnnStructuralRules),
+//            nPop,
+//            StopConditions.nOfIterations(nIterations),
+//            ffnnAllOperatorsMap,
+//            new Tournament(nTournament),
+//            new Last(),
+//            nPop,
+//            true,
+//            false,
+//            (srp, r) -> new POSetPopulationState<>(),
+//            diversityMaxAttempts
+//    ));
+//
+//    solvers.put("prolog-ffnn-enfdiv-selection", p -> new StandardWithEnforcedDiversityEvolver<>(
+//            new FunctionGraphMapper(BaseFunction.TANH).andThen(fg -> new RealFunction() {
+//              @Override
+//              public double apply(double... input) {
+//                return fg.apply(input)[0];
+//              }
+//
+//              public String toString() {
+//                return fg.toString();
+//              }
+//            }),
+//            new PrologGraphFactory(minFactoryDim, maxFactoryDim, ffnnOrigin, ffnnFactoryOperatorsSelection, ffnnDomain, ffnnStructuralRules),
+//            nPop,
+//            StopConditions.nOfIterations(nIterations),
+//            ffnnSelOperatorsMap,
+//            new Tournament(nTournament),
+//            new Last(),
+//            nPop,
+//            true,
+//            false,
+//            (srp, r) -> new POSetPopulationState<>(),
+//            diversityMaxAttempts
+//    ));
 
     solvers.put("tree-gadiv", p -> {
       IndependentFactory<Element> terminalFactory = IndependentFactory.oneOf(
