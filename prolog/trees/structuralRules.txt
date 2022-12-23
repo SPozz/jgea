@@ -3,7 +3,6 @@ operator_val(*).
 operator_val(-).
 operator_val(/).
 input_val(X) :- n_input(Max), integer(X), X>=0, X<Max.
-constant_val(X) :- max_const(Max), float(X), X>=0.0, X< Max.
 start_outdegree(S) :- findall(E, edge(S,_,E), RES), length(RES,N1), N1 == 0.
 node_outdegree(S) :- findall(E, edge(S,_,E), RES), length(RES,N1), N1 == 1.
 operator_indegree(T) :- findall(E, edge(_,T,E), RES), length(RES,N1), N1 == 2.
