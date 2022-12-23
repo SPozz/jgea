@@ -65,7 +65,7 @@ public class RegressionComparison extends Worker {
     try (Stream<String> ffnnRulesPath = Files.lines(Paths.get("./prolog/ffnn/structuralRules.txt"))) {
       ffnnBaseRules = ffnnRulesPath.collect(Collectors.toList());
       ffnnBaseRules.add(0, "max_weight(1.0).");
-      ffnnBaseRules.add(0, "min_weight(0.0).");
+      ffnnBaseRules.add(0, "min_weight(-1.0).");
       ffnnBaseRules.add(0, "n_output(1).");
 
     } catch (IOException e) {
