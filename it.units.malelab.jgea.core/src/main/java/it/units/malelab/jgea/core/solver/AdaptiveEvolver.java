@@ -12,7 +12,6 @@ import it.units.malelab.jgea.core.util.Misc;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.random.RandomGenerator;
@@ -137,16 +136,29 @@ public class AdaptiveEvolver<P extends QualityBasedProblem<S, Q>, G, S, Q> exten
   }
 
   private static <Q> List<PartialComparator.PartialComparatorOutcome> outcomes(List<Q> qParents, List<Q> qChildren, PartialComparator<Q> comparator) {
+    // TODO: check if it is done correctly
     // prodotto cartesiano
     // metti tutti i risultati
-
-    throw new UnsupportedOperationException("TODO");
+    List<PartialComparator.PartialComparatorOutcome> comparatorOutcomes = new ArrayList<>();
+    for (Q qParent : qParents)
+      for (Q qChild : qChildren)
+        comparatorOutcomes.add(comparator.compare(qParent, qChild));
+    return comparatorOutcomes;
   }
 
   private static double effectiveness(List<PartialComparator.PartialComparatorOutcome> outcomes) {
+    // TODO: check if it is done correctly
     // tanti before, male, tanti after, bene. Normalizzare (e.g. risultato tra -1 e 1)
     // trascura gli altri
-
-    throw new UnsupportedOperationException("TODO");
+    int nBefore = 0;
+    int nAfter = 0;
+    for (PartialComparator.PartialComparatorOutcome outcome : outcomes) {
+      if (outcome.equals(PartialComparator.PartialComparatorOutcome.BEFORE))
+        nBefore++;
+      else if (outcome.equals(PartialComparator.PartialComparatorOutcome.AFTER)) {
+        nAfter++;
+      }
+    }
+    return ((double) (nAfter - nBefore)) / (outcomes.size());
   }
 }
