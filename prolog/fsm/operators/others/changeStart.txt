@@ -1,0 +1,1 @@
+findall(N,start(N,0),NonStartBefore),findall(O,start(O,1),StartBefore),random_member(X,NonStartBefore),random_member(Y,StartBefore),retract(start(Y,1)),assert(start(Y,0)),retract(start(X,0)),assert(start(X,1)).

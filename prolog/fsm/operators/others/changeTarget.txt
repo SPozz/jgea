@@ -1,0 +1,1 @@
+findall(E,edge_id(E),EdgeIDs),random_member(F,EdgeIDs),findall(N,node_id(N),NodeIDs),random_member(M,NodeIDs),edge(S,_,F),(   edge(S,M,_) ->   true;	retract(edge(S,_,F)),	assert(edge(S,M,F))    ).

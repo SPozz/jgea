@@ -1,0 +1,1 @@
+findall(N,node_id(N), Nodes),random_member(M,Nodes),retract(accepting(M,_)),random_between(0,1,V),assert(accepting(M,V)).

@@ -1,0 +1,1 @@
+findall(EE,edge_id(EE),Ids),random_member(E,Ids),retract(input(E,_)),retract(edge(_,_,E)),retract(edge_id(E)).
