@@ -116,13 +116,21 @@ public class AdaptiveEvolver<P extends QualityBasedProblem<S, Q>, G, S, Q> exten
                     computeEffectiveness(problem, e.getValue(), state.getPopulation().all(), offspring)
             ))
             .toList();
+
     // given effectivenesses, apply change (ev. anche moltiplicando per 1+ effectivenees se valore con segno)
+    //TODO: check if it is correct and then reformat
+    for (Map.Entry<GeneticOperator<G>, Double> operatorChange : changes) {
+      GeneticOperator<G> operator = operatorChange.getKey();
+      double oldValue = operators.get(operator);
+      double effectiveness = operatorChange.getValue();
+      operators.put(operator, (1.0d + effectiveness) * oldValue);
+    }
+
     return offspring;
   }
 
   private double computeEffectiveness(P problem, List<OperatorApplication<G>> applications, Collection<Individual<G, S, Q>> parents, Collection<Individual<G, S, Q>> offspring) {
     // obtain list of comparison outcome
-    List<PartialComparator.PartialComparatorOutcome> outcomes;
     Map<G, Q> genotypeQualities = new IdentityHashMap<>();
     parents.forEach(i -> genotypeQualities.put(i.genotype(), i.fitness()));
     offspring.forEach(i -> genotypeQualities.put(i.genotype(), i.fitness()));
@@ -136,7 +144,7 @@ public class AdaptiveEvolver<P extends QualityBasedProblem<S, Q>, G, S, Q> exten
   }
 
   private static <Q> List<PartialComparator.PartialComparatorOutcome> outcomes(List<Q> qParents, List<Q> qChildren, PartialComparator<Q> comparator) {
-    // TODO: check if it is done correctly
+    //TODO: check if it is done correctly
     // prodotto cartesiano
     // metti tutti i risultati
     List<PartialComparator.PartialComparatorOutcome> comparatorOutcomes = new ArrayList<>();
@@ -147,7 +155,7 @@ public class AdaptiveEvolver<P extends QualityBasedProblem<S, Q>, G, S, Q> exten
   }
 
   private static double effectiveness(List<PartialComparator.PartialComparatorOutcome> outcomes) {
-    // TODO: check if it is done correctly
+    //TODO: check if it is done correctly
     // tanti before, male, tanti after, bene. Normalizzare (e.g. risultato tra -1 e 1)
     // trascura gli altri
     int nBefore = 0;
