@@ -1,0 +1,13 @@
+n_input(N) :- findall(X,input_val(X),Domain), length(Domain,N).
+accepting_domain(X) :- integer(X), X =< 1, X >= 0.
+start_domain(X) :- integer(X), X =< 1, X >= 0.
+check_start :- findall(N,start(N,1), N), length(N,N1), N1 == 1.
+check_accepting :- findall(N,accepting(N,1), N), length(N,N1), N1 >= 1.
+symbols(S) :- findall(X,(edge(S,_,ID),input(ID,X)),Inputs), flatten(Inputs,List), list_to_set(List,Set), List == Set.
+is_valid :- check_start, foreach(findall(N,node_id(N),Nodes),maplist(symbols,Nodes)),check_accepting.
+outdegree(S,LEN) :- findall(X,(edge(S,_,ID),input(ID,X)),Inputs), flatten(Inputs,K), length(K,LEN).
+random_pair(Z1,Z2,List) :- random_member(Z1,List),random_member(Z2,List),Z1 \== Z2.
+retract_list([X | Xs], P) :- Z =.. [P, X], retract(Z), retract_list(Xs, P).
+retract_list([], _) :- true.
+retract_list([X|Xs],P,S) :- Z=.. [P,X,S], retract(Z), retract_list(Xs,P,S).
+retract_list([],_,_) :- true.
