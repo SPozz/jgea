@@ -67,6 +67,7 @@ public class RegressionComparison extends Worker {
       ffnnBaseRules.add(0, "max_weight(1.0).");
       ffnnBaseRules.add(0, "min_weight(-1.0).");
       ffnnBaseRules.add(0, "n_output(1).");
+      ffnnBaseRules.add(0, "max_size(141).");
 
     } catch (IOException e) {
       throw new UnsupportedOperationException("Ffnn's structural rules not found in given path");
@@ -101,11 +102,11 @@ public class RegressionComparison extends Worker {
   }
 
   public void runSameDomain(List<String> treeStructuralRules, List<String> ffnnStructuralRules, List<SyntheticSymbolicRegressionProblem> problems, String filename) {
-    final int nPop = i(a("nPop", "100"));
+    final int nPop = i(a("nPop", "70"));
     final int nTournament = 5;
     final int diversityMaxAttempts = 100;
     final int nIterations = i(a("nIterations", "100"));
-    final int[] seeds = ri(a("seed", "0:50"));
+    final int[] seeds = ri(a("seed", "0:30"));
 
     Element.Operator[] gpOperators = new Element.Operator[]{Element.Operator.ADDITION, Element.Operator.SUBTRACTION,
             Element.Operator.MULTIPLICATION, Element.Operator.DIVISION};
