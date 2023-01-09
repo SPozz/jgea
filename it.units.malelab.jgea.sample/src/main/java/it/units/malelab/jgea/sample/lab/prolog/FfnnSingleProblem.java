@@ -121,7 +121,7 @@ public class FfnnSingleProblem implements Runnable {
                     )),
                     List.of()
             );
-    List<Integer> seeds = List.of(1, 2, 3, 4, 5);
+    List<Integer> seeds = List.of(1);//, 2, 3, 4, 5);
     SyntheticSymbolicRegressionProblem p = new Nguyen7(SymbolicRegressionFitness.Metric.MSE,1); //n_input(1)
 //    SyntheticSymbolicRegressionProblem p = new Pagie1(SymbolicRegressionFitness.Metric.MSE); //n_input(2)
 //    SyntheticSymbolicRegressionProblem p = new Vladislavleva4(SymbolicRegressionFitness.Metric.MSE,1); //n_input(5)
@@ -266,16 +266,18 @@ public class FfnnSingleProblem implements Runnable {
       throw new UnsupportedOperationException("IOException in main.");
     }
 
-    final double minWeight = 0.0;
+    final double minWeight = -1.0;
     final double maxWeight = 1.0;
     final int nInput = 1;
     final int nOutput = 1;
+    final int maxSize = 141;
+    structuralRules.add(0, "max_size(" + maxSize + ").");
     structuralRules.add(0, "max_weight(" + maxWeight + ").");
     structuralRules.add(0, "min_weight(" + minWeight + ").");
     structuralRules.add(0, "n_input(" + nInput + ").");
     structuralRules.add(0, "n_output(" + nOutput + ").");
 
-    new FfnnSingleProblem(5, 20, factoryOperators, operators, structuralRules).run();
+    new FfnnSingleProblem(5, 50, factoryOperators, operators, structuralRules).run();
   }
 
 }
