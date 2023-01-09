@@ -200,7 +200,7 @@ public class RegressionComparison extends Worker {
             hist(8).of(each(size().of(genotype()))).of(all()),
             max(Comparator.comparingDouble(Number::doubleValue)).reformat("%3d").of(each(size().of(genotype()))).of(all()),
             min(Comparator.comparingDouble(Number::doubleValue)).reformat("%3d").of(each(size().of(genotype()))).of(all()),
-            solution().reformat("%100.100s").of(best())
+            solution().reformat("%80.80s").of(best())
     );
 
     List<NamedFunction<? super Map<String, Object>, ?>> kFunctions = List.of(
