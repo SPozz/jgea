@@ -1,5 +1,6 @@
 package it.units.malelab.jgea.core.listener;
 
+import it.units.malelab.jgea.core.solver.AdaptiveEvolver;
 import it.units.malelab.jgea.core.solver.Individual;
 import it.units.malelab.jgea.core.solver.state.POSetPopulationState;
 import it.units.malelab.jgea.core.solver.state.State;
@@ -23,7 +24,7 @@ public class NamedFunctions {
   }
 
   public static <G, S, F> NamedFunction<POSetPopulationState<? extends G, ? extends S, ? extends F>, Collection<?
-      extends Individual<? extends G, ? extends S, ? extends F>>> all() {
+          extends Individual<? extends G, ? extends S, ? extends F>>> all() {
     return f("all", e -> e.getPopulation().all());
   }
 
@@ -45,7 +46,7 @@ public class NamedFunctions {
   }
 
   public static <G, S, F> NamedFunction<POSetPopulationState<? extends G, ? extends S, ? extends F>, Individual<?
-      extends G, ? extends S, ? extends F>> best() {
+          extends G, ? extends S, ? extends F>> best() {
     return f("best", e -> Misc.first(e.getPopulation().firsts()));
   }
 
@@ -66,21 +67,21 @@ public class NamedFunctions {
   }
 
   public static <T> NamedFunction<State, T> constant(
-      String name, String format, T value
+          String name, String format, T value
   ) {
     return f(name, format, e -> value);
   }
 
   public static <T> NamedFunction<State, T> constant(
-      String name, T value
+          String name, T value
   ) {
     return constant(name, NamedFunction.format(value.toString().length()), value);
   }
 
   public static <F, T> NamedFunction<Collection<? extends F>, Collection<T>> each(NamedFunction<F, T> mapper) {
     return f(
-        "each[" + mapper.getName() + "]",
-        individuals -> individuals.stream().map(mapper).collect(java.util.stream.Collectors.toList())
+            "each[" + mapper.getName() + "]",
+            individuals -> individuals.stream().map(mapper).collect(java.util.stream.Collectors.toList())
     );
   }
 
@@ -97,7 +98,7 @@ public class NamedFunctions {
   }
 
   public static <G, S, F> NamedFunction<POSetPopulationState<? extends G, ? extends S, ? extends F>, Collection<?
-      extends Individual<? extends G, ? extends S, ? extends F>>> firsts() {
+          extends Individual<? extends G, ? extends S, ? extends F>>> firsts() {
     return f("firsts", e -> e.getPopulation().firsts());
   }
 
@@ -124,10 +125,10 @@ public class NamedFunctions {
   @SuppressWarnings("unchecked")
   public static NamedFunction<Collection<? extends Number>, String> hist(int bins) {
     return f(
-        "hist",
-        NamedFunction.format(bins),
-        values -> TextPlotter.histogram(values instanceof List ? (List<? extends Number>) values : new ArrayList<>(
-            values), bins)
+            "hist",
+            NamedFunction.format(bins),
+            values -> TextPlotter.histogram(values instanceof List ? (List<? extends Number>) values : new ArrayList<>(
+                    values), bins)
     );
   }
 
@@ -136,7 +137,7 @@ public class NamedFunctions {
   }
 
   public static <G, S, F> NamedFunction<POSetPopulationState<? extends G, ? extends S, ? extends F>, Collection<?
-      extends Individual<? extends G, ? extends S, ? extends F>>> lasts() {
+          extends Individual<? extends G, ? extends S, ? extends F>>> lasts() {
     return f("lasts", e -> e.getPopulation().lasts());
   }
 
@@ -193,6 +194,35 @@ public class NamedFunctions {
 
   public static NamedFunction<Collection<?>, Double> uniqueness() {
     return f("uniqueness", "%4.2f", ts -> (double) ts.stream().distinct().count() / (double) ts.size());
+  }
+
+  public static NamedFunction<POSetPopulationState<?, ?, ?>, String> operatorsProbabilitiesPlot(int n) {
+    return NamedFunction.build(
+            "operators.probabilities",
+            "%" + n + "." + n + "s",
+            (POSetPopulationState<?, ?, ?> s) -> {
+              if (s instanceof AdaptiveEvolver.State<?, ?, ?> as) {
+                return TextPlotter.barplot(as.getOperators().values().stream().limit(n).toList());
+              }
+              return "";
+            }
+    );
+  }
+
+  public static NamedFunction<POSetPopulationState<?, ?, ?>, Double> operatorProbability(int n) {
+    return NamedFunction.build(
+            "operator.%d.probability".formatted(n),
+            "%5.3f",
+            (POSetPopulationState<?, ?, ?> s) -> {
+              if (s instanceof AdaptiveEvolver.State<?, ?, ?> as) {
+                if (as.getOperators().size() > n) {
+                  return as.getOperators().values().stream().toList().get(n);
+                }
+                return null;
+              }
+              return null;
+            }
+    );
   }
 
 }
