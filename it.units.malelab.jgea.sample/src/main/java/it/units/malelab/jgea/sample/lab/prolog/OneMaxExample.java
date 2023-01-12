@@ -56,12 +56,12 @@ public class OneMaxExample extends Worker {
   }
 
   public static void main(String[] args) throws FileNotFoundException {
-    new it.units.malelab.jgea.sample.Example(args);
+    new it.units.malelab.jgea.sample.lab.prolog.OneMaxExample(args);
   }
 
   @Override
   public void run() {
-    int maxIterations = 30;
+    int maxIterations = 50;
     int nPop = 100;
     int maxDiversityAttempts = 100;
     int nTournament = 5;
@@ -99,7 +99,7 @@ public class OneMaxExample extends Worker {
             new BitStringFactory(size),
             nPop,
             StopConditions.targetFitness(0d).or(StopConditions.nOfIterations(maxIterations)),
-            Map.of(new UniformCrossover<>(new BitStringFactory(size)), 0.8d, new BitFlipMutation(0.01d), 0.2d),
+            Map.of(new UniformCrossover<>(new BitStringFactory(size)), 1d, new BitFlipMutation(0.01d), 1d),
             new Tournament(nTournament),
             new Last(),
             nPop,
