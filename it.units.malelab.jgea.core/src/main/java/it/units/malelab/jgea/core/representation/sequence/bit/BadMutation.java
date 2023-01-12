@@ -9,8 +9,12 @@ public class BadMutation implements Mutation<BitString> {
   @Override
   public BitString mutate(BitString parent, RandomGenerator random) {
     BitString newG = BitString.copyOf(parent);
-    int index = random.nextInt(newG.size());
-    newG.set(index, false);
+    for (int index = 0; index < parent.size(); index++) {
+      if (parent.get(index).equals(true)) {
+        newG.set(index, false);
+        return newG;
+      }
+    }
     return newG;
   }
 
