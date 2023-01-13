@@ -66,7 +66,7 @@ public class OneMaxExample extends Worker {
     int maxDiversityAttempts = 100;
     int maxIterations = i(a("nIterations", "50"));
     int[] seeds = ri(a("seed", "0:100"));
-    int size = i(a("size", "5000"));
+    int size = i(a("size", "200"));
 
     Random r = new Random(1);
     QualityBasedProblem<BitString, Double> p = new OneMax();
@@ -144,7 +144,7 @@ public class OneMaxExample extends Worker {
           Stopwatch stopwatch = Stopwatch.createStarted();
           Map<String, Object> keys = Map.ofEntries(
                   Map.entry("seed", seed),
-                  Map.entry("evolver", evolver.getClass().getSimpleName()),
+                  Map.entry("evolver", evolver.toString().substring("it.units.malelab.jgea.sample.lab.prolog".length())),
                   Map.entry("size", size)
           );
 
