@@ -16,7 +16,6 @@ import it.units.malelab.jgea.problem.synthetic.OneMax;
 import it.units.malelab.jgea.sample.Worker;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
@@ -56,8 +55,8 @@ public class OneMaxExample extends Worker {
     super(args);
   }
 
-  public static void main(String[] args) throws FileNotFoundException {
-    new it.units.malelab.jgea.sample.lab.prolog.OneMaxExample(args);
+  public static void main(String[] args) {
+    new OneMaxExample(args);
   }
 
   @Override
