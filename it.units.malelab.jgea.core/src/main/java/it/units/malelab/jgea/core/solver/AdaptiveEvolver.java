@@ -52,11 +52,11 @@ public class AdaptiveEvolver<P extends QualityBasedProblem<S, Q>, G, S, Q> exten
   private record OperatorApplication<G>(List<G> parentGenotypes, List<G> childGenotypes) {
   }
 
-  Map<GeneticOperator<G>, Double> operatorProbabilities;
+//  Map<GeneticOperator<G>, Double> operatorProbabilities;
 
+  private final Function<Long, Double> probabilityVariationSchedule;
 
   public AdaptiveEvolver(
-          Map<GeneticOperator<G>, Double> initialProbability,
           Function<? super G, ? extends S> solutionMapper,
           Factory<? extends G> genotypeFactory,
           int populationSize,
@@ -67,12 +67,14 @@ public class AdaptiveEvolver<P extends QualityBasedProblem<S, Q>, G, S, Q> exten
           int offspringSize,
           boolean overlapping,
           boolean remap,
-          int maxAttempts
+          int maxAttempts,
+          Function<Long, Double> perturbFunction
   ) {
     super(solutionMapper, genotypeFactory, populationSize, stopCondition, operators, parentSelector, unsurvivalSelector, offspringSize, overlapping, remap,
             (p, r) -> new State<>(operators), maxAttempts
     );
-    this.operatorProbabilities = initialProbability;
+//    this.operatorProbabilities = initialProbability;
+    this.probabilityVariationSchedule = perturbFunction;
   }
 
   @Override
@@ -118,14 +120,16 @@ public class AdaptiveEvolver<P extends QualityBasedProblem<S, Q>, G, S, Q> exten
             .toList();
 
     // given effectivenesses, apply change (ev. anche moltiplicando per 1+ effectivenees se valore con segno)
-    //TODO: check if it is correct and then reformat
+    //TODO: check and then reformat
+    long iteration = state.getNOfIterations();
+    double epsilon = Math.min(Math.abs(probabilityVariationSchedule.apply(iteration)), 1d);
+
     for (Map.Entry<GeneticOperator<G>, Double> operatorChange : changes) {
       GeneticOperator<G> operator = operatorChange.getKey();
-      double oldValue = operators.get(operator);
+      double oldValue = state.getOperators().get(operator);
       double effectiveness = operatorChange.getValue();
-      operators.put(operator, (1.0d + effectiveness) * oldValue);
+      state.getOperators().put(operator, (1.0d + (effectiveness > 0 ? 1d : -1d) * epsilon) * oldValue);
     }
-
     return offspring;
   }
 
@@ -144,26 +148,30 @@ public class AdaptiveEvolver<P extends QualityBasedProblem<S, Q>, G, S, Q> exten
   }
 
   private static <Q> List<PartialComparator.PartialComparatorOutcome> outcomes(List<Q> qParents, List<Q> qChildren, PartialComparator<Q> comparator) {
-    //TODO: check if it is done correctly
     // prodotto cartesiano
     // metti tutti i risultati
+    // TODO: check
     List<PartialComparator.PartialComparatorOutcome> comparatorOutcomes = new ArrayList<>();
-    for (Q qParent : qParents)
-      for (Q qChild : qChildren)
+    for (Q qParent : qParents) {
+      for (Q qChild : qChildren) {
         comparatorOutcomes.add(comparator.compare(qParent, qChild));
+      }
+    }
     return comparatorOutcomes;
   }
 
   private static double effectiveness(List<PartialComparator.PartialComparatorOutcome> outcomes) {
-    //TODO: check if it is done correctly
     // tanti before, male, tanti after, bene. Normalizzare (e.g. risultato tra -1 e 1)
-    // trascura gli altri
+    // trascura gli altri(?)
+
+    // Nota: non sto trascurando gli altri, nel senso che sono considerati nella normalizzazione
+    //TODO: check
     int nBefore = 0;
     int nAfter = 0;
     for (PartialComparator.PartialComparatorOutcome outcome : outcomes) {
-      if (outcome.equals(PartialComparator.PartialComparatorOutcome.BEFORE))
+      if (outcome.equals(PartialComparator.PartialComparatorOutcome.BEFORE)) {
         nBefore++;
-      else if (outcome.equals(PartialComparator.PartialComparatorOutcome.AFTER)) {
+      } else if (outcome.equals(PartialComparator.PartialComparatorOutcome.AFTER)) {
         nAfter++;
       }
     }
