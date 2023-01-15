@@ -19,8 +19,6 @@ package it.units.malelab.jgea.sample.lab.prolog;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Sets;
 import it.units.malelab.jgea.core.QualityBasedProblem;
-import it.units.malelab.jgea.core.distance.Jaccard;
-import it.units.malelab.jgea.core.listener.CSVPrinter;
 import it.units.malelab.jgea.core.listener.ListenerFactory;
 import it.units.malelab.jgea.core.listener.NamedFunction;
 import it.units.malelab.jgea.core.listener.TabularPrinter;
@@ -28,32 +26,22 @@ import it.units.malelab.jgea.core.operator.Crossover;
 import it.units.malelab.jgea.core.operator.GeneticOperator;
 import it.units.malelab.jgea.core.operator.Mutation;
 import it.units.malelab.jgea.core.order.LexicoGraphical;
-import it.units.malelab.jgea.core.representation.grammar.cfggp.GrammarBasedSubtreeMutation;
-import it.units.malelab.jgea.core.representation.grammar.cfggp.GrammarRampedHalfAndHalf;
 import it.units.malelab.jgea.core.representation.graph.*;
 import it.units.malelab.jgea.core.representation.graph.finiteautomata.DeterministicFiniteAutomaton;
 import it.units.malelab.jgea.core.representation.graph.finiteautomata.Extractor;
 import it.units.malelab.jgea.core.representation.graph.finiteautomata.ShallowDFAFactory;
-import it.units.malelab.jgea.core.representation.graph.numeric.RealFunction;
 import it.units.malelab.jgea.core.representation.graph.prolog.PrologGraph;
 import it.units.malelab.jgea.core.representation.graph.prolog.PrologGraphFactory;
 import it.units.malelab.jgea.core.representation.graph.prolog.PrologOperator;
 import it.units.malelab.jgea.core.representation.graph.prolog.mapper.DeterministicFiniteAutomatonMapper;
-import it.units.malelab.jgea.core.representation.tree.SameRootSubtreeCrossover;
-import it.units.malelab.jgea.core.representation.tree.Tree;
 import it.units.malelab.jgea.core.selector.Last;
 import it.units.malelab.jgea.core.selector.Tournament;
 import it.units.malelab.jgea.core.solver.*;
-import it.units.malelab.jgea.core.solver.speciation.LazySpeciator;
-import it.units.malelab.jgea.core.solver.speciation.SpeciatedEvolver;
 import it.units.malelab.jgea.core.solver.state.POSetPopulationState;
 import it.units.malelab.jgea.core.util.Misc;
 import it.units.malelab.jgea.core.util.Pair;
 import it.units.malelab.jgea.problem.extraction.ExtractionFitness;
-import it.units.malelab.jgea.problem.extraction.string.RegexBasedExtractor;
 import it.units.malelab.jgea.problem.extraction.string.RegexExtractionProblem;
-import it.units.malelab.jgea.problem.extraction.string.RegexGrammar;
-import it.units.malelab.jgea.problem.symbolicregression.Element;
 import it.units.malelab.jgea.sample.Worker;
 
 import java.io.File;
@@ -93,15 +81,12 @@ public class ExtractionComparison extends Worker {
     final int nIterations = i(a("nIterations", "100"));
     final int[] seeds = ri(a("seed", "0:30"));
 
-    final int minFactoryDim = 5;
-    final int maxFactoryDim = 125;
+    final int minFactoryDim = 2;
+    final int maxFactoryDim = 52;
 
     ExtractionFitness.Metric[] metrics = new ExtractionFitness.Metric[]{ExtractionFitness.Metric.SYMBOL_WEIGHTED_ERROR};
     Map<String, RegexExtractionProblem> problems = Map.ofEntries(
-            Map.entry(
-                    "synthetic-2-5",
-                    RegexExtractionProblem.varAlphabet(2, 5, 1, metrics)
-            ),
+            Map.entry("synthetic-2-5", RegexExtractionProblem.varAlphabet(2, 5, 1, metrics)),
             Map.entry("synthetic-3-5", RegexExtractionProblem.varAlphabet(3, 5, 1, metrics)),
             Map.entry("synthetic-4-8", RegexExtractionProblem.varAlphabet(4, 8, 1, metrics)),
             Map.entry("synthetic-4-10", RegexExtractionProblem.varAlphabet(4, 10, 1, metrics))
@@ -110,6 +95,11 @@ public class ExtractionComparison extends Worker {
             Pair::second
     ));
 
+    double graphArcAdditionRate = 3d;
+    double graphArcMutationRate = 1d;
+    double graphArcRemovalRate = 0d;
+    double graphNodeAdditionRate = 1d;
+    double graphCrossoverRate = 1d;
 
     final PrologGraph fsmOrigin = getFsmOrigin();
     final List<String> fsmDomainDefinition = Arrays.asList(
@@ -127,7 +117,6 @@ public class ExtractionComparison extends Worker {
       for (int i = 0; i < nSymbols; ++i) {
         fsmStructuralRules.add(0, "input_val(" + i + ").");
       }
-
     } catch (IOException e) {
       throw new UnsupportedOperationException("Fsm structural rules not found in given path");
     }
@@ -143,11 +132,11 @@ public class ExtractionComparison extends Worker {
     List<String> fsmFactoryOperatorsAll = new ArrayList<>();
     List<String> fsmFactoryOperatorsSelection = new ArrayList<>();
     try {
-      final List<String> fsmFactorySelection = Arrays.asList("addEdge.txt", "addFinalLayer.txt", "addInitialLayer.txt", "addNode.txt"); //TODO: choose selection operators
+      final List<String> fsmFactorySelection = Arrays.asList("addNode.txt", "addTransition.txt");
       for (String fileName : fsmFactorySelection) {
         fsmFactoryOperatorsSelection.add(Files.readString(Path.of(fsmOperatorsPath + "selection/" + fileName)));
       }
-      final List<String> fsmFactoryOthers = Arrays.asList("addConnectedNode.txt", "addNodeAndEdge.txt"); //TODO: choose factory others
+      final List<String> fsmFactoryOthers = Arrays.asList("addConnectedNode.txt", "addNodeEdges.txt");
       for (String fileName : fsmFactoryOthers) {
         fsmFactoryOperatorsAll.add(Files.readString(Path.of(fsmOperatorsPath + "others/" + fileName)));
       }
@@ -172,6 +161,8 @@ public class ExtractionComparison extends Worker {
             size().of(solution()).of(best()),
             nth(0).reformat("%5.3f").of(fitness()).of(best()),
             fitnessMappingIteration().of(best()),
+            max(Comparator.comparingDouble(Number::doubleValue)).reformat("%3d").of(each(size().of(genotype()))).of(all()),
+            min(Comparator.comparingDouble(Number::doubleValue)).reformat("%3d").of(each(size().of(genotype()))).of(all()),
             solution().reformat("%30.30s").of(best())
     );
     List<NamedFunction<? super Map<String, Object>, ?>> kFunctions = List.of(
@@ -184,46 +175,114 @@ public class ExtractionComparison extends Worker {
             functions,
             kFunctions
     );
-    if (a("file", null) != null) {
-      listenerFactory = ListenerFactory.all(List.of(
-              listenerFactory,
-              new CSVPrinter<>(functions, kFunctions, new File("./prolog/results/FSM-extraction.csv"))
-      ));
-    }
+
     //evolvers
     Map<String, Function<RegexExtractionProblem, IterativeSolver<? extends POSetPopulationState<?,
             Extractor<Character>, List<Double>>, QualityBasedProblem<Extractor<Character>, List<Double>>,
             Extractor<Character>>>> solvers = new TreeMap<>();
 
-//    solvers.put("prolog-fsm-enfdiv-all", p -> new StandardWithEnforcedDiversityEvolver<>(
-//            new DeterministicFiniteAutomatonMapper().andThen(),//TODO: function here
-//            new PrologGraphFactory(minFactoryDim, maxFactoryDim, fsmOrigin, fsmFactoryOperatorsAll, fsmDomainDefinition, fsmStructuralRules),
-//            nPop,
-//            StopConditions.nOfIterations(nIterations),
-//            fsmAllOperatorsMap,
-//            new Tournament(nTournament),
-//            new Last(),
-//            nPop,
-//            true,
-//            false,
-//            (srp, rnd) -> new POSetPopulationState<>(),
-//            diversityMaxAttempts
-//    ));
-//
-//    solvers.put("prolog-fsm-enfdiv-selection", p -> new StandardWithEnforcedDiversityEvolver<>(
-//            new DeterministicFiniteAutomatonMapper().andThen(),//TODO: function here
-//            new PrologGraphFactory(minFactoryDim, maxFactoryDim, fsmOrigin, fsmFactoryOperatorsSelection, fsmDomainDefinition, fsmStructuralRules),
-//            nPop,
-//            StopConditions.nOfIterations(nIterations),
-//            fsmSelOperatorsMap,
-//            new Tournament(nTournament),
-//            new Last(),
-//            nPop,
-//            true,
-//            false,
-//            (srp, rnd) -> new POSetPopulationState<>(),
-//            diversityMaxAttempts
-//    ));
+    solvers.put("prolog-fsm-enfdiv-all", p -> new StandardWithEnforcedDiversityEvolver<>(
+            new DeterministicFiniteAutomatonMapper(),
+            new PrologGraphFactory(minFactoryDim, maxFactoryDim, fsmOrigin, fsmFactoryOperatorsAll, fsmDomainDefinition, fsmStructuralRules),
+            nPop,
+            StopConditions.nOfIterations(nIterations),
+            fsmAllOperatorsMap,
+            new Tournament(nTournament),
+            new Last(),
+            nPop,
+            true,
+            false,
+            (srp, rnd) -> new POSetPopulationState<>(),
+            diversityMaxAttempts
+    ));
+
+    solvers.put("prolog-fsm-enfdiv-selection", p -> new StandardWithEnforcedDiversityEvolver<>(
+            new DeterministicFiniteAutomatonMapper(),
+            new PrologGraphFactory(minFactoryDim, maxFactoryDim, fsmOrigin, fsmFactoryOperatorsSelection, fsmDomainDefinition, fsmStructuralRules),
+            nPop,
+            StopConditions.nOfIterations(nIterations),
+            fsmSelOperatorsMap,
+            new Tournament(nTournament),
+            new Last(),
+            nPop,
+            true,
+            false,
+            (srp, rnd) -> new POSetPopulationState<>(),
+            diversityMaxAttempts
+    ));
+
+    solvers.put("dfa-hash+-ga", p -> {
+      Function<Graph<IndexedNode<DeterministicFiniteAutomaton.State>, Set<Character>>,
+              Graph<DeterministicFiniteAutomaton.State, Set<Character>>> graphMapper =
+              GraphUtils.mapper(
+                      IndexedNode::content,
+                      sets -> sets.stream().reduce(Sets::union).orElse(Set.of())
+              );
+      Set<Character> positiveChars = p.qualityFunction()
+              .getDesiredExtractions()
+              .stream()
+              .map(r -> (Set<Character>) new HashSet<>(p.qualityFunction()
+                      .getSequence()
+                      .subList(r.lowerEndpoint(), r.upperEndpoint())))
+              .reduce(Sets::union)
+              .orElse(Set.of());
+      Predicate<Graph<DeterministicFiniteAutomaton.State, Set<Character>>> checker =
+              DeterministicFiniteAutomaton.checker();
+      return new StandardEvolver<>(
+              graphMapper.andThen(DeterministicFiniteAutomaton.builder()),
+              new ShallowDFAFactory<>(2, positiveChars).then(GraphUtils.mapper(IndexedNode.incrementerMapper(
+                      DeterministicFiniteAutomaton.State.class), Misc::first)),
+              nPop,
+              StopConditions.nOfIterations(nIterations),
+              Map.of(
+                      new IndexedNodeAddition<DeterministicFiniteAutomaton.State, DeterministicFiniteAutomaton.State,
+                              Set<Character>>(
+                              DeterministicFiniteAutomaton.sequentialStateFactory(2, 0.5),
+                              Node::getIndex,
+                              2,
+                              Mutation.copy(),
+                              Mutation.copy()
+                      ).withChecker(g -> checker.test(graphMapper.apply(g))),
+                      graphNodeAdditionRate,
+                      new ArcModification<IndexedNode<DeterministicFiniteAutomaton.State>, Set<Character>>((cs, r) -> {
+                        if (cs.size() == positiveChars.size()) {
+                          return Sets.difference(cs, Set.of(Misc.pickRandomly(cs, r)));
+                        }
+                        if (cs.size() <= 1) {
+                          return r.nextBoolean() ? Sets.union(
+                                  cs,
+                                  Sets.difference(positiveChars, cs)
+                          ) : Set.of(Misc.pickRandomly(positiveChars, r));
+                        }
+                        return r.nextBoolean() ? Sets.union(cs, Sets.difference(positiveChars, cs)) : Sets.difference(
+                                cs,
+                                Set.of(Misc.pickRandomly(cs, r))
+                        );
+                      }, 1d).withChecker(g -> checker.test(graphMapper.apply(g))),
+                      graphArcMutationRate,
+                      new ArcAddition<IndexedNode<DeterministicFiniteAutomaton.State>, Set<Character>>(r -> Set.of(Misc.pickRandomly(
+                              positiveChars,
+                              r
+                      )), true).withChecker(g -> checker.test(graphMapper.apply(g))),
+                      graphArcAdditionRate,
+                      new ArcRemoval<IndexedNode<DeterministicFiniteAutomaton.State>, Set<Character>>(s -> s.content()
+                              .getIndex() == 0).withChecker(g -> checker.test(graphMapper.apply(g))),
+                      graphArcRemovalRate,
+                      new AlignedCrossover<IndexedNode<DeterministicFiniteAutomaton.State>, Set<Character>>(
+                              Crossover.randomCopy(),
+                              s -> s.content().getIndex() == 0,
+                              false
+                      ).withChecker(g -> checker.test(graphMapper.apply(g))),
+                      graphCrossoverRate
+              ),
+              new Tournament(nTournament),
+              new Last(),
+              nPop,
+              true,
+              false,
+              (ep, r) -> new POSetPopulationState<>()
+      );
+    });
 
     //run
     for (int seed : seeds) {
@@ -264,6 +323,27 @@ public class ExtractionComparison extends Worker {
             L.severe(String.format("Cannot complete %s due to %s", keys, e));
             e.printStackTrace();
           }
+
+          /*
+          Map<PrologOperator, Integer> changes = stdEvolver.getChanges();
+          Map<PrologOperator, Integer> usages = stdEvolver.getUsage();
+          Set<PrologOperator> operatorsSet = changes.keySet();
+
+          double sum = 0d;
+          for (PrologOperator op : operatorsSet) {
+            sum += usages.get(op);
+          }
+
+          String leftAlignFormat = "| %-20s | %-5d | %-1.3f | %-5d | %-1.3f |%n";
+          System.out.format("+----------------------+-------+-------+-------+-------+%n");
+          System.out.format("| Operator             |  use  |   %%   |  chg  |   %%   |%n");
+          System.out.format("+----------------------+-------+-------+-------+-------+%n");
+          for (PrologOperator op : operatorsSet) {
+            System.out.printf(leftAlignFormat, op.getLabel(), usages.get(op), (double) usages.get(op) / sum, changes.get(op), ((double) changes.get(op)) / (usages.get(op)));
+          }
+          System.out.format("+----------------------+-------+-------+-------+-------+%n");
+          System.out.println("Total usages: " + (int) sum); */
+
         }
       }
     }
@@ -307,9 +387,8 @@ public class ExtractionComparison extends Worker {
   private Map<GeneticOperator<PrologGraph>, Double> mapOperatorsEqualWeight
           (List<List<String>> prologOperators, List<String> domainDefinition, List<String> structuralRules) {
     Map<GeneticOperator<PrologGraph>, Double> operatorsMap = new HashMap<>();
-    final double weightSel = 1.0d / prologOperators.size();
     for (List<String> op : prologOperators)
-      operatorsMap.put(new PrologOperator(op.get(0), op.get(1), domainDefinition, structuralRules), weightSel);
+      operatorsMap.put(new PrologOperator(op.get(0), op.get(1), domainDefinition, structuralRules), 1.0d);
     return operatorsMap;
   }
 }
