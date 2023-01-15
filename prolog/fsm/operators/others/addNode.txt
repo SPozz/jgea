@@ -1,1 +1,0 @@
-gensym(nod,N),assert(node_id(N)),random_between(0,1,INT),assert(accepting(N,INT)),assert(start(N,0)).
