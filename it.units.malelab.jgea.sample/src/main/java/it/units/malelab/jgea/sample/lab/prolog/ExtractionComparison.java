@@ -19,6 +19,7 @@ package it.units.malelab.jgea.sample.lab.prolog;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Sets;
 import it.units.malelab.jgea.core.QualityBasedProblem;
+import it.units.malelab.jgea.core.listener.CSVPrinter;
 import it.units.malelab.jgea.core.listener.ListenerFactory;
 import it.units.malelab.jgea.core.listener.NamedFunction;
 import it.units.malelab.jgea.core.listener.TabularPrinter;
@@ -82,7 +83,7 @@ public class ExtractionComparison extends Worker {
     final int[] seeds = ri(a("seed", "0:30"));
 
     final int minFactoryDim = 2;
-    final int maxFactoryDim = 52;
+    final int maxFactoryDim = 82;
 
     ExtractionFitness.Metric[] metrics = new ExtractionFitness.Metric[]{ExtractionFitness.Metric.SYMBOL_WEIGHTED_ERROR};
     Map<String, RegexExtractionProblem> problems = Map.ofEntries(
@@ -175,6 +176,10 @@ public class ExtractionComparison extends Worker {
             functions,
             kFunctions
     );
+    listenerFactory = ListenerFactory.all(List.of(
+            listenerFactory,
+            new CSVPrinter<>(functions, kFunctions, new File("./prolog/results/Fsm-Standard.csv"))
+    ));
 
     //evolvers
     Map<String, Function<RegexExtractionProblem, IterativeSolver<? extends POSetPopulationState<?,
