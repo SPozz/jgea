@@ -95,23 +95,29 @@ public class OneMaxExample extends Worker {
     Function<Long, Double> constantScheduleLow = x -> 0.001d;
     Function<Long, Double> stepScheduleInit = x -> x < maxIterations / 2 ? 0.01 : 0;
     Function<Long, Double> stepScheduleEnd = x -> x > maxIterations / 2 ? 0.01 : 0;
-    List<Function<Long, Double>> schedules = Arrays.asList(constantScheduleHigh, constantScheduleLow, stepScheduleInit, stepScheduleEnd, constantSchedulNull);
+//    List<Function<Long, Double>> schedules = Arrays.asList(constantScheduleHigh, constantScheduleLow, stepScheduleInit, stepScheduleEnd, constantSchedulNull);
 
-    solvers.add(new StandardWithEnforcedDiversityEvolver<POSetPopulationState<BitString, BitString, Double>,
-            QualityBasedProblem<BitString, Double>, BitString, BitString, Double>(
-            Function.identity(),
-            new BitStringFactory(size),
-            nPop,
-            StopConditions.targetFitness(0d).or(StopConditions.nOfIterations(maxIterations)),
-            Map.of(new UniformCrossover<>(new BitStringFactory(size)), 1d, new BitFlipMutation(0.01d), 1d),
-            new Tournament(nTournament),
-            new Last(),
-            nPop,
-            true,
-            false,
-            (problem, random) -> new POSetPopulationState<>(),
-            maxDiversityAttempts
-    ));
+
+    Function<Long, Double> constantScheduleVeryHigh = x -> 0.075d;
+    Function<Long, Double> stepScheduleInitHigh = x -> x < maxIterations / 2 ? 0.075 : 0;
+    Function<Long, Double> stepScheduleEndHigh = x -> x > maxIterations / 2 ? 0.075 : 0;
+    List<Function<Long, Double>> schedules = Arrays.asList(constantSchedulNull, constantScheduleVeryHigh, stepScheduleEndHigh, stepScheduleInitHigh);
+
+//    solvers.add(new StandardWithEnforcedDiversityEvolver<POSetPopulationState<BitString, BitString, Double>,
+//            QualityBasedProblem<BitString, Double>, BitString, BitString, Double>(
+//            Function.identity(),
+//            new BitStringFactory(size),
+//            nPop,
+//            StopConditions.targetFitness(0d).or(StopConditions.nOfIterations(maxIterations)),
+//            Map.of(new UniformCrossover<>(new BitStringFactory(size)), 1d, new BitFlipMutation(0.01d), 1d),
+//            new Tournament(nTournament),
+//            new Last(),
+//            nPop,
+//            true,
+//            false,
+//            (problem, random) -> new POSetPopulationState<>(),
+//            maxDiversityAttempts
+//    ));
 
     for (Function<Long, Double> schedule : schedules) {
       solvers.add(
