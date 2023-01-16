@@ -66,7 +66,7 @@ public class OneMaxExample extends Worker {
     int maxDiversityAttempts = 100;
     int maxIterations = i(a("nIterations", "50"));
     int[] seeds = ri(a("seed", "0:100"));
-    int size = i(a("size", "1000"));
+    int size = i(a("size", "200"));
 
     Random r = new Random(1);
     QualityBasedProblem<BitString, Double> p = new OneMax();
@@ -84,7 +84,7 @@ public class OneMaxExample extends Worker {
 
     listenerFactory = ListenerFactory.all(List.of(
             listenerFactory,
-            new CSVPrinter<>(functions, kFunctions, new File("./prolog/results/oneMax-" + size + ".csv"))
+            new CSVPrinter<>(functions, kFunctions, new File("./prolog/results/oneMax-test2-" + size + ".csv"))
     ));
 
 
