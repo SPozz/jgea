@@ -64,9 +64,9 @@ public class OneMaxExample extends Worker {
     int nPop = i(a("nPop", "100"));
     int nTournament = 5;
     int maxDiversityAttempts = 100;
-    int maxIterations = i(a("nIterations", "50"));
+    int maxIterations = i(a("nIterations", "250"));
     int[] seeds = ri(a("seed", "0:100"));
-    int size = i(a("size", "200"));
+    int size = i(a("size", "2500"));
 
     Random r = new Random(1);
     QualityBasedProblem<BitString, Double> p = new OneMax();
@@ -84,13 +84,13 @@ public class OneMaxExample extends Worker {
 
     listenerFactory = ListenerFactory.all(List.of(
             listenerFactory,
-            new CSVPrinter<>(functions, kFunctions, new File("./prolog/results/oneMax-test2-" + size + ".csv"))
+            new CSVPrinter<>(functions, kFunctions, new File("./prolog/results/oneMax-testLong-" + size + ".csv"))
     ));
 
 
     List<IterativeSolver<? extends POSetPopulationState<?, BitString, Double>, QualityBasedProblem<BitString, Double>
             , BitString>> solvers = new ArrayList<>();
-    Function<Long, Double> constantSchedulNull = x -> 0.0d;
+    Function<Long, Double> constantScheduleNull = x -> 0.0d;
     Function<Long, Double> constantScheduleHigh = x -> 0.025d;
     Function<Long, Double> constantScheduleLow = x -> 0.001d;
     Function<Long, Double> stepScheduleInit = x -> x < maxIterations / 2 ? 0.01 : 0;
@@ -101,7 +101,7 @@ public class OneMaxExample extends Worker {
     Function<Long, Double> constantScheduleVeryHigh = x -> 0.075d;
     Function<Long, Double> stepScheduleInitHigh = x -> x < maxIterations / 2 ? 0.075 : 0;
     Function<Long, Double> stepScheduleEndHigh = x -> x > maxIterations / 2 ? 0.075 : 0;
-    List<Function<Long, Double>> schedules = Arrays.asList(constantSchedulNull, constantScheduleVeryHigh, stepScheduleEndHigh, stepScheduleInitHigh);
+    List<Function<Long, Double>> schedules = Arrays.asList(constantScheduleNull, constantScheduleVeryHigh, stepScheduleEndHigh, stepScheduleInitHigh);
 
 //    solvers.add(new StandardWithEnforcedDiversityEvolver<POSetPopulationState<BitString, BitString, Double>,
 //            QualityBasedProblem<BitString, Double>, BitString, BitString, Double>(
