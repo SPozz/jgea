@@ -6,6 +6,7 @@ import it.units.malelab.jgea.core.listener.CSVPrinter;
 import it.units.malelab.jgea.core.listener.ListenerFactory;
 import it.units.malelab.jgea.core.listener.NamedFunction;
 import it.units.malelab.jgea.core.listener.TabularPrinter;
+import it.units.malelab.jgea.core.operator.GeneticOperator;
 import it.units.malelab.jgea.core.representation.sequence.UniformCrossover;
 import it.units.malelab.jgea.core.representation.sequence.bit.*;
 import it.units.malelab.jgea.core.selector.Last;
@@ -64,9 +65,9 @@ public class OneMaxExample extends Worker {
     int nPop = i(a("nPop", "100"));
     int nTournament = 5;
     int maxDiversityAttempts = 100;
-    int maxIterations = i(a("nIterations", "250"));
+    int maxIterations = i(a("nIterations", "100"));
     int[] seeds = ri(a("seed", "0:100"));
-    int size = i(a("size", "2500"));
+    int size = i(a("size", "200"));
 
     Random r = new Random(1);
     QualityBasedProblem<BitString, Double> p = new OneMax();
@@ -84,40 +85,44 @@ public class OneMaxExample extends Worker {
 
     listenerFactory = ListenerFactory.all(List.of(
             listenerFactory,
-            new CSVPrinter<>(functions, kFunctions, new File("./prolog/results/oneMax-testLong-" + size + ".csv"))
+            new CSVPrinter<>(functions, kFunctions, new File("./prolog/results/oneMax-test3-" + size + ".csv"))
     ));
 
 
     List<IterativeSolver<? extends POSetPopulationState<?, BitString, Double>, QualityBasedProblem<BitString, Double>
             , BitString>> solvers = new ArrayList<>();
     Function<Long, Double> constantScheduleNull = x -> 0.0d;
-    Function<Long, Double> constantScheduleHigh = x -> 0.025d;
-    Function<Long, Double> constantScheduleLow = x -> 0.001d;
-    Function<Long, Double> stepScheduleInit = x -> x < maxIterations / 2 ? 0.01 : 0;
-    Function<Long, Double> stepScheduleEnd = x -> x > maxIterations / 2 ? 0.01 : 0;
-//    List<Function<Long, Double>> schedules = Arrays.asList(constantScheduleHigh, constantScheduleLow, stepScheduleInit, stepScheduleEnd, constantSchedulNull);
+    Function<Long, Double> constantScheduleHigh = x -> 0.05d;                         // original: 0.0025
+    Function<Long, Double> constantScheduleLow = x -> 0.01d;                          // original: 0.001
+    Function<Long, Double> stepScheduleInit = x -> x < maxIterations / 2 ? 0.01 : 0;  // original 0.01
+    Function<Long, Double> stepScheduleEnd = x -> x > maxIterations / 2 ? 0.01 : 0;   // original 0.01
+    List<Function<Long, Double>> schedules = Arrays.asList(constantScheduleHigh, constantScheduleLow, stepScheduleInit, stepScheduleEnd, constantScheduleNull);
 
+    solvers.add(new StandardWithEnforcedDiversityEvolver<POSetPopulationState<BitString, BitString, Double>,
+            QualityBasedProblem<BitString, Double>, BitString, BitString, Double>(
+            Function.identity(),
+            new BitStringFactory(size),
+            nPop,
+            StopConditions.targetFitness(0d).or(StopConditions.nOfIterations(maxIterations)),
+            Map.of(new UniformCrossover<>(new BitStringFactory(size)), 1d, new BitFlipMutation(0.01d), 1d),
+            new Tournament(nTournament),
+            new Last(),
+            nPop,
+            true,
+            false,
+            (problem, random) -> new POSetPopulationState<>(),
+            maxDiversityAttempts
+    ));
 
-    Function<Long, Double> constantScheduleVeryHigh = x -> 0.075d;
-    Function<Long, Double> stepScheduleInitHigh = x -> x < maxIterations / 2 ? 0.075 : 0;
-    Function<Long, Double> stepScheduleEndHigh = x -> x > maxIterations / 2 ? 0.075 : 0;
-    List<Function<Long, Double>> schedules = Arrays.asList(constantScheduleNull, constantScheduleVeryHigh, stepScheduleEndHigh, stepScheduleInitHigh);
+    Map<GeneticOperator<BitString>, Double> operatorsMap = Map.ofEntries(
+            Map.entry(new UniformCrossover<>(new BitStringFactory(size)), 1d),
+            Map.entry(new BitFlipMutation(0.01d), 1d),
+            Map.entry(new BadMutation(), 1d),
+            Map.entry(new GoodMutation(), 1d)
+    );
+    TreeMap<GeneticOperator<BitString>, Double> operatorsTreeMap = new TreeMap<>(new OperatorsComparator<>());
+    operatorsTreeMap.putAll(operatorsMap);
 
-//    solvers.add(new StandardWithEnforcedDiversityEvolver<POSetPopulationState<BitString, BitString, Double>,
-//            QualityBasedProblem<BitString, Double>, BitString, BitString, Double>(
-//            Function.identity(),
-//            new BitStringFactory(size),
-//            nPop,
-//            StopConditions.targetFitness(0d).or(StopConditions.nOfIterations(maxIterations)),
-//            Map.of(new UniformCrossover<>(new BitStringFactory(size)), 1d, new BitFlipMutation(0.01d), 1d),
-//            new Tournament(nTournament),
-//            new Last(),
-//            nPop,
-//            true,
-//            false,
-//            (problem, random) -> new POSetPopulationState<>(),
-//            maxDiversityAttempts
-//    ));
 
     for (Function<Long, Double> schedule : schedules) {
       solvers.add(
@@ -126,12 +131,7 @@ public class OneMaxExample extends Worker {
                       new BitStringFactory(size),
                       nPop,
                       StopConditions.targetFitness(0d).or(StopConditions.nOfIterations(maxIterations)),
-                      Map.ofEntries(
-                              Map.entry(new UniformCrossover<>(new BitStringFactory(size)), 1d),
-                              Map.entry(new BitFlipMutation(0.01d), 1d),
-                              Map.entry(new BadMutation(), 1d),
-                              Map.entry(new GoodMutation(), 1d)
-                      ),
+                      operatorsTreeMap,
                       new Tournament(nTournament),
                       new Last(),
                       nPop,
@@ -173,7 +173,6 @@ public class OneMaxExample extends Worker {
         }
       }
     }
-
 
     listenerFactory.shutdown();
 
