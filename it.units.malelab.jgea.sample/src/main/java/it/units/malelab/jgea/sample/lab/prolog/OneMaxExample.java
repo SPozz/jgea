@@ -85,7 +85,7 @@ public class OneMaxExample extends Worker {
 
     listenerFactory = ListenerFactory.all(List.of(
             listenerFactory,
-            new CSVPrinter<>(functions, kFunctions, new File("./prolog/results/oneMax-test3-" + size + ".csv"))
+            new CSVPrinter<>(functions, kFunctions, new File("./prolog/results/oneMax-test4-adaptiveProgressive-" + size + ".csv"))
     ));
 
 

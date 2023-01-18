@@ -61,7 +61,7 @@ public class AdaptiveEvolver<P extends QualityBasedProblem<S, Q>, G, S, Q> exten
           int populationSize,
           Predicate<? super AdaptiveEvolver.State<G, S, Q>> stopCondition,
 //          Map<GeneticOperator<G>, Double> operators,
-          TreeMap<GeneticOperator<G>,Double> operators,
+          TreeMap<GeneticOperator<G>, Double> operators,
           Selector<? super Individual<? super G, ? super S, ? super Q>> parentSelector,
           Selector<? super Individual<? super G, ? super S, ? super Q>> unsurvivalSelector,
           int offspringSize,
@@ -122,7 +122,9 @@ public class AdaptiveEvolver<P extends QualityBasedProblem<S, Q>, G, S, Q> exten
     double epsilon = Math.min(Math.abs(probabilityVariationSchedule.apply(state.getNOfIterations())), 1d);
     for (Map.Entry<GeneticOperator<G>, Double> change : changes) {
       GeneticOperator<G> operator = change.getKey();
-      state.getOperators().put(operator, (1.0d + (change.getValue() > 0 ? 1d : -1d) * epsilon) * state.getOperators().get(operator));
+//      state.getOperators().put(operator, (1.0d + (change.getValue() > 0 ? 1d : -1d) * epsilon) * state.getOperators().get(operator));
+
+      state.getOperators().put(operator, (1.0d + change.getValue() * epsilon) * state.getOperators().get(operator)); //TODO: change here
     }
     return offspring;
   }
@@ -161,6 +163,7 @@ public class AdaptiveEvolver<P extends QualityBasedProblem<S, Q>, G, S, Q> exten
         nAfter++;
       }
     }
-    return nAfter - nBefore;
+//    return nAfter - nBefore;
+    return ((double) nAfter - nBefore) / outcomes.size(); //TODO: change here
   }
 }
