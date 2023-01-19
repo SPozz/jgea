@@ -76,6 +76,59 @@ public class ExtractionComparison extends Worker {
   }
 
   public void run() {
+    ExtractionFitness.Metric[] metrics = new ExtractionFitness.Metric[]{ExtractionFitness.Metric.SYMBOL_WEIGHTED_ERROR};
+    List<String> BaseRules;
+    try (Stream<String> fsmRulesPath = Files.lines(Paths.get("./prolog/fsm/structuralRules.txt"))) {
+      BaseRules = fsmRulesPath.collect(Collectors.toList());
+    } catch (IOException e) {
+      throw new UnsupportedOperationException("Fsm structural rules not found in given path");
+    }
+
+
+    int nSymbols = 2;
+    List<String> fsmStructuralRules2 = new ArrayList<>(BaseRules);
+    for (int i = 0; i < nSymbols; ++i) {
+      fsmStructuralRules2.add(0, "input_val(" + i + ").");
+    }
+    Map<String, RegexExtractionProblem> problems2 = Map.ofEntries(
+            Map.entry("synthetic-2-5", RegexExtractionProblem.varAlphabet(nSymbols, 5, 1, metrics))
+    ).entrySet().stream().map(e -> Pair.of(e.getKey(), e.getValue())).collect(Collectors.toMap(
+            Pair::first,
+            Pair::second
+    ));
+    runSameDomain(getFsmOrigin("[0,1]"), fsmStructuralRules2, problems2, metrics, "2symbols");
+
+
+    nSymbols = 3;
+    List<String> fsmStructuralRules3 = new ArrayList<>(BaseRules);
+    for (int i = 0; i < nSymbols; ++i) {
+      fsmStructuralRules3.add(0, "input_val(" + i + ").");
+    }
+    Map<String, RegexExtractionProblem> problems3 = Map.ofEntries(
+            Map.entry("synthetic-3-5", RegexExtractionProblem.varAlphabet(nSymbols, 5, 1, metrics))
+    ).entrySet().stream().map(e -> Pair.of(e.getKey(), e.getValue())).collect(Collectors.toMap(
+            Pair::first,
+            Pair::second
+    ));
+    runSameDomain(getFsmOrigin("[0,1,2]"), fsmStructuralRules3, problems3, metrics, "3symbols");
+
+
+    nSymbols = 4;
+    List<String> fsmStructuralRules4 = new ArrayList<>(BaseRules);
+    for (int i = 0; i < nSymbols; ++i) {
+      fsmStructuralRules4.add(0, "input_val(" + i + ").");
+    }
+    Map<String, RegexExtractionProblem> problems4 = Map.ofEntries(
+            Map.entry("synthetic-4-8", RegexExtractionProblem.varAlphabet(nSymbols, 8, 1, metrics)),
+            Map.entry("synthetic-4-10", RegexExtractionProblem.varAlphabet(nSymbols, 10, 1, metrics))
+    ).entrySet().stream().map(e -> Pair.of(e.getKey(), e.getValue())).collect(Collectors.toMap(
+            Pair::first,
+            Pair::second
+    ));
+    runSameDomain(getFsmOrigin("[0,1,2,3]"), fsmStructuralRules4, problems4, metrics, "4symbols");
+  }
+
+  private void runSameDomain(PrologGraph fsmOrigin, List<String> fsmStructuralRules, Map<String, RegexExtractionProblem> problems, ExtractionFitness.Metric[] metrics, String filename) {
     final int nPop = i(a("nPop", "70"));
     final int nTournament = 5;
     final int diversityMaxAttempts = 100;
@@ -85,24 +138,12 @@ public class ExtractionComparison extends Worker {
     final int minFactoryDim = 2;
     final int maxFactoryDim = 82;
 
-    ExtractionFitness.Metric[] metrics = new ExtractionFitness.Metric[]{ExtractionFitness.Metric.SYMBOL_WEIGHTED_ERROR};
-    Map<String, RegexExtractionProblem> problems = Map.ofEntries(
-            Map.entry("synthetic-2-5", RegexExtractionProblem.varAlphabet(2, 5, 1, metrics)),
-            Map.entry("synthetic-3-5", RegexExtractionProblem.varAlphabet(3, 5, 1, metrics)),
-            Map.entry("synthetic-4-8", RegexExtractionProblem.varAlphabet(4, 8, 1, metrics)),
-            Map.entry("synthetic-4-10", RegexExtractionProblem.varAlphabet(4, 10, 1, metrics))
-    ).entrySet().stream().map(e -> Pair.of(e.getKey(), e.getValue())).collect(Collectors.toMap(
-            Pair::first,
-            Pair::second
-    ));
-
     double graphArcAdditionRate = 3d;
     double graphArcMutationRate = 1d;
     double graphArcRemovalRate = 0d;
     double graphNodeAdditionRate = 1d;
     double graphCrossoverRate = 1d;
 
-    final PrologGraph fsmOrigin = getFsmOrigin();
     final List<String> fsmDomainDefinition = Arrays.asList(
             ":- dynamic node_id/1.",
             ":- dynamic start/2.",
@@ -110,17 +151,6 @@ public class ExtractionComparison extends Worker {
             ":- dynamic edge_id/1.",
             ":- dynamic edge/3.",
             ":- dynamic input/2.");
-
-    List<String> fsmStructuralRules;
-    try (Stream<String> fsmRulesPath = Files.lines(Paths.get("./prolog/fsm/structuralRules.txt"))) {
-      fsmStructuralRules = fsmRulesPath.collect(Collectors.toList());
-      final int nSymbols = 2;
-      for (int i = 0; i < nSymbols; ++i) {
-        fsmStructuralRules.add(0, "input_val(" + i + ").");
-      }
-    } catch (IOException e) {
-      throw new UnsupportedOperationException("Fsm structural rules not found in given path");
-    }
 
 
     final String fsmOperatorsPath = "./prolog/fsm/operators/";
@@ -178,7 +208,7 @@ public class ExtractionComparison extends Worker {
     );
     listenerFactory = ListenerFactory.all(List.of(
             listenerFactory,
-            new CSVPrinter<>(functions, kFunctions, new File("./prolog/results/Fsm-Standard.csv"))
+            new CSVPrinter<>(functions, kFunctions, new File("./prolog/results/Fsm-" + filename + ".csv"))
     ));
 
     //evolvers
@@ -356,7 +386,7 @@ public class ExtractionComparison extends Worker {
   }
 
 
-  private PrologGraph getFsmOrigin() {
+  private PrologGraph getFsmOrigin(String inputLoop) {
     PrologGraph fsm = new PrologGraph();
     LinkedHashMap<String, Object> node1 = new LinkedHashMap<>();
     node1.put("node_id", "first");
@@ -364,7 +394,7 @@ public class ExtractionComparison extends Worker {
     node1.put("accepting", 1);
     LinkedHashMap<String, Object> edge1 = new LinkedHashMap<>();
     edge1.put("edge_id", "loopEdge");
-    edge1.put("input", "[0,1]");
+    edge1.put("input", inputLoop);
     fsm.addNode(node1);
     fsm.setArcValue(node1, node1, edge1);
     return fsm;
