@@ -84,20 +84,20 @@ public class RegressionComparison extends Worker {
             new Nguyen7(metric, 1),
             new Keijzer6(metric)
     );
-    runSameDomain(treeRulesInput1, ffnnRulesInput1, problemsInput1, "Ffnn-PolyNguyKeij.csv");
+    runSameDomain(treeRulesInput1, ffnnRulesInput1, problemsInput1, "Adaptive-ConstantSchedule-PolyNguyKeij.csv");
 
     List<String> treeRulesInput5 = new ArrayList<>(treeBaseRules);
     treeRulesInput5.add(0, "n_input(5).");
     List<String> ffnnRulesInput5 = new ArrayList<>(ffnnBaseRules);
     ffnnRulesInput5.add(0, "n_input(5).");
-    runSameDomain(treeRulesInput5, ffnnRulesInput5, Arrays.asList(new Vladislavleva4(metric, 1)), "Ffnn-Vladislav.csv");
+    runSameDomain(treeRulesInput5, ffnnRulesInput5, Arrays.asList(new Vladislavleva4(metric, 1)), "Adaptive-ConstantSchedule-Vladislav.csv");
 
 
     List<String> treeRulesInput2 = new ArrayList<>(treeBaseRules);
     treeRulesInput2.add(0, "n_input(2).");
     List<String> ffnnRulesInput2 = new ArrayList<>(ffnnBaseRules);
     ffnnRulesInput2.add(0, "n_input(2).");
-    runSameDomain(treeRulesInput2, ffnnRulesInput2, Arrays.asList(new Pagie1(metric)), "Ffnn-Pagie.csv");
+    runSameDomain(treeRulesInput2, ffnnRulesInput2, Arrays.asList(new Pagie1(metric)), "Adaptive-ConstantSchedule-Pagie.csv");
 
   }
 
