@@ -101,7 +101,7 @@ public class RegressionComparison extends Worker {
 
   }
 
-  public void runSameDomain(List<String> treeStructuralRules, List<String> ffnnStructuralRules, List<SyntheticSymbolicRegressionProblem> problems, String filename) {
+  private void runSameDomain(List<String> treeStructuralRules, List<String> ffnnStructuralRules, List<SyntheticSymbolicRegressionProblem> problems, String filename) {
     final int nPop = i(a("nPop", "70"));
     final int nTournament = 5;
     final int diversityMaxAttempts = 100;
