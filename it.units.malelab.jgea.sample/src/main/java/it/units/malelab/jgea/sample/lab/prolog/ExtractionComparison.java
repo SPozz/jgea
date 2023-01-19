@@ -134,7 +134,6 @@ public class ExtractionComparison extends Worker {
     final int diversityMaxAttempts = 100;
     final int nIterations = i(a("nIterations", "100"));
     final int[] seeds = ri(a("seed", "0:30"));
-
     final int minFactoryDim = 2;
     final int maxFactoryDim = 82;
 
@@ -358,26 +357,6 @@ public class ExtractionComparison extends Worker {
             L.severe(String.format("Cannot complete %s due to %s", keys, e));
             e.printStackTrace();
           }
-
-          /*
-          Map<PrologOperator, Integer> changes = stdEvolver.getChanges();
-          Map<PrologOperator, Integer> usages = stdEvolver.getUsage();
-          Set<PrologOperator> operatorsSet = changes.keySet();
-
-          double sum = 0d;
-          for (PrologOperator op : operatorsSet) {
-            sum += usages.get(op);
-          }
-
-          String leftAlignFormat = "| %-20s | %-5d | %-1.3f | %-5d | %-1.3f |%n";
-          System.out.format("+----------------------+-------+-------+-------+-------+%n");
-          System.out.format("| Operator             |  use  |   %%   |  chg  |   %%   |%n");
-          System.out.format("+----------------------+-------+-------+-------+-------+%n");
-          for (PrologOperator op : operatorsSet) {
-            System.out.printf(leftAlignFormat, op.getLabel(), usages.get(op), (double) usages.get(op) / sum, changes.get(op), ((double) changes.get(op)) / (usages.get(op)));
-          }
-          System.out.format("+----------------------+-------+-------+-------+-------+%n");
-          System.out.println("Total usages: " + (int) sum); */
 
         }
       }
