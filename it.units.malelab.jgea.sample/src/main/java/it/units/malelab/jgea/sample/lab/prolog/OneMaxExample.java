@@ -66,7 +66,7 @@ public class OneMaxExample extends Worker {
     int nTournament = 5;
     int maxDiversityAttempts = 100;
     int maxIterations = i(a("nIterations", "100"));
-    int[] seeds = ri(a("seed", "0:100"));
+    int[] seeds = ri(a("seed", "0:1"));
     int size = i(a("size", "200"));
 
     Random r = new Random(1);
@@ -83,10 +83,10 @@ public class OneMaxExample extends Worker {
                     kFunctions
             );
 
-    listenerFactory = ListenerFactory.all(List.of(
-            listenerFactory,
-            new CSVPrinter<>(functions, kFunctions, new File("./prolog/results/oneMax-test4-adaptiveProgressive-" + size + ".csv"))
-    ));
+//    listenerFactory = ListenerFactory.all(List.of(
+//            listenerFactory,
+//            new CSVPrinter<>(functions, kFunctions, new File("./prolog/results/TESTING-onemax" + size + ".csv"))
+//    ));
 
 
     List<IterativeSolver<? extends POSetPopulationState<?, BitString, Double>, QualityBasedProblem<BitString, Double>
