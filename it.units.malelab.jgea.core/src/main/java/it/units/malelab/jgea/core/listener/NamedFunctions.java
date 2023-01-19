@@ -225,4 +225,15 @@ public class NamedFunctions {
     );
   }
 
+  public static NamedFunction<POSetPopulationState<?, ?, ?>, List<Double>> operatorsProbabilitiesAll() {
+    return f(
+            "all-operators-probabilities",
+            (POSetPopulationState<?, ?, ?> s) -> {
+              if (s instanceof AdaptiveEvolver.State<?, ?, ?> as) {
+                return as.getOperators().values().stream().toList();
+              }
+              return null;
+            });
+  }
+
 }
