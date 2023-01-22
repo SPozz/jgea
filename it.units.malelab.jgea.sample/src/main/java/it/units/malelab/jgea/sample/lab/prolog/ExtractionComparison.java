@@ -96,7 +96,7 @@ public class ExtractionComparison extends Worker {
             Pair::first,
             Pair::second
     ));
-    runSameDomain(getFsmOrigin("[0,1]"), fsmStructuralRules2, problems2, metrics, "2symbols");
+    runSameDomain(getFsmOrigin("[0,1]"), fsmStructuralRules2, problems2, metrics, "adaptive-constSchedule-2symbols");
 
 
     nSymbols = 3;
@@ -110,7 +110,7 @@ public class ExtractionComparison extends Worker {
             Pair::first,
             Pair::second
     ));
-    runSameDomain(getFsmOrigin("[0,1,2]"), fsmStructuralRules3, problems3, metrics, "3symbols");
+    runSameDomain(getFsmOrigin("[0,1,2]"), fsmStructuralRules3, problems3, metrics, "adaptive-constSchedule-3symbols");
 
 
     nSymbols = 4;
@@ -125,7 +125,7 @@ public class ExtractionComparison extends Worker {
             Pair::first,
             Pair::second
     ));
-    runSameDomain(getFsmOrigin("[0,1,2,3]"), fsmStructuralRules4, problems4, metrics, "4symbols");
+    runSameDomain(getFsmOrigin("[0,1,2,3]"), fsmStructuralRules4, problems4, metrics, "adaptive-constSchedule-4symbols");
   }
 
   private void runSameDomain(PrologGraph fsmOrigin, List<String> fsmStructuralRules, Map<String, RegexExtractionProblem> problems, ExtractionFitness.Metric[] metrics, String filename) {
