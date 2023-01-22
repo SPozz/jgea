@@ -215,108 +215,108 @@ public class ExtractionComparison extends Worker {
             Extractor<Character>, List<Double>>, QualityBasedProblem<Extractor<Character>, List<Double>>,
             Extractor<Character>>>> solvers = new TreeMap<>();
 
-//    solvers.put("prolog-fsm-enfdiv-all", p -> new StandardWithEnforcedDiversityEvolver<>(
-//            new DeterministicFiniteAutomatonMapper(),
-//            new PrologGraphFactory(minFactoryDim, maxFactoryDim, fsmOrigin, fsmFactoryOperatorsAll, fsmDomainDefinition, fsmStructuralRules),
-//            nPop,
-//            StopConditions.nOfIterations(nIterations),
-//            fsmAllOperatorsMap,
-//            new Tournament(nTournament),
-//            new Last(),
-//            nPop,
-//            true,
-//            false,
-//            (srp, rnd) -> new POSetPopulationState<>(),
-//            diversityMaxAttempts
-//    ));
-//
-//    solvers.put("prolog-fsm-enfdiv-selection", p -> new StandardWithEnforcedDiversityEvolver<>(
-//            new DeterministicFiniteAutomatonMapper(),
-//            new PrologGraphFactory(minFactoryDim, maxFactoryDim, fsmOrigin, fsmFactoryOperatorsSelection, fsmDomainDefinition, fsmStructuralRules),
-//            nPop,
-//            StopConditions.nOfIterations(nIterations),
-//            fsmSelOperatorsMap,
-//            new Tournament(nTournament),
-//            new Last(),
-//            nPop,
-//            true,
-//            false,
-//            (srp, rnd) -> new POSetPopulationState<>(),
-//            diversityMaxAttempts
-//    ));
-//
-//    solvers.put("dfa-hash+-ga", p -> {
-//      Function<Graph<IndexedNode<DeterministicFiniteAutomaton.State>, Set<Character>>,
-//              Graph<DeterministicFiniteAutomaton.State, Set<Character>>> graphMapper =
-//              GraphUtils.mapper(
-//                      IndexedNode::content,
-//                      sets -> sets.stream().reduce(Sets::union).orElse(Set.of())
-//              );
-//      Set<Character> positiveChars = p.qualityFunction()
-//              .getDesiredExtractions()
-//              .stream()
-//              .map(r -> (Set<Character>) new HashSet<>(p.qualityFunction()
-//                      .getSequence()
-//                      .subList(r.lowerEndpoint(), r.upperEndpoint())))
-//              .reduce(Sets::union)
-//              .orElse(Set.of());
-//      Predicate<Graph<DeterministicFiniteAutomaton.State, Set<Character>>> checker =
-//              DeterministicFiniteAutomaton.checker();
-//      return new StandardEvolver<>(
-//              graphMapper.andThen(DeterministicFiniteAutomaton.builder()),
-//              new ShallowDFAFactory<>(2, positiveChars).then(GraphUtils.mapper(IndexedNode.incrementerMapper(
-//                      DeterministicFiniteAutomaton.State.class), Misc::first)),
-//              nPop,
-//              StopConditions.nOfIterations(nIterations),
-//              Map.of(
-//                      new IndexedNodeAddition<DeterministicFiniteAutomaton.State, DeterministicFiniteAutomaton.State,
-//                              Set<Character>>(
-//                              DeterministicFiniteAutomaton.sequentialStateFactory(2, 0.5),
-//                              Node::getIndex,
-//                              2,
-//                              Mutation.copy(),
-//                              Mutation.copy()
-//                      ).withChecker(g -> checker.test(graphMapper.apply(g))),
-//                      graphNodeAdditionRate,
-//                      new ArcModification<IndexedNode<DeterministicFiniteAutomaton.State>, Set<Character>>((cs, r) -> {
-//                        if (cs.size() == positiveChars.size()) {
-//                          return Sets.difference(cs, Set.of(Misc.pickRandomly(cs, r)));
-//                        }
-//                        if (cs.size() <= 1) {
-//                          return r.nextBoolean() ? Sets.union(
-//                                  cs,
-//                                  Sets.difference(positiveChars, cs)
-//                          ) : Set.of(Misc.pickRandomly(positiveChars, r));
-//                        }
-//                        return r.nextBoolean() ? Sets.union(cs, Sets.difference(positiveChars, cs)) : Sets.difference(
-//                                cs,
-//                                Set.of(Misc.pickRandomly(cs, r))
-//                        );
-//                      }, 1d).withChecker(g -> checker.test(graphMapper.apply(g))),
-//                      graphArcMutationRate,
-//                      new ArcAddition<IndexedNode<DeterministicFiniteAutomaton.State>, Set<Character>>(r -> Set.of(Misc.pickRandomly(
-//                              positiveChars,
-//                              r
-//                      )), true).withChecker(g -> checker.test(graphMapper.apply(g))),
-//                      graphArcAdditionRate,
-//                      new ArcRemoval<IndexedNode<DeterministicFiniteAutomaton.State>, Set<Character>>(s -> s.content()
-//                              .getIndex() == 0).withChecker(g -> checker.test(graphMapper.apply(g))),
-//                      graphArcRemovalRate,
-//                      new AlignedCrossover<IndexedNode<DeterministicFiniteAutomaton.State>, Set<Character>>(
-//                              Crossover.randomCopy(),
-//                              s -> s.content().getIndex() == 0,
-//                              false
-//                      ).withChecker(g -> checker.test(graphMapper.apply(g))),
-//                      graphCrossoverRate
-//              ),
-//              new Tournament(nTournament),
-//              new Last(),
-//              nPop,
-//              true,
-//              false,
-//              (ep, r) -> new POSetPopulationState<>()
-//      );
-//    });
+    solvers.put("prolog-fsm-enfdiv-all", p -> new StandardWithEnforcedDiversityEvolver<>(
+            new DeterministicFiniteAutomatonMapper(),
+            new PrologGraphFactory(minFactoryDim, maxFactoryDim, fsmOrigin, fsmFactoryOperatorsAll, fsmDomainDefinition, fsmStructuralRules),
+            nPop,
+            StopConditions.nOfIterations(nIterations),
+            fsmAllOperatorsMap,
+            new Tournament(nTournament),
+            new Last(),
+            nPop,
+            true,
+            false,
+            (srp, rnd) -> new POSetPopulationState<>(),
+            diversityMaxAttempts
+    ));
+
+    solvers.put("prolog-fsm-enfdiv-selection", p -> new StandardWithEnforcedDiversityEvolver<>(
+            new DeterministicFiniteAutomatonMapper(),
+            new PrologGraphFactory(minFactoryDim, maxFactoryDim, fsmOrigin, fsmFactoryOperatorsSelection, fsmDomainDefinition, fsmStructuralRules),
+            nPop,
+            StopConditions.nOfIterations(nIterations),
+            fsmSelOperatorsMap,
+            new Tournament(nTournament),
+            new Last(),
+            nPop,
+            true,
+            false,
+            (srp, rnd) -> new POSetPopulationState<>(),
+            diversityMaxAttempts
+    ));
+
+    solvers.put("dfa-hash+-ga", p -> {
+      Function<Graph<IndexedNode<DeterministicFiniteAutomaton.State>, Set<Character>>,
+              Graph<DeterministicFiniteAutomaton.State, Set<Character>>> graphMapper =
+              GraphUtils.mapper(
+                      IndexedNode::content,
+                      sets -> sets.stream().reduce(Sets::union).orElse(Set.of())
+              );
+      Set<Character> positiveChars = p.qualityFunction()
+              .getDesiredExtractions()
+              .stream()
+              .map(r -> (Set<Character>) new HashSet<>(p.qualityFunction()
+                      .getSequence()
+                      .subList(r.lowerEndpoint(), r.upperEndpoint())))
+              .reduce(Sets::union)
+              .orElse(Set.of());
+      Predicate<Graph<DeterministicFiniteAutomaton.State, Set<Character>>> checker =
+              DeterministicFiniteAutomaton.checker();
+      return new StandardEvolver<>(
+              graphMapper.andThen(DeterministicFiniteAutomaton.builder()),
+              new ShallowDFAFactory<>(2, positiveChars).then(GraphUtils.mapper(IndexedNode.incrementerMapper(
+                      DeterministicFiniteAutomaton.State.class), Misc::first)),
+              nPop,
+              StopConditions.nOfIterations(nIterations),
+              Map.of(
+                      new IndexedNodeAddition<DeterministicFiniteAutomaton.State, DeterministicFiniteAutomaton.State,
+                              Set<Character>>(
+                              DeterministicFiniteAutomaton.sequentialStateFactory(2, 0.5),
+                              Node::getIndex,
+                              2,
+                              Mutation.copy(),
+                              Mutation.copy()
+                      ).withChecker(g -> checker.test(graphMapper.apply(g))),
+                      graphNodeAdditionRate,
+                      new ArcModification<IndexedNode<DeterministicFiniteAutomaton.State>, Set<Character>>((cs, r) -> {
+                        if (cs.size() == positiveChars.size()) {
+                          return Sets.difference(cs, Set.of(Misc.pickRandomly(cs, r)));
+                        }
+                        if (cs.size() <= 1) {
+                          return r.nextBoolean() ? Sets.union(
+                                  cs,
+                                  Sets.difference(positiveChars, cs)
+                          ) : Set.of(Misc.pickRandomly(positiveChars, r));
+                        }
+                        return r.nextBoolean() ? Sets.union(cs, Sets.difference(positiveChars, cs)) : Sets.difference(
+                                cs,
+                                Set.of(Misc.pickRandomly(cs, r))
+                        );
+                      }, 1d).withChecker(g -> checker.test(graphMapper.apply(g))),
+                      graphArcMutationRate,
+                      new ArcAddition<IndexedNode<DeterministicFiniteAutomaton.State>, Set<Character>>(r -> Set.of(Misc.pickRandomly(
+                              positiveChars,
+                              r
+                      )), true).withChecker(g -> checker.test(graphMapper.apply(g))),
+                      graphArcAdditionRate,
+                      new ArcRemoval<IndexedNode<DeterministicFiniteAutomaton.State>, Set<Character>>(s -> s.content()
+                              .getIndex() == 0).withChecker(g -> checker.test(graphMapper.apply(g))),
+                      graphArcRemovalRate,
+                      new AlignedCrossover<IndexedNode<DeterministicFiniteAutomaton.State>, Set<Character>>(
+                              Crossover.randomCopy(),
+                              s -> s.content().getIndex() == 0,
+                              false
+                      ).withChecker(g -> checker.test(graphMapper.apply(g))),
+                      graphCrossoverRate
+              ),
+              new Tournament(nTournament),
+              new Last(),
+              nPop,
+              true,
+              false,
+              (ep, r) -> new POSetPopulationState<>()
+      );
+    });
 
     //adaptive evolvers
     Function<Long, Double> constSchedule = x -> 0.01d;
