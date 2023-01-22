@@ -318,6 +318,39 @@ public class ExtractionComparison extends Worker {
       );
     });
 
+    //adaptive evolvers
+    Function<Long, Double> constSchedule = x -> 0.01d;
+
+    solvers.put("prolog-fsm-adaptive-constSch-all", p -> new AdaptiveEvolver<>(
+            new DeterministicFiniteAutomatonMapper(),
+            new PrologGraphFactory(minFactoryDim, maxFactoryDim, fsmOrigin, fsmFactoryOperatorsAll, fsmDomainDefinition, fsmStructuralRules),
+            nPop,
+            StopConditions.nOfIterations(nIterations),
+            fsmAllOperatorsMap,
+            new Tournament(nTournament),
+            new Last(),
+            nPop,
+            true,
+            false,
+            diversityMaxAttempts,
+            constSchedule
+    ));
+
+    solvers.put("prolog-fsm-adaptive-constSch-selection", p -> new AdaptiveEvolver<>(
+            new DeterministicFiniteAutomatonMapper(),
+            new PrologGraphFactory(minFactoryDim, maxFactoryDim, fsmOrigin, fsmFactoryOperatorsSelection, fsmDomainDefinition, fsmStructuralRules),
+            nPop,
+            StopConditions.nOfIterations(nIterations),
+            fsmSelOperatorsMap,
+            new Tournament(nTournament),
+            new Last(),
+            nPop,
+            true,
+            false,
+            diversityMaxAttempts,
+            constSchedule
+    ));
+
     //run
     for (int seed : seeds) {
       for (Map.Entry<String, RegexExtractionProblem> problemEntry : problems.entrySet()) {
