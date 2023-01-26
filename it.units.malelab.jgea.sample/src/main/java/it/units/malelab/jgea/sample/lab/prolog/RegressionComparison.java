@@ -83,20 +83,20 @@ public class RegressionComparison extends Worker {
             new Nguyen7(metric, 1),
             new Keijzer6(metric)
     );
-    runSameDomain(treeRulesInput1, ffnnRulesInput1, problemsInput1, 1, "Trees-adaptive33-constant-ranking-linearScaling-PolyNguyKeij.csv");
+    runSameDomain(treeRulesInput1, ffnnRulesInput1, problemsInput1, 1, "Trees-adaptive50-constant-ranking-linearScaling-PolyNguyKeij.csv");
 
     List<String> treeRulesInput5 = new ArrayList<>(treeBaseRules);
     treeRulesInput5.add(0, "n_input(5).");
     List<String> ffnnRulesInput5 = new ArrayList<>(ffnnBaseRules);
     ffnnRulesInput5.add(0, "n_input(5).");
-    runSameDomain(treeRulesInput5, ffnnRulesInput5, Arrays.asList(new Vladislavleva4(metric, 1)), 5, "Trees-adaptive33-constant-ranking-linearScaling-Vladislav.csv");
+    runSameDomain(treeRulesInput5, ffnnRulesInput5, Arrays.asList(new Vladislavleva4(metric, 1)), 5, "Trees-adaptive50-constant-ranking-linearScaling-Vladislav.csv");
 
 
     List<String> treeRulesInput2 = new ArrayList<>(treeBaseRules);
     treeRulesInput2.add(0, "n_input(2).");
     List<String> ffnnRulesInput2 = new ArrayList<>(ffnnBaseRules);
     ffnnRulesInput2.add(0, "n_input(2).");
-    runSameDomain(treeRulesInput2, ffnnRulesInput2, Arrays.asList(new Pagie1(metric)), 2, "Trees-adaptive33-constant-ranking-linearScaling-Pagie.csv");
+    runSameDomain(treeRulesInput2, ffnnRulesInput2, Arrays.asList(new Pagie1(metric)), 2, "Trees-adaptive50-constant-ranking-linearScaling-Pagie.csv");
   }
 
   private void runSameDomain(List<String> treeStructuralRules, List<String> ffnnStructuralRules, List<SyntheticSymbolicRegressionProblem> problems, int nInput, String filename) {

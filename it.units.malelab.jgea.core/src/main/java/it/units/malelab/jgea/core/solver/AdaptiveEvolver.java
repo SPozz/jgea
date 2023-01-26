@@ -120,9 +120,9 @@ public class AdaptiveEvolver<P extends QualityBasedProblem<S, Q>, G, S, Q> exten
             ))
             .sorted(Comparator.comparingDouble(GradedOperator::grade))
             .toList();
-    gradedOperators.subList(0, gradedOperators.size() / 3)
+    gradedOperators.subList(0, gradedOperators.size() / 2)
             .forEach(o -> state.getOperators().put(o.operator(), (1.0d - epsilon) * state.getOperators().get(o.operator())));
-    gradedOperators.subList(0, 2 * gradedOperators.size() / 3)
+    gradedOperators.subList(0,  gradedOperators.size() / 2)
             .forEach(o -> state.getOperators().put(o.operator(), (1.0d + epsilon) * state.getOperators().get(o.operator())));
 
     return offspring;
