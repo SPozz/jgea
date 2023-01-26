@@ -122,7 +122,7 @@ public class AdaptiveEvolver<P extends QualityBasedProblem<S, Q>, G, S, Q> exten
             .toList();
     gradedOperators.subList(0, gradedOperators.size() / 2)
             .forEach(o -> state.getOperators().put(o.operator(), (1.0d - epsilon) * state.getOperators().get(o.operator())));
-    gradedOperators.subList(0,  gradedOperators.size() / 2)
+    gradedOperators.subList(gradedOperators.size() / 2, gradedOperators.size())
             .forEach(o -> state.getOperators().put(o.operator(), (1.0d + epsilon) * state.getOperators().get(o.operator())));
 
     return offspring;
