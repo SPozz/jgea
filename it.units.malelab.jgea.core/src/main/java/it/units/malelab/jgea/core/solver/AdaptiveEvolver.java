@@ -110,19 +110,21 @@ public class AdaptiveEvolver<P extends QualityBasedProblem<S, Q>, G, S, Q> exten
     }
     List<Individual<G, S, Q>> offspring = map(offspringGenotypes, List.of(), solutionMapper, problem.qualityFunction(), executor, state);
     //update operators map
-    List<Map.Entry<GeneticOperator<G>, Double>> changes = operatorApplications.entrySet().stream()
-            .map(e -> Map.entry(
+    double epsilon = Math.min(Math.abs(probabilityVariationSchedule.apply(state.getNOfIterations())), 1d);
+    record GradedOperator<G>(GeneticOperator<G> operator, double grade) {
+    }
+    List<GradedOperator<G>> gradedOperators = operatorApplications.entrySet().stream()
+            .map(e -> new GradedOperator<>(
                     e.getKey(),
                     computeEffectiveness(problem, e.getValue(), state.getPopulation().all(), offspring)
             ))
+            .sorted(Comparator.comparingDouble(GradedOperator::grade))
             .toList();
+    gradedOperators.subList(0, gradedOperators.size() / 3)
+            .forEach(o -> state.getOperators().put(o.operator(), (1.0d - epsilon) * state.getOperators().get(o.operator())));
+    gradedOperators.subList(0, 2 * gradedOperators.size() / 3)
+            .forEach(o -> state.getOperators().put(o.operator(), (1.0d + epsilon) * state.getOperators().get(o.operator())));
 
-    // given effectivenesses, apply change
-    double epsilon = Math.min(Math.abs(probabilityVariationSchedule.apply(state.getNOfIterations())), 1d);
-    for (Map.Entry<GeneticOperator<G>, Double> change : changes) {
-      GeneticOperator<G> operator = change.getKey();
-      state.getOperators().put(operator, (1.0d + (change.getValue() > 0 ? 1d : -1d) * epsilon) * state.getOperators().get(operator));
-    }
     return offspring;
   }
 
@@ -151,15 +153,12 @@ public class AdaptiveEvolver<P extends QualityBasedProblem<S, Q>, G, S, Q> exten
   }
 
   private static double effectiveness(List<PartialComparator.PartialComparatorOutcome> outcomes) {
-    int nBefore = 0;
     int nAfter = 0;
     for (PartialComparator.PartialComparatorOutcome outcome : outcomes) {
-      if (outcome.equals(PartialComparator.PartialComparatorOutcome.BEFORE)) {
-        nBefore++;
-      } else if (outcome.equals(PartialComparator.PartialComparatorOutcome.AFTER)) {
+      if (outcome.equals(PartialComparator.PartialComparatorOutcome.AFTER)) {
         nAfter++;
       }
     }
-    return nAfter - nBefore;
+    return ((double) nAfter) / outcomes.size();
   }
 }
