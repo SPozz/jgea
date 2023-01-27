@@ -212,7 +212,7 @@ public class ExtractionComparison extends Worker {
     );
     listenerFactory = ListenerFactory.all(List.of(
             listenerFactory,
-            new CSVPrinter<>(functions, kFunctions, new File("./prolog/results/Fsm-" + filename + ".csv"))
+            new CSVPrinter<>(functions, kFunctions, new File("./prolog/results/" + filename + ".csv"))
     ));
 
     //evolvers
