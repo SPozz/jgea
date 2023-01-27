@@ -225,12 +225,15 @@ public class NamedFunctions {
     );
   }
 
-  public static NamedFunction<POSetPopulationState<?, ?, ?>, List<Double>> operatorsProbabilitiesAll() {
+  public static NamedFunction<POSetPopulationState<?, ?, ?>, List<Map.Entry<String, Double>>> operatorsProbabilitiesAll() {
     return f(
             "all-operators-probabilities",
             (POSetPopulationState<?, ?, ?> s) -> {
               if (s instanceof AdaptiveEvolver.State<?, ?, ?> as) {
-                return as.getOperators().values().stream().toList();
+                return as.getOperators().entrySet().stream()
+                        .map(e -> Map.entry(e.getKey().toString(), e.getValue()))
+                        .sorted(Map.Entry.comparingByKey(String::compareTo))
+                        .toList();
               }
               return null;
             });
