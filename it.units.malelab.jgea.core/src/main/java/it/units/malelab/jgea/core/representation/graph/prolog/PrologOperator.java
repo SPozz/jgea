@@ -27,4 +27,11 @@ public class PrologOperator implements Mutation<PrologGraph> {
   public String getLabel() {
     return this.label;
   }
+
+  @Override
+  public String toString() {
+    return "PrologOperator{" +
+            label +
+            '}';
+  }
 }
