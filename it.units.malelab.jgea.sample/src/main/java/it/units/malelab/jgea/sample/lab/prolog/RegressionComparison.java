@@ -447,29 +447,29 @@ public class RegressionComparison extends Worker {
             constSchedule
     ));
 
-    solvers.put("prolog-ffnn-adpt-constSch-selOpts", p -> new AdaptiveEvolver<>(
-            (new FunctionGraphMapper(BaseFunction.TANH).andThen(fg -> new RealFunction() {
-              @Override
-              public double apply(double... input) {
-                return fg.apply(input)[0];
-              }
-
-              public String toString() {
-                return fg.toString();
-              }
-            }).andThen(MathUtils.linearScaler(p.qualityFunction()))),
-            new PrologGraphFactory(minFactoryDimFfnn, maxFactoryDim, ffnnOrigin, ffnnFactoryOperatorsSelection, ffnnDomain, ffnnStructuralRules),
-            nPop,
-            StopConditions.nOfIterations(nIterations),
-            ffnnSelOperatorsMap,
-            new Tournament(nTournament),
-            new Last(),
-            nPop,
-            true,
-            false,
-            diversityMaxAttempts,
-            constSchedule
-    ));
+//    solvers.put("prolog-ffnn-adpt-constSch-selOpts", p -> new AdaptiveEvolver<>(
+//            (new FunctionGraphMapper(BaseFunction.TANH).andThen(fg -> new RealFunction() {
+//              @Override
+//              public double apply(double... input) {
+//                return fg.apply(input)[0];
+//              }
+//
+//              public String toString() {
+//                return fg.toString();
+//              }
+//            }).andThen(MathUtils.linearScaler(p.qualityFunction()))),
+//            new PrologGraphFactory(minFactoryDimFfnn, maxFactoryDim, ffnnOrigin, ffnnFactoryOperatorsSelection, ffnnDomain, ffnnStructuralRules),
+//            nPop,
+//            StopConditions.nOfIterations(nIterations),
+//            ffnnSelOperatorsMap,
+//            new Tournament(nTournament),
+//            new Last(),
+//            nPop,
+//            true,
+//            false,
+//            diversityMaxAttempts,
+//            constSchedule
+//    ));
 
 
     L.info(String.format("Going to test with %d evolvers: %s%n", solvers.size(), solvers.keySet()));
