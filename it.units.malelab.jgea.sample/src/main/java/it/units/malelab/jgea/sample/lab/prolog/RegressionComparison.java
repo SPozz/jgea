@@ -84,7 +84,7 @@ public class RegressionComparison extends Worker {
             //,
 //            ,new Keijzer6(metric)
     );
-    runSameDomain(treeRulesInput1, ffnnRulesInput1, problemsInput1, 1, "Ffnn_PolyNguy_OperatorCorrected.csv");
+    runSameDomain(treeRulesInput1, ffnnRulesInput1, problemsInput1, 1, "Ffnn-PolyNguy-OperatorCorrected.csv");
 
     List<String> treeRulesInput5 = new ArrayList<>(treeBaseRules);
     treeRulesInput5.add(0, "n_input(5).");
@@ -104,9 +104,9 @@ public class RegressionComparison extends Worker {
   private void runSameDomain(List<String> treeStructuralRules, List<String> ffnnStructuralRules, List<SyntheticSymbolicRegressionProblem> problems, int nInput, String filename) {
     final int nPop = i(a("nPop", "70"));
     final int nTournament = 5;
-    final int diversityMaxAttempts = 100;
+    final int diversityMaxAttempts = 200;
     final int nIterations = i(a("nIterations", "150"));
-    final int[] seeds = ri(a("seed", "0:10"));
+    final int[] seeds = ri(a("seed", "0:5"));
 
     Element.Operator[] gpOperators = new Element.Operator[]{Element.Operator.ADDITION, Element.Operator.SUBTRACTION,
             Element.Operator.MULTIPLICATION, Element.Operator.DIVISION};
