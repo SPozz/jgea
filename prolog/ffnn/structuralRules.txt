@@ -8,4 +8,6 @@ retract_list([], _) :- true.
 retract_list([X|Xs],P,S) :- Z=.. [P,X,S], retract(Z), retract_list(Xs,P,S).
 retract_list([],_,_) :- true.
 size :- findall(ID,(edge_id(ID);node_id(ID)),Elements), length(Elements,Size), max_size(Max), Size < Max.
-is_valid :- size, foreach( findall(N,node_id(N),N), maplist(edg_consist_from_node,N)).
+input_connected(N) :- min_level(Min), layer(N,Min).
+input_connected(N) :- edge(S,N,_), input_connected(S).
+is_valid :- size, foreach( findall(N,node_id(N),N), maplist(edg_consist_from_node,N)), foreach(findall(O,(layer(O,Max),max_level(Max)),O),maplist(input_connected,O)).

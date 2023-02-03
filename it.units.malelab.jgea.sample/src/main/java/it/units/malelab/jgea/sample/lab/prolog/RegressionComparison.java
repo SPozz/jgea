@@ -84,7 +84,7 @@ public class RegressionComparison extends Worker {
             //,
 //            ,new Keijzer6(metric)
     );
-    runSameDomain(treeRulesInput1, ffnnRulesInput1, problemsInput1, 1, "Ffnn-PolyNguy-OperatorCorrected.csv");
+    runSameDomain(treeRulesInput1, ffnnRulesInput1, problemsInput1, 1, "Ffnn-PolyNguy-OperatorCorrected-UpdatedDomain.csv");
 
     List<String> treeRulesInput5 = new ArrayList<>(treeBaseRules);
     treeRulesInput5.add(0, "n_input(5).");
