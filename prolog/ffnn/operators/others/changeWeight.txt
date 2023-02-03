@@ -1,1 +1,1 @@
-findall(WG,weight(WG,_), Weighted), random_member(W, Weighted), retract(weight(W,_)), random(0.0,1.0,X), assert(weight(W,X)).
+findall(WG,weight(WG,_), Weighted), random_member(W, Weighted), retract(weight(W,_)), random(-5.0,5.0,X), assert(weight(W,X)).
