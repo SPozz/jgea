@@ -122,7 +122,7 @@ public class TreeSingleProblem implements Runnable {
                     List.of()
             );
     List<Integer> seeds = List.of(1, 2, 3, 4, 5);
-    SyntheticSymbolicRegressionProblem p = new Polynomial3(SymbolicRegressionFitness.Metric.MSE);
+    SyntheticSymbolicRegressionProblem p = new Polynomial2(SymbolicRegressionFitness.Metric.MSE);
     List<IterativeSolver<? extends POSetPopulationState<PrologGraph, RealFunction, Double>, SyntheticSymbolicRegressionProblem,
             RealFunction>> solvers = new ArrayList<>();
 
