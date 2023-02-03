@@ -80,16 +80,17 @@ public class RegressionComparison extends Worker {
 
     List<SyntheticSymbolicRegressionProblem> problemsInput1 = List.of(
             new Polynomial4(metric),
-            new Nguyen7(metric, 1),
-            new Keijzer6(metric)
+            new Nguyen7(metric, 1)
+            //,
+//            ,new Keijzer6(metric)
     );
-//    runSameDomain(treeRulesInput1, ffnnRulesInput1, problemsInput1, 1, "Trees-adpt33-steps-linearScaling-PolyNguyKeij.csv");
+    runSameDomain(treeRulesInput1, ffnnRulesInput1, problemsInput1, 1, "Ffnn_PolyNguy_OperatorCorrected.csv");
 
     List<String> treeRulesInput5 = new ArrayList<>(treeBaseRules);
     treeRulesInput5.add(0, "n_input(5).");
     List<String> ffnnRulesInput5 = new ArrayList<>(ffnnBaseRules);
     ffnnRulesInput5.add(0, "n_input(5).");
-    runSameDomain(treeRulesInput5, ffnnRulesInput5, List.of(new Vladislavleva4(metric, 1)), 5, "Trees-longEvolution-Vladislav.csv");
+//    runSameDomain(treeRulesInput5, ffnnRulesInput5, List.of(new Vladislavleva4(metric, 1)), 5, "Trees-longEvolution-Vladislav.csv");
 
 
     List<String> treeRulesInput2 = new ArrayList<>(treeBaseRules);
@@ -97,14 +98,15 @@ public class RegressionComparison extends Worker {
     List<String> ffnnRulesInput2 = new ArrayList<>(ffnnBaseRules);
     ffnnRulesInput2.add(0, "n_input(2).");
 //    runSameDomain(treeRulesInput2, ffnnRulesInput2, List.of(new Pagie1(metric)), 2, "Trees-adpt33-steps-linearScaling-Pagie.csv");
+//    runSameDomain(treeRulesInput2, ffnnRulesInput2, List.of(new Xor(metric)), 2, "TEST_XOR_DIM.csv");
   }
 
   private void runSameDomain(List<String> treeStructuralRules, List<String> ffnnStructuralRules, List<SyntheticSymbolicRegressionProblem> problems, int nInput, String filename) {
     final int nPop = i(a("nPop", "70"));
     final int nTournament = 5;
     final int diversityMaxAttempts = 100;
-    final int nIterations = i(a("nIterations", "400"));
-    final int[] seeds = ri(a("seed", "0:30"));
+    final int nIterations = i(a("nIterations", "150"));
+    final int[] seeds = ri(a("seed", "0:10"));
 
     Element.Operator[] gpOperators = new Element.Operator[]{Element.Operator.ADDITION, Element.Operator.SUBTRACTION,
             Element.Operator.MULTIPLICATION, Element.Operator.DIVISION};
@@ -227,69 +229,21 @@ public class RegressionComparison extends Worker {
             RealFunction,
             Double>, SyntheticSymbolicRegressionProblem, RealFunction>>> solvers = new TreeMap<>();
 
-    solvers.put("prolog-tree-enfdiv-all", p -> new StandardWithEnforcedDiversityEvolver<>(
-            (new OperatorGraphMapper().andThen(og -> new RealFunction() {
-              @Override
-              public double apply(double... input) {
-                return og.apply(input)[0];
-              }
-
-              public String toString() {
-                return og.toString();
-              }
-            }).andThen(MathUtils.linearScaler(p.qualityFunction()))),
-            new PrologGraphFactory(minFactoryDim, maxFactoryDim, treeOrigin, treeFactoryOperatorsAll, treeDomain, treeStructuralRules),
-            nPop,
-            StopConditions.nOfIterations(nIterations),
-            treeAllOperatorsMap,
-            new Tournament(nTournament),
-            new Last(),
-            nPop,
-            true,
-            false,
-            (srp, r) -> new POSetPopulationState<>(),
-            diversityMaxAttempts
-    ));
-
-    solvers.put("prolog-tree-enfdiv-selection", p -> new StandardWithEnforcedDiversityEvolver<>(
-            (new OperatorGraphMapper().andThen(og -> new RealFunction() {
-              @Override
-              public double apply(double... input) {
-                return og.apply(input)[0];
-              }
-
-              public String toString() {
-                return og.toString();
-              }
-            }).andThen(MathUtils.linearScaler(p.qualityFunction()))),
-            new PrologGraphFactory(minFactoryDim, maxFactoryDim, treeOrigin, treeFactoryOperatorsSelection, treeDomain, treeStructuralRules),
-            nPop,
-            StopConditions.nOfIterations(nIterations),
-            treeSelOperatorsMap,
-            new Tournament(nTournament),
-            new Last(),
-            nPop,
-            true,
-            false,
-            (srp, r) -> new POSetPopulationState<>(),
-            diversityMaxAttempts
-    ));
-//
-//    solvers.put("prolog-ffnn-enfdiv-all", p -> new StandardWithEnforcedDiversityEvolver<>(
-//            (new FunctionGraphMapper(BaseFunction.TANH).andThen(fg -> new RealFunction() {
+//    solvers.put("prolog-tree-enfdiv-all", p -> new StandardWithEnforcedDiversityEvolver<>(
+//            (new OperatorGraphMapper().andThen(og -> new RealFunction() {
 //              @Override
 //              public double apply(double... input) {
-//                return fg.apply(input)[0];
+//                return og.apply(input)[0];
 //              }
 //
 //              public String toString() {
-//                return fg.toString();
+//                return og.toString();
 //              }
-//            })).andThen(MathUtils.linearScaler(p.qualityFunction())),
-//            new PrologGraphFactory(minFactoryDimFfnn, maxFactoryDim, ffnnOrigin, ffnnFactoryOperatorsAll, ffnnDomain, ffnnStructuralRules),
+//            }).andThen(MathUtils.linearScaler(p.qualityFunction()))),
+//            new PrologGraphFactory(minFactoryDim, maxFactoryDim, treeOrigin, treeFactoryOperatorsAll, treeDomain, treeStructuralRules),
 //            nPop,
 //            StopConditions.nOfIterations(nIterations),
-//            ffnnAllOperatorsMap,
+//            treeAllOperatorsMap,
 //            new Tournament(nTournament),
 //            new Last(),
 //            nPop,
@@ -298,6 +252,55 @@ public class RegressionComparison extends Worker {
 //            (srp, r) -> new POSetPopulationState<>(),
 //            diversityMaxAttempts
 //    ));
+//
+//    solvers.put("prolog-tree-enfdiv-selection", p -> new StandardWithEnforcedDiversityEvolver<>(
+//            (new OperatorGraphMapper().andThen(og -> new RealFunction() {
+//              @Override
+//              public double apply(double... input) {
+//                return og.apply(input)[0];
+//              }
+//
+//              public String toString() {
+//                return og.toString();
+//              }
+//            }).andThen(MathUtils.linearScaler(p.qualityFunction()))),
+//            new PrologGraphFactory(minFactoryDim, maxFactoryDim, treeOrigin, treeFactoryOperatorsSelection, treeDomain, treeStructuralRules),
+//            nPop,
+//            StopConditions.nOfIterations(nIterations),
+//            treeSelOperatorsMap,
+//            new Tournament(nTournament),
+//            new Last(),
+//            nPop,
+//            true,
+//            false,
+//            (srp, r) -> new POSetPopulationState<>(),
+//            diversityMaxAttempts
+//    ));
+
+    solvers.put("prolog-ffnn-enfdiv-all", p -> new StandardWithEnforcedDiversityEvolver<>(
+            (new FunctionGraphMapper(BaseFunction.TANH).andThen(fg -> new RealFunction() {
+              @Override
+              public double apply(double... input) {
+                return fg.apply(input)[0];
+              }
+
+              public String toString() {
+                return fg.toString();
+              }
+            })).andThen(MathUtils.linearScaler(p.qualityFunction())),
+            new PrologGraphFactory(minFactoryDimFfnn, maxFactoryDim, ffnnOrigin, ffnnFactoryOperatorsAll, ffnnDomain, ffnnStructuralRules),
+            nPop,
+            StopConditions.nOfIterations(nIterations),
+            ffnnAllOperatorsMap,
+            new Tournament(nTournament),
+            new Last(),
+            nPop,
+            true,
+            false,
+            (srp, r) -> new POSetPopulationState<>(),
+            diversityMaxAttempts
+    ));
+
 //
 //    solvers.put("prolog-ffnn-enfdiv-selection", p -> new StandardWithEnforcedDiversityEvolver<>(
 //            (new FunctionGraphMapper(BaseFunction.TANH).andThen(fg -> new RealFunction() {
@@ -322,7 +325,7 @@ public class RegressionComparison extends Worker {
 //            (srp, r) -> new POSetPopulationState<>(),
 //            diversityMaxAttempts
 //    ));
-//
+
     solvers.put("tree-gadiv", p -> {
       IndependentFactory<Element> terminalFactory = IndependentFactory.oneOf(
               IndependentFactory.picker(Arrays.stream(
@@ -377,79 +380,7 @@ public class RegressionComparison extends Worker {
     Function<Long, Double> stepInit = x -> x < nIterations / 2 ? 0.01d : 0;
     Function<Long, Double> stepEnd = x -> x > nIterations / 2 ? 0.01d : 0;
 
-    solvers.put("prolog-tree-adpt-const-allOpts", p -> new AdaptiveEvolver<>(
-            (new OperatorGraphMapper().andThen(og -> new RealFunction() {
-              @Override
-              public double apply(double... input) {
-                return og.apply(input)[0];
-              }
-
-              public String toString() {
-                return og.toString();
-              }
-            }).andThen(MathUtils.linearScaler(p.qualityFunction()))),
-            new PrologGraphFactory(minFactoryDim, maxFactoryDim, treeOrigin, treeFactoryOperatorsAll, treeDomain, treeStructuralRules),
-            nPop,
-            StopConditions.nOfIterations(nIterations),
-            treeAllOperatorsMap,
-            new Tournament(nTournament),
-            new Last(),
-            nPop,
-            true,
-            false,
-            diversityMaxAttempts,
-            constSchedule
-    ));
-
-    solvers.put("prolog-tree-adpt-stepInit-allOpts", p -> new AdaptiveEvolver<>(
-            (new OperatorGraphMapper().andThen(og -> new RealFunction() {
-              @Override
-              public double apply(double... input) {
-                return og.apply(input)[0];
-              }
-
-              public String toString() {
-                return og.toString();
-              }
-            }).andThen(MathUtils.linearScaler(p.qualityFunction()))),
-            new PrologGraphFactory(minFactoryDim, maxFactoryDim, treeOrigin, treeFactoryOperatorsAll, treeDomain, treeStructuralRules),
-            nPop,
-            StopConditions.nOfIterations(nIterations),
-            treeAllOperatorsMap,
-            new Tournament(nTournament),
-            new Last(),
-            nPop,
-            true,
-            false,
-            diversityMaxAttempts,
-            stepInit
-    ));
-
-    solvers.put("prolog-tree-adpt-stepEnd-allOpts", p -> new AdaptiveEvolver<>(
-            (new OperatorGraphMapper().andThen(og -> new RealFunction() {
-              @Override
-              public double apply(double... input) {
-                return og.apply(input)[0];
-              }
-
-              public String toString() {
-                return og.toString();
-              }
-            }).andThen(MathUtils.linearScaler(p.qualityFunction()))),
-            new PrologGraphFactory(minFactoryDim, maxFactoryDim, treeOrigin, treeFactoryOperatorsAll, treeDomain, treeStructuralRules),
-            nPop,
-            StopConditions.nOfIterations(nIterations),
-            treeAllOperatorsMap,
-            new Tournament(nTournament),
-            new Last(),
-            nPop,
-            true,
-            false,
-            diversityMaxAttempts,
-            stepEnd
-    ));
-//
-//    solvers.put("prolog-tree-adpt-constSch-selOpts", p -> new AdaptiveEvolver<>(
+//    solvers.put("prolog-tree-adpt-const-allOpts", p -> new AdaptiveEvolver<>(
 //            (new OperatorGraphMapper().andThen(og -> new RealFunction() {
 //              @Override
 //              public double apply(double... input) {
@@ -460,10 +391,10 @@ public class RegressionComparison extends Worker {
 //                return og.toString();
 //              }
 //            }).andThen(MathUtils.linearScaler(p.qualityFunction()))),
-//            new PrologGraphFactory(minFactoryDim, maxFactoryDim, treeOrigin, treeFactoryOperatorsSelection, treeDomain, treeStructuralRules),
+//            new PrologGraphFactory(minFactoryDim, maxFactoryDim, treeOrigin, treeFactoryOperatorsAll, treeDomain, treeStructuralRules),
 //            nPop,
 //            StopConditions.nOfIterations(nIterations),
-//            treeSelOperatorsMap,
+//            treeAllOperatorsMap,
 //            new Tournament(nTournament),
 //            new Last(),
 //            nPop,
@@ -473,53 +404,77 @@ public class RegressionComparison extends Worker {
 //            constSchedule
 //    ));
 //
-//    solvers.put("prolog-ffnn-adpt-constSch-allOpts", p -> new AdaptiveEvolver<>(
-//            (new FunctionGraphMapper(BaseFunction.TANH).andThen(fg -> new RealFunction() {
+//    solvers.put("prolog-tree-adpt-stepInit-allOpts", p -> new AdaptiveEvolver<>(
+//            (new OperatorGraphMapper().andThen(og -> new RealFunction() {
 //              @Override
 //              public double apply(double... input) {
-//                return fg.apply(input)[0];
+//                return og.apply(input)[0];
 //              }
 //
 //              public String toString() {
-//                return fg.toString();
+//                return og.toString();
 //              }
 //            }).andThen(MathUtils.linearScaler(p.qualityFunction()))),
-//            new PrologGraphFactory(minFactoryDimFfnn, maxFactoryDim, ffnnOrigin, ffnnFactoryOperatorsAll, ffnnDomain, ffnnStructuralRules),
+//            new PrologGraphFactory(minFactoryDim, maxFactoryDim, treeOrigin, treeFactoryOperatorsAll, treeDomain, treeStructuralRules),
 //            nPop,
 //            StopConditions.nOfIterations(nIterations),
-//            ffnnAllOperatorsMap,
+//            treeAllOperatorsMap,
 //            new Tournament(nTournament),
 //            new Last(),
 //            nPop,
 //            true,
 //            false,
 //            diversityMaxAttempts,
-//            constSchedule
+//            stepInit
 //    ));
 //
-//    solvers.put("prolog-ffnn-adpt-constSch-selOpts", p -> new AdaptiveEvolver<>(
-//            (new FunctionGraphMapper(BaseFunction.TANH).andThen(fg -> new RealFunction() {
+//    solvers.put("prolog-tree-adpt-stepEnd-allOpts", p -> new AdaptiveEvolver<>(
+//            (new OperatorGraphMapper().andThen(og -> new RealFunction() {
 //              @Override
 //              public double apply(double... input) {
-//                return fg.apply(input)[0];
+//                return og.apply(input)[0];
 //              }
 //
 //              public String toString() {
-//                return fg.toString();
+//                return og.toString();
 //              }
 //            }).andThen(MathUtils.linearScaler(p.qualityFunction()))),
-//            new PrologGraphFactory(minFactoryDimFfnn, maxFactoryDim, ffnnOrigin, ffnnFactoryOperatorsSelection, ffnnDomain, ffnnStructuralRules),
+//            new PrologGraphFactory(minFactoryDim, maxFactoryDim, treeOrigin, treeFactoryOperatorsAll, treeDomain, treeStructuralRules),
 //            nPop,
 //            StopConditions.nOfIterations(nIterations),
-//            ffnnSelOperatorsMap,
+//            treeAllOperatorsMap,
 //            new Tournament(nTournament),
 //            new Last(),
 //            nPop,
 //            true,
 //            false,
 //            diversityMaxAttempts,
-//            constSchedule
+//            stepEnd
 //    ));
+
+    solvers.put("prolog-ffnn-adpt-constSch-allOpts", p -> new AdaptiveEvolver<>(
+            (new FunctionGraphMapper(BaseFunction.TANH).andThen(fg -> new RealFunction() {
+              @Override
+              public double apply(double... input) {
+                return fg.apply(input)[0];
+              }
+
+              public String toString() {
+                return fg.toString();
+              }
+            }).andThen(MathUtils.linearScaler(p.qualityFunction()))),
+            new PrologGraphFactory(minFactoryDimFfnn, maxFactoryDim, ffnnOrigin, ffnnFactoryOperatorsAll, ffnnDomain, ffnnStructuralRules),
+            nPop,
+            StopConditions.nOfIterations(nIterations),
+            ffnnAllOperatorsMap,
+            new Tournament(nTournament),
+            new Last(),
+            nPop,
+            true,
+            false,
+            diversityMaxAttempts,
+            constSchedule
+    ));
 
 
     L.info(String.format("Going to test with %d evolvers: %s%n", solvers.size(), solvers.keySet()));
