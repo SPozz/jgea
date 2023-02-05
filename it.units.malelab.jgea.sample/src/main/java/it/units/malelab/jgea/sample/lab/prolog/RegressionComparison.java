@@ -79,25 +79,24 @@ public class RegressionComparison extends Worker {
     ffnnRulesInput1.add(0, "n_input(1).");
 
     List<SyntheticSymbolicRegressionProblem> problemsInput1 = List.of(
-            new Polynomial4(metric),
-            new Nguyen7(metric, 1)
-            //,
-//            ,new Keijzer6(metric)
+//            new Polynomial4(metric),
+//            new Nguyen7(metric, 1),
+            new Keijzer6(metric)
     );
-    runSameDomain(treeRulesInput1, ffnnRulesInput1, problemsInput1, 1, "Ffnn-PolyNguy-OperatorCorrected-UpdatedDomain.csv");
+    runSameDomain(treeRulesInput1, ffnnRulesInput1, problemsInput1, 1, "Ffnn-Keij-OperatorCorrected.csv");
 
     List<String> treeRulesInput5 = new ArrayList<>(treeBaseRules);
     treeRulesInput5.add(0, "n_input(5).");
     List<String> ffnnRulesInput5 = new ArrayList<>(ffnnBaseRules);
     ffnnRulesInput5.add(0, "n_input(5).");
-//    runSameDomain(treeRulesInput5, ffnnRulesInput5, List.of(new Vladislavleva4(metric, 1)), 5, "Trees-longEvolution-Vladislav.csv");
+    runSameDomain(treeRulesInput5, ffnnRulesInput5, List.of(new Vladislavleva4(metric, 1)), 5, "Trees-Vladislav-OperatorCorrected.csv");
 
 
     List<String> treeRulesInput2 = new ArrayList<>(treeBaseRules);
     treeRulesInput2.add(0, "n_input(2).");
     List<String> ffnnRulesInput2 = new ArrayList<>(ffnnBaseRules);
     ffnnRulesInput2.add(0, "n_input(2).");
-//    runSameDomain(treeRulesInput2, ffnnRulesInput2, List.of(new Pagie1(metric)), 2, "Trees-adpt33-steps-linearScaling-Pagie.csv");
+    runSameDomain(treeRulesInput2, ffnnRulesInput2, List.of(new Pagie1(metric)), 2, "Trees-Pagie-OperatorCorrected.csv");
 //    runSameDomain(treeRulesInput2, ffnnRulesInput2, List.of(new Xor(metric)), 2, "TEST_XOR_DIM.csv");
   }
 
