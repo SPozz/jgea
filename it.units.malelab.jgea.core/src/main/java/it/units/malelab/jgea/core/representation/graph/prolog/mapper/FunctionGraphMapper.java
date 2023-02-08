@@ -3,6 +3,7 @@ package it.units.malelab.jgea.core.representation.graph.prolog.mapper;
 import it.units.malelab.jgea.core.representation.graph.Graph;
 import it.units.malelab.jgea.core.representation.graph.LinkedHashGraph;
 import it.units.malelab.jgea.core.representation.graph.Node;
+import it.units.malelab.jgea.core.representation.graph.numeric.Constant;
 import it.units.malelab.jgea.core.representation.graph.numeric.Input;
 import it.units.malelab.jgea.core.representation.graph.numeric.Output;
 import it.units.malelab.jgea.core.representation.graph.numeric.functiongraph.BaseFunction;
@@ -22,6 +23,8 @@ public class FunctionGraphMapper implements Function<PrologGraph, FunctionGraph>
 
   public FunctionGraph apply(PrologGraph prologFfnn) {
     LinkedHashGraph<Node, Double> intermediateGraph = new LinkedHashGraph<>();
+    Constant constant = new Constant(0, 1.0d);
+    intermediateGraph.addNode(constant);
     int inputIndex = 0;
     int functionIndex = 0;
     int outputIndex = 0;
@@ -35,6 +38,7 @@ public class FunctionGraphMapper implements Function<PrologGraph, FunctionGraph>
     final int minLevel = Collections.min(levels);
 
     for (Map<String, Object> node : prologFfnn.nodes()) {
+      double bias = 0;
       Node tmpNode;
       final int nodeLevel = Integer.parseInt(node.get("layer").toString());
       if (nodeLevel == minLevel) {
@@ -45,10 +49,15 @@ public class FunctionGraphMapper implements Function<PrologGraph, FunctionGraph>
         outputIndex++;
       } else {
         tmpNode = new FunctionNode(functionIndex, function);
+        bias = Double.parseDouble(node.get("bias").toString());
         functionIndex++;
       }
       idToNode.put(node.get("node_id").toString(), tmpNode);
       intermediateGraph.addNode(tmpNode);
+      if (nodeLevel != maxLevel && nodeLevel != minLevel) {
+        intermediateGraph.setArcValue(constant, tmpNode, bias);
+      }
+
     }
     for (Graph.Arc<Map<String, Object>> arc : prologFfnn.arcs()) {
       Node source = idToNode.get((String) arc.getSource().get("node_id"));

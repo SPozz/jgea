@@ -1,1 +1,1 @@
-max_level(Max), min_level(Min), LowerB is Min +1, random(LowerB,Max,L), gensym(nod,N), assert(node_id(N)), assert(layer(N,L)).
+max_level(Max), min_level(Min), LowerB is Min +1, random(LowerB,Max,L), gensym(nod,N), assert(node_id(N)), assert(layer(N,L)),random(-5.0,5.0,Bias),assert(bias(N,Bias)).
