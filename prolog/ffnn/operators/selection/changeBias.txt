@@ -1,0 +1,1 @@
+findall(BI,bias(BI,_), Bias), random_member(B, Bias), retract(bias(B,_)), random(-5.0,5.0,X), assert(bias(B,X)).

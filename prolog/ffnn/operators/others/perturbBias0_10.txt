@@ -1,0 +1,1 @@
+findall((A,B),bias(A,B), Bias),random_member((ID,W), Bias),Min is W*0.10,Max is W*0.10,random(Min,Max,X),weight_val(X),retract(bias(ID,_)),assert(bias(ID,X)).
