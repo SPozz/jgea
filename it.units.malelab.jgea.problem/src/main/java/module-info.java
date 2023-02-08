@@ -15,4 +15,6 @@ module it.units.malelab.jgea.problem {
   requires commons.math3;
   requires java.desktop;
   requires com.google.common;
+  requires commons.csv;
+  requires org.apache.commons.lang3;
 }
