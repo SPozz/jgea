@@ -85,29 +85,30 @@ public class FfnnSingleProblem implements Runnable {
     this.structuralRules = structuralRules;
     this.factoryOperators = factoryOperators;
 
-    PrologGraph origin = new PrologGraph();
+    PrologGraph ffnn = new PrologGraph();
     LinkedHashMap<String, Object> node1 = new LinkedHashMap<>();
     node1.put("node_id", "first");
     node1.put("layer", 0);
     LinkedHashMap<String, Object> node2 = new LinkedHashMap<>();
     node2.put("node_id", "second");
     node2.put("layer", 1);
-    LinkedHashMap<String, Object> node4 = new LinkedHashMap<>();
-    node4.put("node_id", "fourth");
-    node4.put("layer", 2);
+    LinkedHashMap<String, Object> node3 = new LinkedHashMap<>();
+    node3.put("node_id", "third");
+    node3.put("layer", 2);
     LinkedHashMap<String, Object> edge1 = new LinkedHashMap<>();
     edge1.put("edge_id", "firstEdge");
     edge1.put("weight", 0.5d);
     LinkedHashMap<String, Object> edge2 = new LinkedHashMap<>();
     edge2.put("edge_id", "secondEdge");
     edge2.put("weight", 0.2d);
-    origin.addNode(node1);
-    origin.addNode(node2);
-    origin.addNode(node4);
-    origin.setArcValue(node1, node2, edge1);
-    origin.setArcValue(node2, node4, edge2);
+    ffnn.addNode(node1);
+    ffnn.addNode(node2);
+    ffnn.addNode(node3);
+    ffnn.setArcValue(node1, node2, edge1);
+    ffnn.setArcValue(node2, node3, edge2);
 
-    this.originGraph = origin;
+
+    this.originGraph = ffnn;
   }
 
   @Override
@@ -121,8 +122,9 @@ public class FfnnSingleProblem implements Runnable {
                     )),
                     List.of()
             );
-    List<Integer> seeds = List.of(1);//, 2, 3, 4, 5);
-    SyntheticSymbolicRegressionProblem p = new Nguyen7(SymbolicRegressionFitness.Metric.MSE,1); //n_input(1)
+    List<Integer> seeds = List.of(1);
+    SyntheticSymbolicRegressionProblem p = new Polynomial4(SymbolicRegressionFitness.Metric.MSE);
+//    SyntheticSymbolicRegressionProblem p = new Nguyen7(SymbolicRegressionFitness.Metric.MSE,1); //n_input(1)
 //    SyntheticSymbolicRegressionProblem p = new Pagie1(SymbolicRegressionFitness.Metric.MSE); //n_input(2)
 //    SyntheticSymbolicRegressionProblem p = new Vladislavleva4(SymbolicRegressionFitness.Metric.MSE,1); //n_input(5)
     List<IterativeSolver<? extends POSetPopulationState<PrologGraph, RealFunction, Double>, SyntheticSymbolicRegressionProblem,
@@ -145,7 +147,7 @@ public class FfnnSingleProblem implements Runnable {
               public String toString() {
                 return fg.toString();
               }
-            }),
+            }).andThen(MathUtils.linearScaler(p.qualityFunction())),
             new PrologGraphFactory(minDim, maxDim, originGraph, factoryOperators, domainDefinition, structuralRules),
             100,
             StopConditions.nOfIterations(50),
