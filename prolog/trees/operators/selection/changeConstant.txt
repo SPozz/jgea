@@ -1,1 +1,1 @@
-findall(CON,type(CON,constant), Constants), random_member(O, Constants), retract(value(O,_)), random(0.000001,2.0,NewVal), assert(value(O,NewVal)).
+findall(CON,type(CON,constant), Constants), random_member(O, Constants), retract(value(O,_)), random(0.1,10.0,NewVal), assert(value(O,NewVal)).
