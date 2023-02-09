@@ -10,13 +10,13 @@ public class MRFClassifier implements Classifier<double[], Integer> {
   }
 
   @Override
-  public Label<Integer> classify(double[] o) {
+  public Label<Integer> classify(double[] inputs) {
+    double[] outputs = function.apply(inputs);
     int argMax = 0;
-    for (int i = 0; i < o.length; ++i) {
-      argMax = o[i] > o[argMax] ? i : argMax;
+    for (int i = 0; i < outputs.length; ++i) {
+      argMax = outputs[i] > outputs[argMax] ? i : argMax;
     }
-
-    Label.IntLabelFactory labelFactory = new Label.IntLabelFactory(o.length);
+    Label.IntLabelFactory labelFactory = new Label.IntLabelFactory(outputs.length);
     return labelFactory.getLabel(argMax);
   }
 }
