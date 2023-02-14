@@ -89,11 +89,11 @@ public class Analysis {
     dfaPrologOperators.addAll(getLabelledOperators(dfaOperatorsPath + "selection"));
 
 
-    final int nGraphs = 25;
+    final int nGraphs = 50;
     final int nOperations = 25;
-    AnalysisUtils.exportAnalysis("Tree.csv", 5, 105, nGraphs, nOperations, treeOrigin, treePrologOperators, treeDomain, treeRules);
-    AnalysisUtils.exportAnalysis("Ffnn.csv", 5, 105, nGraphs, nOperations, ffnnOrigin, ffnnPrologOperators, ffnnDomain, ffnnRules);
-    AnalysisUtils.exportAnalysis("Dfa.csv", 2, 102, nGraphs, nOperations, dfaOrigin, dfaPrologOperators, dfaDomain, dfaRules);
+    AnalysisUtils.exportAnalysis("Tree50x25.csv", 5, 105, nGraphs, nOperations, treeOrigin, treePrologOperators, treeDomain, treeRules);
+    AnalysisUtils.exportAnalysis("Ffnn50x25.csv", 5, 105, nGraphs, nOperations, ffnnOrigin, ffnnPrologOperators, ffnnDomain, ffnnRules);
+    AnalysisUtils.exportAnalysis("Dfa50x25.csv", 2, 102, nGraphs, nOperations, dfaOrigin, dfaPrologOperators, dfaDomain, dfaRules);
 
 
   }
