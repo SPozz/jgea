@@ -1,12 +1,8 @@
 package it.units.malelab.jgea.core.representation.graph.prolog;
 
-import it.units.malelab.jgea.core.operator.GeneticOperator;
-import it.units.malelab.jgea.core.representation.graph.prolog.PrologGraph;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -42,15 +38,15 @@ public class Analysis {
     }
 
     // DFAs' structuralRules
-    List<String> DFARules;
-    try (Stream<String> fsmRulesPath = Files.lines(Paths.get("./prolog/fsm/structuralRules.txt"))) {
-      DFARules = fsmRulesPath.collect(Collectors.toList());
+    List<String> dfaRules;
+    try (Stream<String> dfaRulesPath = Files.lines(Paths.get("./prolog/fsm/structuralRules.txt"))) {
+      dfaRules = dfaRulesPath.collect(Collectors.toList());
     } catch (IOException e) {
       throw new UnsupportedOperationException("Fsm structural rules not found in given path");
     }
     int nSymbols = 2;
     for (int i = 0; i < nSymbols; ++i) {
-      DFARules.add(0, "input_val(" + i + ").");
+      dfaRules.add(0, "input_val(" + i + ").");
     }
 
     // Tree
@@ -63,8 +59,8 @@ public class Analysis {
             ":- dynamic edge_id/1.",
             ":- dynamic edge/3.");
     final String treeOperatorsPath = "./prolog/trees/operators/";
-    List<List<String>> treePrologOperatorsAll = getLabelledOperators(treeOperatorsPath + "others");
-    treePrologOperatorsAll.addAll(getLabelledOperators(treeOperatorsPath + "selection"));
+    List<List<String>> treePrologOperators = getLabelledOperators(treeOperatorsPath + "others");
+    treePrologOperators.addAll(getLabelledOperators(treeOperatorsPath + "selection"));
 
     // Ffnn
     final PrologGraph ffnnOrigin = getFfnnOrigin(ffnnInput);
@@ -76,12 +72,12 @@ public class Analysis {
             ":- dynamic edge/3.",
             ":- dynamic weight/2.");
     final String ffnnOperatorsPath = "./prolog/ffnn/operators/";
-    List<List<String>> ffnnPrologOperatorsAll = getLabelledOperators(ffnnOperatorsPath + "others");
-    ffnnPrologOperatorsAll.addAll(getLabelledOperators(ffnnOperatorsPath + "selection"));
+    List<List<String>> ffnnPrologOperators = getLabelledOperators(ffnnOperatorsPath + "others");
+    ffnnPrologOperators.addAll(getLabelledOperators(ffnnOperatorsPath + "selection"));
 
     // Dfa
     final PrologGraph dfaOrigin = getDFAOrigin("[0,1]");
-    final List<String> dfaDomainDefinition = Arrays.asList(
+    final List<String> dfaDomain = Arrays.asList(
             ":- dynamic node_id/1.",
             ":- dynamic start/2.",
             ":- dynamic accepting/2.",
@@ -89,9 +85,15 @@ public class Analysis {
             ":- dynamic edge/3.",
             ":- dynamic input/2.");
     final String dfaOperatorsPath = "./prolog/fsm/operators/";
-        List<List<String>> dfaPrologOperatorsAll = getLabelledOperators(dfaOperatorsPath + "others");
-    dfaPrologOperatorsAll.addAll(getLabelledOperators(dfaOperatorsPath + "selection"));
+    List<List<String>> dfaPrologOperators = getLabelledOperators(dfaOperatorsPath + "others");
+    dfaPrologOperators.addAll(getLabelledOperators(dfaOperatorsPath + "selection"));
 
+
+    final int nGraphs = 25;
+    final int nOperations = 25;
+    AnalysisUtils.exportAnalysis("Tree.csv", 5, 105, nGraphs, nOperations, treeOrigin, treePrologOperators, treeDomain, treeRules);
+    AnalysisUtils.exportAnalysis("Ffnn.csv", 5, 105, nGraphs, nOperations, ffnnOrigin, ffnnPrologOperators, ffnnDomain, ffnnRules);
+    AnalysisUtils.exportAnalysis("Dfa.csv", 2, 102, nGraphs, nOperations, dfaOrigin, dfaPrologOperators, dfaDomain, dfaRules);
 
 
   }

@@ -1,8 +1,5 @@
 package it.units.malelab.jgea.core.representation.graph.prolog;
 
-import it.units.malelab.jgea.core.representation.graph.prolog.PrologGraph;
-import it.units.malelab.jgea.core.representation.graph.prolog.PrologGraphFactory;
-import it.units.malelab.jgea.core.representation.graph.prolog.PrologGraphUtils;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 
@@ -18,7 +15,7 @@ import java.util.List;
 import java.util.Random;
 
 public class AnalysisUtils {
-  protected static List<LinkedHashMap<String, Object>> analysis(int minDimension, int maxDimension, int nGraphs, int nOperations, PrologGraph originGraph, List<List<String>> operators, List<String> domainDefinition, List<String> structuralRules) {
+  private static List<LinkedHashMap<String, Object>> analysis(int minDimension, int maxDimension, int nGraphs, int nOperations, PrologGraph originGraph, List<List<String>> operators, List<String> domainDefinition, List<String> structuralRules) {
     List<LinkedHashMap<String, Object>> DataFrame = new ArrayList<>();
     Random random = new Random();
 
