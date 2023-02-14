@@ -35,3 +35,4 @@ build/
 # Maven
 target/
 .flattened-pom.xml
+/it.units.malelab.jgea.core/src/main/java/it/units/malelab/jgea/core/representation/graph/prolog/analysis/
