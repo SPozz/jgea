@@ -102,7 +102,7 @@ public class ClassificationComparison extends Worker {
       ffnnRulesLeaves.add(0, "n_input(" + nInput + ").");
       ffnnRulesLeaves.add(0, "n_output(" + nOutput + ").");
       ffnnRulesLeaves.add(0, "max_size(" + maxSize + ").");
-      runSameDomain(ffnnRulesLeaves, xorProblem, nInput, nOutput, "Classification-leaves-2-.csv");
+      runSameDomain(ffnnRulesLeaves, xorProblem, nInput, nOutput, "Classification-leaves-Origin2-.csv");
     } catch (IOException any) {
       throw new UnsupportedOperationException("Error in XOR running");
     }
@@ -311,6 +311,7 @@ public class ClassificationComparison extends Worker {
   }
 
   private PrologGraph getFfnnOrigin(int nInput, int nOutput) {
+    Random random = new Random();
     PrologGraph ffnn = new PrologGraph();
     LinkedHashMap<String, Object> node1 = new LinkedHashMap<>();
     node1.put("node_id", "first");
@@ -319,17 +320,17 @@ public class ClassificationComparison extends Worker {
     LinkedHashMap<String, Object> node2 = new LinkedHashMap<>();
     node2.put("node_id", "second");
     node2.put("layer", 1);
-    node2.put("bias", 1.0d);
+    node2.put("bias", random.nextDouble(-5.0, 5.0));
     LinkedHashMap<String, Object> node3 = new LinkedHashMap<>();
     node3.put("node_id", "third");
     node3.put("layer", 2);
     node3.put("bias", 0d);
     LinkedHashMap<String, Object> edge1 = new LinkedHashMap<>();
     edge1.put("edge_id", "firstEdge");
-    edge1.put("weight", 0.5d);
+    edge1.put("weight", random.nextDouble(-5.0, 5.0));
     LinkedHashMap<String, Object> edge2 = new LinkedHashMap<>();
     edge2.put("edge_id", "secondEdge");
-    edge2.put("weight", 0.2d);
+    edge2.put("weight", random.nextDouble(-5.0, 5.0));
     ffnn.addNode(node1);
     ffnn.addNode(node2);
     ffnn.addNode(node3);
@@ -343,7 +344,7 @@ public class ClassificationComparison extends Worker {
       ffnn.addNode(node);
       LinkedHashMap<String, Object> edge = new LinkedHashMap<>();
       edge.put("edge_id", "edge" + i);
-      edge.put("weight", 0.5d);
+      edge.put("weight", random.nextDouble(-5.0, 5.0));
       ffnn.setArcValue(node, node2, edge);
     }
     for (int i = 1; i < nOutput; ++i) {
@@ -354,7 +355,7 @@ public class ClassificationComparison extends Worker {
       ffnn.addNode(node);
       LinkedHashMap<String, Object> edge = new LinkedHashMap<>();
       edge.put("edge_id", "edgeLast" + i);
-      edge.put("weight", 0.5d);
+      edge.put("weight", random.nextDouble(-5.0, 5.0));
       ffnn.setArcValue(node2, node, edge);
     }
     return ffnn;
