@@ -102,7 +102,7 @@ public class ClassificationComparison extends Worker {
       ffnnRulesLeaves.add(0, "n_input(" + nInput + ").");
       ffnnRulesLeaves.add(0, "n_output(" + nOutput + ").");
       ffnnRulesLeaves.add(0, "max_size(" + maxSize + ").");
-      runSameDomain(ffnnRulesLeaves, xorProblem, nInput, nOutput, "Classification-leaves-Origin2-.csv");
+      runSameDomain(ffnnRulesLeaves, xorProblem, nInput, nOutput, "Classification-leaves-singleLong-.csv");
     } catch (IOException any) {
       throw new UnsupportedOperationException("Error in XOR running");
     }
@@ -114,8 +114,8 @@ public class ClassificationComparison extends Worker {
     final int nPop = i(a("nPop", "70"));
     final int nTournament = 5;
     final int diversityMaxAttempts = 100;
-    final int nIterations = i(a("nIterations", "200"));
-    final int[] seeds = ri(a("seed", "0:5"));
+    final int nIterations = i(a("nIterations", "500"));
+    final int[] seeds = ri(a("seed", "0:1"));
 
     final int minFactoryDim = 5 + 2 * (nOutput + nInput - 2);
     final int maxFactoryDim = 125;
