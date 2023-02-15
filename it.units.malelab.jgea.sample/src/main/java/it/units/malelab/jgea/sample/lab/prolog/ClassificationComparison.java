@@ -57,34 +57,49 @@ public class ClassificationComparison extends Worker {
 
     ClassificationFitness.Metric metric = ClassificationFitness.Metric.BALANCED_ERROR_RATE;
 
-    // XOR
-    int nInput = 2;
-    int nOutput = 2;
+//    // XOR
+//    int nInput = 2;
+//    int nOutput = 2;
+//    try {
+//      List<DatasetClassificationProblem> xorProblem = List.of(
+//              new DatasetClassificationProblem("./datasets/xor.csv", nOutput, "y", 10, 0, metric, metric)
+//      );
+//      List<String> ffnnRulesXor = new ArrayList<>(ffnnBaseRules);
+//      ffnnRulesXor.add(0, "n_input(" + nInput + ").");
+//      ffnnRulesXor.add(0, "n_output(" + nOutput + ").");
+//      runSameDomain(ffnnRulesXor, xorProblem, nInput, nOutput, "Classification-xor.csv");
+//    } catch (IOException any) {
+//      throw new UnsupportedOperationException("Error in XOR running");
+//    }
+//
+//    // Iris
+//    nInput = 4;
+//    nOutput = 3;
+//    try {
+//      List<DatasetClassificationProblem> xorProblem = List.of(
+//              new DatasetClassificationProblem("./datasets/iris.csv", nOutput, "variety", 10, 0, metric, metric)
+//      );
+//      List<String> ffnnRulesXor = new ArrayList<>(ffnnBaseRules);
+//      ffnnRulesXor.add(0, "n_input(" + nInput + ").");
+//      ffnnRulesXor.add(0, "n_output(" + nOutput + ").");
+//      runSameDomain(ffnnRulesXor, xorProblem, nInput, nOutput, "Classification-iris.csv");
+//    } catch (IOException any) {
+//      throw new UnsupportedOperationException("Error in IRIS running");
+//    }
+
+    // Leaves
+    int nInput = 14;
+    int nOutput = 30;
     try {
       List<DatasetClassificationProblem> xorProblem = List.of(
-              new DatasetClassificationProblem("./datasets/xor.csv", nOutput, "y", 10, 0, metric, metric)
+              new DatasetClassificationProblem("./datasets/leaves.csv", nOutput, "class", 10, 0, metric, metric)
       );
       List<String> ffnnRulesXor = new ArrayList<>(ffnnBaseRules);
       ffnnRulesXor.add(0, "n_input(" + nInput + ").");
       ffnnRulesXor.add(0, "n_output(" + nOutput + ").");
-      runSameDomain(ffnnRulesXor, xorProblem, nInput, nOutput, "Classification-xor.csv");
+      runSameDomain(ffnnRulesXor, xorProblem, nInput, nOutput, "Classification-leaves.csv");
     } catch (IOException any) {
       throw new UnsupportedOperationException("Error in XOR running");
-    }
-
-    // Iris
-    nInput = 4;
-    nOutput = 3;
-    try {
-      List<DatasetClassificationProblem> xorProblem = List.of(
-              new DatasetClassificationProblem("./datasets/iris.csv", nOutput, "variety", 10, 0, metric, metric)
-      );
-      List<String> ffnnRulesXor = new ArrayList<>(ffnnBaseRules);
-      ffnnRulesXor.add(0, "n_input(" + nInput + ").");
-      ffnnRulesXor.add(0, "n_output(" + nOutput + ").");
-      runSameDomain(ffnnRulesXor, xorProblem, nInput, nOutput, "Classification-iris.csv");
-    } catch (IOException any) {
-      throw new UnsupportedOperationException("Error in IRIS running");
     }
 
 
