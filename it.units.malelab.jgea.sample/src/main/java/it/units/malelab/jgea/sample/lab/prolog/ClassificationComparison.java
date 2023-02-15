@@ -1,6 +1,7 @@
 package it.units.malelab.jgea.sample.lab.prolog;
 
 import com.google.common.base.Stopwatch;
+import it.units.malelab.jgea.core.listener.CSVPrinter;
 import it.units.malelab.jgea.core.listener.ListenerFactory;
 import it.units.malelab.jgea.core.listener.NamedFunction;
 import it.units.malelab.jgea.core.listener.TabularPrinter;
@@ -66,7 +67,7 @@ public class ClassificationComparison extends Worker {
       List<String> ffnnRulesXor = new ArrayList<>(ffnnBaseRules);
       ffnnRulesXor.add(0, "n_input(" + nInput + ").");
       ffnnRulesXor.add(0, "n_output(" + nOutput + ").");
-//      runSameDomain(ffnnRulesXor, xorProblem, nInput, nOutput, "XOR.csv");
+      runSameDomain(ffnnRulesXor, xorProblem, nInput, nOutput, "Classification-xor.csv");
     } catch (IOException any) {
       throw new UnsupportedOperationException("Error in XOR running");
     }
@@ -81,7 +82,7 @@ public class ClassificationComparison extends Worker {
       List<String> ffnnRulesXor = new ArrayList<>(ffnnBaseRules);
       ffnnRulesXor.add(0, "n_input(" + nInput + ").");
       ffnnRulesXor.add(0, "n_output(" + nOutput + ").");
-      runSameDomain(ffnnRulesXor, xorProblem, nInput, nOutput, "IRIS.csv");
+      runSameDomain(ffnnRulesXor, xorProblem, nInput, nOutput, "Classification-iris.csv");
     } catch (IOException any) {
       throw new UnsupportedOperationException("Error in IRIS running");
     }
@@ -93,8 +94,8 @@ public class ClassificationComparison extends Worker {
     final int nPop = i(a("nPop", "70"));
     final int nTournament = 5;
     final int diversityMaxAttempts = 100;
-    final int nIterations = i(a("nIterations", "200"));
-    final int[] seeds = ri(a("seed", "0:1"));
+    final int nIterations = i(a("nIterations", "100"));
+    final int[] seeds = ri(a("seed", "0:10"));
 
     final int minFactoryDim = 5 + 2 * (nOutput + nInput - 2);
     final int maxFactoryDim = 125;
@@ -131,8 +132,6 @@ public class ClassificationComparison extends Worker {
       throw new UnsupportedOperationException("IOException in ffnn factories creation.");
     }
 
-    NamedFunction<List<Double>, Double> f0Extractor = doubles -> doubles.get(0);
-
     // Consumers
     List<NamedFunction<? super POSetPopulationState<?, ?, ? extends List<Double>>, ?>> functions = List.of(
             iterations(),
@@ -167,10 +166,10 @@ public class ClassificationComparison extends Worker {
                     functions,
                     kFunctions
             );
-//    listenerFactory = ListenerFactory.all(List.of(
-//            listenerFactory,
-//            new CSVPrinter<>(functions, kFunctions, new File("./prolog/results/" + filename))
-//    ));
+    listenerFactory = ListenerFactory.all(List.of(
+            listenerFactory,
+            new CSVPrinter<>(functions, kFunctions, new File("./prolog/results/" + filename))
+    ));
 
 
     // Evolvers
@@ -192,36 +191,36 @@ public class ClassificationComparison extends Worker {
             diversityMaxAttempts
     ));
 
-//    solvers.put("prolog-enfdiv-sel", p -> new StandardWithEnforcedDiversityEvolver(
-//            (new FunctionGraphMapper(BaseFunction.TANH).andThen(MRFClassifier::new)),
-//            new PrologGraphFactory(minFactoryDim, maxFactoryDim, ffnnOrigin, ffnnFactoryOperatorsSelection, ffnnDomain, ffnnStructuralRules),
-//            nPop,
-//            StopConditions.nOfIterations(nIterations),
-//            ffnnSelOperatorsMap,
-//            new Tournament(nTournament),
-//            new Last(),
-//            nPop,
-//            true,
-//            false,
-//            (srp, r) -> new POSetPopulationState<>(),
-//            diversityMaxAttempts
-//    ));
-//
-//    Function<Long, Double> constSchedule = x -> 0.01d;
-//    solvers.put("prolog-adaptive", p -> new AdaptiveEvolver(
-//            (new FunctionGraphMapper(BaseFunction.TANH).andThen(MRFClassifier::new)),
-//            new PrologGraphFactory(minFactoryDim, maxFactoryDim, ffnnOrigin, ffnnFactoryOperatorsAll, ffnnDomain, ffnnStructuralRules),
-//            nPop,
-//            StopConditions.nOfIterations(nIterations),
-//            ffnnAllOperatorsMap,
-//            new Tournament(nTournament),
-//            new Last(),
-//            nPop,
-//            true,
-//            false,
-//            diversityMaxAttempts,
-//            constSchedule
-//    ));
+    solvers.put("prolog-enfdiv-sel", p -> new StandardWithEnforcedDiversityEvolver(
+            (new FunctionGraphMapper(BaseFunction.TANH).andThen(MRFClassifier::new)),
+            new PrologGraphFactory(minFactoryDim, maxFactoryDim, ffnnOrigin, ffnnFactoryOperatorsSelection, ffnnDomain, ffnnStructuralRules),
+            nPop,
+            StopConditions.nOfIterations(nIterations),
+            ffnnSelOperatorsMap,
+            new Tournament(nTournament),
+            new Last(),
+            nPop,
+            true,
+            false,
+            (srp, r) -> new POSetPopulationState<>(),
+            diversityMaxAttempts
+    ));
+
+    Function<Long, Double> constSchedule = x -> 0.01d;
+    solvers.put("prolog-adaptive", p -> new AdaptiveEvolver(
+            (new FunctionGraphMapper(BaseFunction.TANH).andThen(MRFClassifier::new)),
+            new PrologGraphFactory(minFactoryDim, maxFactoryDim, ffnnOrigin, ffnnFactoryOperatorsAll, ffnnDomain, ffnnStructuralRules),
+            nPop,
+            StopConditions.nOfIterations(nIterations),
+            ffnnAllOperatorsMap,
+            new Tournament(nTournament),
+            new Last(),
+            nPop,
+            true,
+            false,
+            diversityMaxAttempts,
+            constSchedule
+    ));
 
 
     L.info(String.format("Going to test with %d evolvers: %s%n", solvers.size(), solvers.keySet()));
