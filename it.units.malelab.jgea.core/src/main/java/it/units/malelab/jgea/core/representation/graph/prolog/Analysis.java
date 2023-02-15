@@ -96,6 +96,101 @@ public class Analysis {
     AnalysisUtils.exportAnalysis("Dfa50x25.csv", 2, 102, nGraphs, nOperations, dfaOrigin, dfaPrologOperators, dfaDomain, dfaRules);
 
 
+    // BASIC
+    final List<String> basicDomainDefinition = Arrays.asList(":- dynamic node_id/1.", ":- dynamic attribute/2.", ":- dynamic edge_id/1.", ":- dynamic edge/3.", ":- dynamic colour/2.");
+    final List<String> basicStructuralRules = Arrays.asList("is_valid :- true.",
+            "retract_list([X | Xs], P) :- " +
+                    "        Z =.. [P, X], retract(Z), retract_list(Xs, P).",
+            "retract_list([], _) :- true.",
+            "retract_list([X|Xs],P,S) :- Z=.. [P,X,S], retract(Z), retract_list(Xs,P,S).",
+            "retract_list([],_,S) :- true.",
+            "attribute_value(X) :- float(X), X =< 1, X >= 0.",
+            "colour_value(red).",
+            "colour_value(blue).",
+            "colour_value(green).",
+            "colour_value(orange).",
+            "colour_value(yellow)."
+    );
+
+    // Operators' definition
+    List<String> addNode = Arrays.asList("AddNode", "gensym(nod,X), assert(node_id(X)), random(0.0,1.0,V), attribute_value(V), assert(attribute(X,V)).");
+    List<String> addEdge = Arrays.asList("addEdge", "findall(N,node_id(N), Nodes)," +
+            "random_member(Source, Nodes)," +
+            "random_member(Target, Nodes), " +
+            "gensym(edg,E)," +
+            "assert(edge_id(E))," +
+            "assert(edge(Source,Target,E))," +
+            "findall(C,colour_value(C),CDomain)," +
+            "random_member(RED,CDomain)," +
+            "assert(colour(E,RED)).");
+    List<String> removeEdge = Arrays.asList("removeEdge", "findall(EID,edge_id(EID),Ids)," +
+            "random_member(Removable,Ids)," +
+            "retract(edge_id(Removable))," +
+            "retract(colour(Removable,_))," +
+            "retract(edge(_,_,Removable)).");
+
+    List<String> intermediateNode = Arrays.asList("intermediateNode", "findall((S,T,I),edge(S,T,I),Edges)," +
+            "random_member((N1,N2,ID),Edges)," +
+            "retract(edge_id(ID))," +
+            "retract(edge(N1,N2,ID))," +
+            "retract(colour(ID,_))," +
+            "gensym(edg,E1)," +
+            "gensym(edg,E2)," +
+            "assert(edge_id(E1))," +
+            "assert(edge_id(E2))," +
+            "findall(C,colour_value(C),CDomain)," +
+            "random_member(C1,CDomain)," +
+            "random_member(C2,CDomain)," +
+            "assert(colour(E1,C1))," +
+            "assert(colour(E2,C2))," +
+            "gensym(nod,N)," +
+            "assert(node_id(N))," +
+            "random(0.0,1.0,V), assert(attribute(X,V))," +
+            "assert(edge(N1,N,E1))," +
+            "assert(edge(N,N2,E2)).");
+    List<String> perturbNode25 = Arrays.asList("perturbNode25", "findall(X,node_id(X),Nodes)," +
+            "random_member(N,Nodes)," +
+            "attribute(N,V)," +
+            "random(0.0,0.25,R)," +
+            "New_Val is R*V," +
+            "(attribute_value(New_Val) ->  retract(attribute(N,V))," +
+            "                    assertz(attribute(N,New_Val));" +
+            "    true).");
+    List<String> changeColor = Arrays.asList("changeColor", "findall(ID,edge_id(ID),IDs)," +
+            "random_member(E,IDs)," +
+            "findall(C,colour_value(C),Colours)," +
+            "random_member(V,Colours)," +
+            "retract(colour(E,_))," +
+            "assert(colour(E,V)).");
+    List<String> removeNode = Arrays.asList("removeNode", "findall(NId,node_id(NId),Nodes)," +
+            "random_member(N,Nodes)," +
+            "findall(E,edge(_,N,E),ID_in)," +
+            "findall(E,edge(N,_,E),ID_out)," +
+            "retract_list(ID_in,colour,_)," +
+            "retract_list(ID_out,colour,_)," +
+            "retract_list(ID_in,edge_id)," +
+            "retract_list(ID_out,edge_id)," +
+            "retractall(edge(_,N,_))," +
+            "retractall(edge(N,_,_))," +
+            "retract(attribute(N,_))," +
+            "retract(node_id(N)).");
+
+    List<List<String>> basicOperators = Arrays.asList(removeNode, perturbNode25, intermediateNode, addNode, addEdge, removeEdge, changeColor);
+
+    PrologGraph basicOrigin = new PrologGraph();
+    LinkedHashMap<String, Object> node1 = new LinkedHashMap<>();
+    node1.put("node_id", "first");
+    node1.put("attribute", 0.5d);
+    LinkedHashMap<String, Object> edge1 = new LinkedHashMap<>();
+    edge1.put("edge_id", "firstEdge");
+    edge1.put("colour", "red");
+    basicOrigin.addNode(node1);
+    basicOrigin.setArcValue(node1, node1, edge1);
+
+
+    AnalysisUtils.exportAnalysis("Basic50x25.csv", 5, 105, nGraphs, nOperations, basicOrigin, basicOperators, basicDomainDefinition, basicStructuralRules);
+
+
   }
 
   private static PrologGraph getDFAOrigin(String inputLoop) {
