@@ -50,54 +50,59 @@ public class ClassificationComparison extends Worker {
       ffnnBaseRules = ffnnRulesPath.collect(Collectors.toList());
       ffnnBaseRules.add(0, "max_weight(5.0).");
       ffnnBaseRules.add(0, "min_weight(-5.0).");
-      ffnnBaseRules.add(0, "max_size(141).");
     } catch (IOException e) {
       throw new UnsupportedOperationException("Ffnn's structural rules not found in given path");
     }
 
     ClassificationFitness.Metric metric = ClassificationFitness.Metric.BALANCED_ERROR_RATE;
 
-    // XOR
+//    // XOR
     int nInput = 2;
     int nOutput = 2;
-    try {
-      List<DatasetClassificationProblem> xorProblem = List.of(
-              new DatasetClassificationProblem("./datasets/xor.csv", nOutput, "y", 10, 0, metric, metric)
-      );
-      List<String> ffnnRulesXor = new ArrayList<>(ffnnBaseRules);
-      ffnnRulesXor.add(0, "n_input(" + nInput + ").");
-      ffnnRulesXor.add(0, "n_output(" + nOutput + ").");
-      runSameDomain(ffnnRulesXor, xorProblem, nInput, nOutput, "Classification-xor-2.csv");
-    } catch (IOException any) {
-      throw new UnsupportedOperationException("Error in XOR running");
-    }
-
-    // Iris
-    nInput = 4;
-    nOutput = 3;
-    try {
-      List<DatasetClassificationProblem> xorProblem = List.of(
-              new DatasetClassificationProblem("./datasets/iris.csv", nOutput, "variety", 10, 0, metric, metric)
-      );
-      List<String> ffnnRulesXor = new ArrayList<>(ffnnBaseRules);
-      ffnnRulesXor.add(0, "n_input(" + nInput + ").");
-      ffnnRulesXor.add(0, "n_output(" + nOutput + ").");
-      runSameDomain(ffnnRulesXor, xorProblem, nInput, nOutput, "Classification-iris-2.csv");
-    } catch (IOException any) {
-      throw new UnsupportedOperationException("Error in IRIS running");
-    }
+    int maxSize = 141;
+//    try {
+//      List<DatasetClassificationProblem> xorProblem = List.of(
+//              new DatasetClassificationProblem("./datasets/xor.csv", nOutput, "y", 10, 0, metric, metric)
+//      );
+//      List<String> ffnnRulesXor = new ArrayList<>(ffnnBaseRules);
+//      ffnnRulesXor.add(0, "n_input(" + nInput + ").");
+//      ffnnRulesXor.add(0, "n_output(" + nOutput + ").");
+//      ffnnRulesXor.add(0, "max_size(" + maxSize + ").");
+//      runSameDomain(ffnnRulesXor, xorProblem, nInput, nOutput, "Classification-xor-2.csv");
+//    } catch (IOException any) {
+//      throw new UnsupportedOperationException("Error in XOR running");
+//    }
+//
+//    // Iris
+//    nInput = 4;
+//    nOutput = 3;
+//    maxSize = 141;
+//    try {
+//      List<DatasetClassificationProblem> xorProblem = List.of(
+//              new DatasetClassificationProblem("./datasets/iris.csv", nOutput, "variety", 10, 0, metric, metric)
+//      );
+//      List<String> ffnnRulesIris = new ArrayList<>(ffnnBaseRules);
+//      ffnnRulesIris.add(0, "n_input(" + nInput + ").");
+//      ffnnRulesIris.add(0, "n_output(" + nOutput + ").");
+//      ffnnRulesIris.add(0, "max_size(" + maxSize + ").");
+//      runSameDomain(ffnnRulesIris, xorProblem, nInput, nOutput, "Classification-iris-2.csv");
+//    } catch (IOException any) {
+//      throw new UnsupportedOperationException("Error in IRIS running");
+//    }
 
     // Leaves
     nInput = 14;
     nOutput = 30;
+    maxSize = 201;
     try {
       List<DatasetClassificationProblem> xorProblem = List.of(
               new DatasetClassificationProblem("./datasets/leaves.csv", nOutput, "class", 10, 0, metric, metric)
       );
-      List<String> ffnnRulesXor = new ArrayList<>(ffnnBaseRules);
-      ffnnRulesXor.add(0, "n_input(" + nInput + ").");
-      ffnnRulesXor.add(0, "n_output(" + nOutput + ").");
-      runSameDomain(ffnnRulesXor, xorProblem, nInput, nOutput, "Classification-leaves-2.csv");
+      List<String> ffnnRulesLeaves = new ArrayList<>(ffnnBaseRules);
+      ffnnRulesLeaves.add(0, "n_input(" + nInput + ").");
+      ffnnRulesLeaves.add(0, "n_output(" + nOutput + ").");
+      ffnnRulesLeaves.add(0, "max_size(" + maxSize + ").");
+      runSameDomain(ffnnRulesLeaves, xorProblem, nInput, nOutput, "Classification-leaves-.csv");
     } catch (IOException any) {
       throw new UnsupportedOperationException("Error in XOR running");
     }
@@ -110,7 +115,7 @@ public class ClassificationComparison extends Worker {
     final int nTournament = 5;
     final int diversityMaxAttempts = 100;
     final int nIterations = i(a("nIterations", "100"));
-    final int[] seeds = ri(a("seed", "10:30"));
+    final int[] seeds = ri(a("seed", "0:5"));
 
     final int minFactoryDim = 5 + 2 * (nOutput + nInput - 2);
     final int maxFactoryDim = 125;
