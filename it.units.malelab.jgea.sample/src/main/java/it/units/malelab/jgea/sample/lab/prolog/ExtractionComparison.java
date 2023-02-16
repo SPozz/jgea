@@ -154,7 +154,6 @@ public class ExtractionComparison extends Worker {
             ":- dynamic edge/3.",
             ":- dynamic input/2.");
 
-
     final String fsmOperatorsPath = "./prolog/fsm/operators/";
     List<List<String>> fsmPrologOperatorsSelection = getLabelledOperators(fsmOperatorsPath + "selection");
     List<List<String>> fsmPrologOperatorsAll = getLabelledOperators(fsmOperatorsPath + "others");
@@ -210,10 +209,10 @@ public class ExtractionComparison extends Worker {
             functions,
             kFunctions
     );
-    listenerFactory = ListenerFactory.all(List.of(
-            listenerFactory,
-            new CSVPrinter<>(functions, kFunctions, new File("./prolog/results/" + filename + ".csv"))
-    ));
+//    listenerFactory = ListenerFactory.all(List.of(
+//            listenerFactory,
+//            new CSVPrinter<>(functions, kFunctions, new File("./prolog/results/" + filename + ".csv"))
+//    ));
 
     //evolvers
     Map<String, Function<RegexExtractionProblem, IterativeSolver<? extends POSetPopulationState<?,
