@@ -20,6 +20,7 @@ import it.units.malelab.jgea.core.selector.Last;
 import it.units.malelab.jgea.core.selector.Tournament;
 import it.units.malelab.jgea.core.solver.*;
 import it.units.malelab.jgea.core.solver.state.POSetPopulationState;
+import it.units.malelab.jgea.core.solver.state.State;
 import it.units.malelab.jgea.problem.classification.*;
 import it.units.malelab.jgea.sample.Worker;
 
@@ -138,7 +139,8 @@ public class ClassificationComparison extends Worker {
     final int nIterations = i(a("nIterations", "250"));
     final int[] seeds = ri(a("seed", "0:4"));
 
-    final int minFactoryDim = nInput + 2 * nOutput -1; //5 + 2 * (nOutput + nInput - 2);
+//    final int minFactoryDim = nInput + 2 * nOutput -1; //NOHIDDEN   //5 + 2 * (nOutput + nInput - 2); NORMAL
+    final int minFactoryDim = 2 * nInput + 2 * nOutput - 1; //BIG HIDDEN
     final int maxFactoryDim = 125;
 
     // Ffnn
@@ -352,55 +354,98 @@ public class ClassificationComparison extends Worker {
     return operatorsMap;
   }
 
+//  private PrologGraph getFfnnOrigin(int nInput, int nOutput) { //ORIGINAL AND NO HIDDEN
+//    Random random = new Random();
+//    PrologGraph ffnn = new PrologGraph();
+//    LinkedHashMap<String, Object> node1 = new LinkedHashMap<>();
+//    node1.put("node_id", "first");
+//    node1.put("layer", 0);
+//    node1.put("bias", 0d);
+////    LinkedHashMap<String, Object> node2 = new LinkedHashMap<>();
+////    node2.put("node_id", "second");
+////    node2.put("layer", 1);
+////    node2.put("bias", random.nextDouble(-5.0, 5.0));
+//    LinkedHashMap<String, Object> node3 = new LinkedHashMap<>();
+//    node3.put("node_id", "third");
+//    node3.put("layer", 1); //TODO: change to 2 if node2 exists
+//    node3.put("bias", 0d);
+//    LinkedHashMap<String, Object> edge1 = new LinkedHashMap<>();
+//    edge1.put("edge_id", "firstEdge");
+//    edge1.put("weight", random.nextDouble(-5.0, 5.0));
+////    LinkedHashMap<String, Object> edge2 = new LinkedHashMap<>();
+////    edge2.put("edge_id", "secondEdge");
+////    edge2.put("weight", random.nextDouble(-5.0, 5.0));
+//    ffnn.addNode(node1);
+////    ffnn.addNode(node2);
+//    ffnn.addNode(node3);
+////    ffnn.setArcValue(node1, node2, edge1);
+////    ffnn.setArcValue(node2, node3, edge2);
+//    ffnn.setArcValue(node1, node3, edge1);
+//
+//    for (int i = 1; i < nInput; ++i) {
+//      LinkedHashMap<String, Object> node = new LinkedHashMap<>();
+//      node.put("node_id", "first" + i);
+//      node.put("layer", 0);
+//      node.put("bias", 0);
+//      ffnn.addNode(node);
+//      LinkedHashMap<String, Object> edge = new LinkedHashMap<>();
+//      edge.put("edge_id", "edge" + i);
+//      edge.put("weight", random.nextDouble(-5.0, 5.0));
+//      ffnn.setArcValue(node, node3, edge); //node2 instead of 3
+//    }
+//    for (int i = 1; i < nOutput; ++i) {
+//      LinkedHashMap<String, Object> node = new LinkedHashMap<>();
+//      node.put("node_id", "last" + i);
+//      node.put("layer", 1);// 2
+//      node.put("bias", 0);
+//      ffnn.addNode(node);
+//      LinkedHashMap<String, Object> edge = new LinkedHashMap<>();
+//      edge.put("edge_id", "edgeLast" + i);
+//      edge.put("weight", random.nextDouble(-5.0, 5.0));
+//      ffnn.setArcValue(node1, node, edge); //node2 instead of 1
+//    }
+//    return ffnn;
+//  }
+
   private PrologGraph getFfnnOrigin(int nInput, int nOutput) {
     Random random = new Random();
     PrologGraph ffnn = new PrologGraph();
-    LinkedHashMap<String, Object> node1 = new LinkedHashMap<>();
-    node1.put("node_id", "first");
-    node1.put("layer", 0);
-    node1.put("bias", 0d);
-//    LinkedHashMap<String, Object> node2 = new LinkedHashMap<>();
-//    node2.put("node_id", "second");
-//    node2.put("layer", 1);
-//    node2.put("bias", random.nextDouble(-5.0, 5.0));
-    LinkedHashMap<String, Object> node3 = new LinkedHashMap<>();
-    node3.put("node_id", "third");
-    node3.put("layer", 1); //TODO: change to 2 if node2 exists
-    node3.put("bias", 0d);
-    LinkedHashMap<String, Object> edge1 = new LinkedHashMap<>();
-    edge1.put("edge_id", "firstEdge");
-    edge1.put("weight", random.nextDouble(-5.0, 5.0));
-//    LinkedHashMap<String, Object> edge2 = new LinkedHashMap<>();
-//    edge2.put("edge_id", "secondEdge");
-//    edge2.put("weight", random.nextDouble(-5.0, 5.0));
-    ffnn.addNode(node1);
-//    ffnn.addNode(node2);
-    ffnn.addNode(node3);
-//    ffnn.setArcValue(node1, node2, edge1);
-//    ffnn.setArcValue(node2, node3, edge2);
-    ffnn.setArcValue(node1, node3, edge1);
 
-    for (int i = 1; i < nInput; ++i) {
-      LinkedHashMap<String, Object> node = new LinkedHashMap<>();
-      node.put("node_id", "first" + i);
-      node.put("layer", 0);
-      node.put("bias", 0);
-      ffnn.addNode(node);
+    List<LinkedHashMap<String, Object>> hiddenLayer = new ArrayList<>();
+
+
+    for (int i = 0; i < nInput; ++i) {
+      LinkedHashMap<String, Object> input = new LinkedHashMap<>();
+      input.put("node_id", "input" + i);
+      input.put("layer", 0);
+      input.put("bias", 0);
+      ffnn.addNode(input);
+
+      LinkedHashMap<String, Object> hidden = new LinkedHashMap<>();
+      hidden.put("node_id", "hidden" + i);
+      hidden.put("layer", 1);
+      hidden.put("bias", 0);
+      ffnn.addNode(hidden);
+      hiddenLayer.add(hidden);
+
       LinkedHashMap<String, Object> edge = new LinkedHashMap<>();
       edge.put("edge_id", "edge" + i);
       edge.put("weight", random.nextDouble(-5.0, 5.0));
-      ffnn.setArcValue(node, node3, edge); //node2 instead of 3
+      ffnn.setArcValue(input, hidden, edge);
     }
-    for (int i = 1; i < nOutput; ++i) {
-      LinkedHashMap<String, Object> node = new LinkedHashMap<>();
-      node.put("node_id", "last" + i);
-      node.put("layer", 1);// 2
-      node.put("bias", 0);
-      ffnn.addNode(node);
+
+
+    for (int i = 0; i < nOutput; ++i) {
+      LinkedHashMap<String, Object> output = new LinkedHashMap<>();
+      output.put("node_id", "last" + i);
+      output.put("layer", 2);
+      output.put("bias", 0);
+      ffnn.addNode(output);
+
       LinkedHashMap<String, Object> edge = new LinkedHashMap<>();
       edge.put("edge_id", "edgeLast" + i);
       edge.put("weight", random.nextDouble(-5.0, 5.0));
-      ffnn.setArcValue(node1, node, edge); //node2 instead of 1
+      ffnn.setArcValue(hiddenLayer.get(random.nextInt(hiddenLayer.size())), output, edge); //node2 instead of 1
     }
     return ffnn;
   }
