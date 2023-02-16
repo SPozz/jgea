@@ -138,7 +138,7 @@ public class ClassificationComparison extends Worker {
     final int nIterations = i(a("nIterations", "250"));
     final int[] seeds = ri(a("seed", "0:4"));
 
-    final int minFactoryDim = 5 + 2 * (nOutput + nInput - 2);
+    final int minFactoryDim = nInput + 2 * nOutput -1; //5 + 2 * (nOutput + nInput - 2);
     final int maxFactoryDim = 125;
 
     // Ffnn
