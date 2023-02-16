@@ -8,6 +8,7 @@ module it.units.malelab.jgea.core {
   exports it.units.malelab.jgea.core.listener;
   exports it.units.malelab.jgea.core.operator;
   exports it.units.malelab.jgea.core.order;
+  exports it.units.malelab.jgea.core.functions;
   exports it.units.malelab.jgea.core.representation.grammar;
   exports it.units.malelab.jgea.core.representation.grammar.cfggp;
   exports it.units.malelab.jgea.core.representation.grammar.ge;
