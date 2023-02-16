@@ -90,21 +90,38 @@ public class ClassificationComparison extends Worker {
 //      throw new UnsupportedOperationException("Error in IRIS running");
 //    }
 
-    // Leaves
+//    // Leaves
+//    nInput = 14;
+//    nOutput = 30;
+//    maxSize = 201;
+//    try {
+//      List<DatasetClassificationProblem> xorProblem = List.of(
+//              new DatasetClassificationProblem("./datasets/leaves.csv", nOutput, "class", 10, 0, metric, metric)
+//      );
+//      List<String> ffnnRulesLeaves = new ArrayList<>(ffnnBaseRules);
+//      ffnnRulesLeaves.add(0, "n_input(" + nInput + ").");
+//      ffnnRulesLeaves.add(0, "n_output(" + nOutput + ").");
+//      ffnnRulesLeaves.add(0, "max_size(" + maxSize + ").");
+//      runSameDomain(ffnnRulesLeaves, xorProblem, nInput, nOutput, "Classification-leaves-singleLong-.csv");
+//    } catch (IOException any) {
+//      throw new UnsupportedOperationException("Error in LEAVES running");
+//    }
+
+    // Leaves with 10 classes only
     nInput = 14;
-    nOutput = 30;
-    maxSize = 201;
+    nOutput = 10;
+    maxSize = 151;
     try {
       List<DatasetClassificationProblem> xorProblem = List.of(
-              new DatasetClassificationProblem("./datasets/leaves.csv", nOutput, "class", 10, 0, metric, metric)
+              new DatasetClassificationProblem("./datasets/leavesPortion.csv", nOutput, "class", 10, 0, metric, metric)
       );
       List<String> ffnnRulesLeaves = new ArrayList<>(ffnnBaseRules);
       ffnnRulesLeaves.add(0, "n_input(" + nInput + ").");
       ffnnRulesLeaves.add(0, "n_output(" + nOutput + ").");
       ffnnRulesLeaves.add(0, "max_size(" + maxSize + ").");
-      runSameDomain(ffnnRulesLeaves, xorProblem, nInput, nOutput, "Classification-leaves-singleLong-.csv");
+      runSameDomain(ffnnRulesLeaves, xorProblem, nInput, nOutput, "Classification-SemiLeaves.csv");
     } catch (IOException any) {
-      throw new UnsupportedOperationException("Error in XOR running");
+      throw new UnsupportedOperationException("Error in leavesPortion running");
     }
 
 
@@ -114,7 +131,7 @@ public class ClassificationComparison extends Worker {
     final int nPop = i(a("nPop", "70"));
     final int nTournament = 5;
     final int diversityMaxAttempts = 100;
-    final int nIterations = i(a("nIterations", "500"));
+    final int nIterations = i(a("nIterations", "250"));
     final int[] seeds = ri(a("seed", "0:1"));
 
     final int minFactoryDim = 5 + 2 * (nOutput + nInput - 2);
@@ -211,36 +228,36 @@ public class ClassificationComparison extends Worker {
             diversityMaxAttempts
     ));
 
-    solvers.put("prolog-enfdiv-sel", p -> new StandardWithEnforcedDiversityEvolver(
-            (new FunctionGraphMapper(BaseFunction.TANH).andThen(MRFClassifier::new)),
-            new PrologGraphFactory(minFactoryDim, maxFactoryDim, ffnnOrigin, ffnnFactoryOperatorsSelection, ffnnDomain, ffnnStructuralRules),
-            nPop,
-            StopConditions.nOfIterations(nIterations),
-            ffnnSelOperatorsMap,
-            new Tournament(nTournament),
-            new Last(),
-            nPop,
-            true,
-            false,
-            (srp, r) -> new POSetPopulationState<>(),
-            diversityMaxAttempts
-    ));
-
-    Function<Long, Double> constSchedule = x -> 0.01d;
-    solvers.put("prolog-adaptive", p -> new AdaptiveEvolver(
-            (new FunctionGraphMapper(BaseFunction.TANH).andThen(MRFClassifier::new)),
-            new PrologGraphFactory(minFactoryDim, maxFactoryDim, ffnnOrigin, ffnnFactoryOperatorsAll, ffnnDomain, ffnnStructuralRules),
-            nPop,
-            StopConditions.nOfIterations(nIterations),
-            ffnnAllOperatorsMap,
-            new Tournament(nTournament),
-            new Last(),
-            nPop,
-            true,
-            false,
-            diversityMaxAttempts,
-            constSchedule
-    ));
+//    solvers.put("prolog-enfdiv-sel", p -> new StandardWithEnforcedDiversityEvolver(
+//            (new FunctionGraphMapper(BaseFunction.TANH).andThen(MRFClassifier::new)),
+//            new PrologGraphFactory(minFactoryDim, maxFactoryDim, ffnnOrigin, ffnnFactoryOperatorsSelection, ffnnDomain, ffnnStructuralRules),
+//            nPop,
+//            StopConditions.nOfIterations(nIterations),
+//            ffnnSelOperatorsMap,
+//            new Tournament(nTournament),
+//            new Last(),
+//            nPop,
+//            true,
+//            false,
+//            (srp, r) -> new POSetPopulationState<>(),
+//            diversityMaxAttempts
+//    ));
+//
+//    Function<Long, Double> constSchedule = x -> 0.01d;
+//    solvers.put("prolog-adaptive", p -> new AdaptiveEvolver(
+//            (new FunctionGraphMapper(BaseFunction.TANH).andThen(MRFClassifier::new)),
+//            new PrologGraphFactory(minFactoryDim, maxFactoryDim, ffnnOrigin, ffnnFactoryOperatorsAll, ffnnDomain, ffnnStructuralRules),
+//            nPop,
+//            StopConditions.nOfIterations(nIterations),
+//            ffnnAllOperatorsMap,
+//            new Tournament(nTournament),
+//            new Last(),
+//            nPop,
+//            true,
+//            false,
+//            diversityMaxAttempts,
+//            constSchedule
+//    ));
 
 
     L.info(String.format("Going to test with %d evolvers: %s%n", solvers.size(), solvers.keySet()));
