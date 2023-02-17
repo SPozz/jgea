@@ -20,7 +20,6 @@ import it.units.malelab.jgea.core.selector.Last;
 import it.units.malelab.jgea.core.selector.Tournament;
 import it.units.malelab.jgea.core.solver.*;
 import it.units.malelab.jgea.core.solver.state.POSetPopulationState;
-import it.units.malelab.jgea.core.solver.state.State;
 import it.units.malelab.jgea.problem.classification.*;
 import it.units.malelab.jgea.sample.Worker;
 
@@ -64,41 +63,41 @@ public class ClassificationComparison extends Worker {
 //    // XOR
     int nInput = 2;
     int nOutput = 2;
-    int maxSize = 141;
-//    try {
-//      List<DatasetClassificationProblem> xorProblem = List.of(
-//              new DatasetClassificationProblem("./datasets/xor.csv", nOutput, "y", 10, 0, metric, metric)
-//      );
-//      List<String> ffnnRulesXor = new ArrayList<>(ffnnBaseRules);
-//      ffnnRulesXor.add(0, "n_input(" + nInput + ").");
-//      ffnnRulesXor.add(0, "n_output(" + nOutput + ").");
-//      ffnnRulesXor.add(0, "max_size(" + maxSize + ").");
-//      runSameDomain(ffnnRulesXor, xorProblem, nInput, nOutput, "Classification-xor-noHidden.csv");
-//    } catch (IOException any) {
-//      throw new UnsupportedOperationException("Error in XOR running");
-//    }
-//
-//    // Iris
-//    nInput = 4;
-//    nOutput = 3;
-//    maxSize = 141;
-//    try {
-//      List<DatasetClassificationProblem> xorProblem = List.of(
-//              new DatasetClassificationProblem("./datasets/iris.csv", nOutput, "variety", 10, 0, metric, metric)
-//      );
-//      List<String> ffnnRulesIris = new ArrayList<>(ffnnBaseRules);
-//      ffnnRulesIris.add(0, "n_input(" + nInput + ").");
-//      ffnnRulesIris.add(0, "n_output(" + nOutput + ").");
-//      ffnnRulesIris.add(0, "max_size(" + maxSize + ").");
-//      runSameDomain(ffnnRulesIris, xorProblem, nInput, nOutput, "Classification-iris-noHidden.csv");
-//    } catch (IOException any) {
-//      throw new UnsupportedOperationException("Error in IRIS running");
-//    }
+    int maxSize = 201;
+    try {
+      List<DatasetClassificationProblem> xorProblem = List.of(
+              new DatasetClassificationProblem("./datasets/xor.csv", nOutput, "y", 10, 0, metric, metric)
+      );
+      List<String> ffnnRulesXor = new ArrayList<>(ffnnBaseRules);
+      ffnnRulesXor.add(0, "n_input(" + nInput + ").");
+      ffnnRulesXor.add(0, "n_output(" + nOutput + ").");
+      ffnnRulesXor.add(0, "max_size(" + maxSize + ").");
+      runSameDomain(ffnnRulesXor, xorProblem, nInput, nOutput, "ClassFinal-xor-10.csv");
+    } catch (IOException any) {
+      throw new UnsupportedOperationException("Error in XOR running");
+    }
+
+    // Iris
+    nInput = 4;
+    nOutput = 3;
+    maxSize = 201;
+    try {
+      List<DatasetClassificationProblem> xorProblem = List.of(
+              new DatasetClassificationProblem("./datasets/iris.csv", nOutput, "variety", 10, 0, metric, metric)
+      );
+      List<String> ffnnRulesIris = new ArrayList<>(ffnnBaseRules);
+      ffnnRulesIris.add(0, "n_input(" + nInput + ").");
+      ffnnRulesIris.add(0, "n_output(" + nOutput + ").");
+      ffnnRulesIris.add(0, "max_size(" + maxSize + ").");
+      runSameDomain(ffnnRulesIris, xorProblem, nInput, nOutput, "ClassFinal-iris-10.csv");
+    } catch (IOException any) {
+      throw new UnsupportedOperationException("Error in IRIS running");
+    }
 
     // Leaves
     nInput = 14;
     nOutput = 30;
-    maxSize = 401;
+    maxSize = 501;
     try {
       List<DatasetClassificationProblem> xorProblem = List.of(
               new DatasetClassificationProblem("./datasets/leaves.csv", nOutput, "class", 10, 0, metric, metric)
@@ -107,15 +106,15 @@ public class ClassificationComparison extends Worker {
       ffnnRulesLeaves.add(0, "n_input(" + nInput + ").");
       ffnnRulesLeaves.add(0, "n_output(" + nOutput + ").");
       ffnnRulesLeaves.add(0, "max_size(" + maxSize + ").");
-      runSameDomain(ffnnRulesLeaves, xorProblem, nInput, nOutput, "Classification-leaves-noHidden-LONG-401.csv");
+      runSameDomain(ffnnRulesLeaves, xorProblem, nInput, nOutput, "ClassFinal-leaves-10.csv");
     } catch (IOException any) {
       throw new UnsupportedOperationException("Error in LEAVES running");
     }
 
-//     //Leaves with 10 classes only
+     //Leaves with 10 classes only
     nInput = 14;
     nOutput = 10;
-    maxSize = 401;
+    maxSize = 501;
     try {
       List<DatasetClassificationProblem> xorProblem = List.of(
               new DatasetClassificationProblem("./datasets/leavesPortion.csv", nOutput, "class", 10, 0, metric, metric)
@@ -124,7 +123,7 @@ public class ClassificationComparison extends Worker {
       ffnnRulesLeaves.add(0, "n_input(" + nInput + ").");
       ffnnRulesLeaves.add(0, "n_output(" + nOutput + ").");
       ffnnRulesLeaves.add(0, "max_size(" + maxSize + ").");
-      runSameDomain(ffnnRulesLeaves, xorProblem, nInput, nOutput, "Classification-SemiLeaves-noHidden-LONG-401.csv");
+      runSameDomain(ffnnRulesLeaves, xorProblem, nInput, nOutput, "ClassFinal-semileaves-10.csv");
     } catch (IOException any) {
       throw new UnsupportedOperationException("Error in leavesPortion running");
     }
@@ -136,15 +135,15 @@ public class ClassificationComparison extends Worker {
     final int nPop = i(a("nPop", "70"));
     final int nTournament = 5;
     final int diversityMaxAttempts = 100;
-    final int nIterations = i(a("nIterations", "500"));
-    final int[] seeds = ri(a("seed", "0:3"));
+    final int nFitnessEvaluation = 100000;
+    final int[] seeds = ri(a("seed", "0:10"));
 
-    final int minFactoryDim = nInput + 2 * nOutput -1; //NOHIDDEN   //5 + 2 * (nOutput + nInput - 2); NORMAL
-//    final int minFactoryDim = 2 * nInput + 2 * nOutput - 1; //BIG HIDDEN
+    final int minFactoryDim = nInput + 2 * nOutput -1; //NOHIDDEN
+//    final int minFactoryDim = 2 * nInput + 2 * nOutput - 1; //BIGHIDDEN
     final int maxFactoryDim = 125;
 
     // Ffnn
-    final PrologGraph ffnnOrigin = getFfnnOrigin(nInput, nOutput);
+    final PrologGraph ffnnOrigin = getFfnnOrigin(nInput, nOutput); // getFfnnOriginHiddenLayer(nInput, nOutput);
     final List<String> ffnnDomain = Arrays.asList(
             ":- dynamic node_id/1.",
             ":- dynamic layer/2.",
@@ -188,7 +187,7 @@ public class ClassificationComparison extends Worker {
             uniqueness().of(each(fitness())).of(all()),
             size().of(genotype()).of(best()),
             fitnessMappingIteration().of(best()),
-            best().then(fitness()).then(vs -> ((List<Double>) vs).get(0)),
+            best().then(fitness()).reformat("%4.2f"),
             hist(8).of(each(size().of(genotype()))).of(all()),
             max(Comparator.comparingDouble(Number::doubleValue)).reformat("%3d").of(each(size().of(genotype()))).of(all()),
             min(Comparator.comparingDouble(Number::doubleValue)).reformat("%3d").of(each(size().of(genotype()))).of(all()),
@@ -216,34 +215,43 @@ public class ClassificationComparison extends Worker {
 
 
     // Evolvers
-    Map<String, Function<DatasetClassificationProblem, IterativeSolver<? extends POSetPopulationState<?, MRFClassifier, Double>,
-            TotalOrderQualityBasedProblem<Classifier<double[], Integer>, Double>, Classifier<double[], Integer>>>> solvers = new TreeMap<>();
+    Map<String, Function<DatasetClassificationProblem, ? extends IterativeSolver<? extends POSetPopulationState<?, ? extends Classifier<double[], Integer>, Double>,
+            TotalOrderQualityBasedProblem<? extends Classifier<double[], Integer>, Double>, ? extends Classifier<double[], Integer>>>> solvers = new TreeMap<>();
 
 
-    Function<DatasetClassificationProblem, SimpleEvolutionaryStrategy<MRFClassifier, Double>> es = p -> new SimpleEvolutionaryStrategy<>(
+    Function<DatasetClassificationProblem, SimpleEvolutionaryStrategy<? extends Classifier<double[], Integer>, Double>> es = p -> new SimpleEvolutionaryStrategy<>(
             vs -> {
-              MultiLayerPerceptron mlp = new MultiLayerPerceptron(MultiLayerPerceptron.ActivationFunction.SIGMOID, p.getNumberOfFeatures(), new int[]{(p.getNumberOfClasses() + p.getNumberOfFeatures()) / 2}, p.getNumberOfClasses());
+              MultiLayerPerceptron mlp = new MultiLayerPerceptron(
+                      MultiLayerPerceptron.ActivationFunction.SIGMOID,
+                      p.getNumberOfFeatures(),
+                      new int[]{p.getNumberOfClasses(), p.getNumberOfFeatures()},
+                      p.getNumberOfClasses()
+              );
               mlp.setParams(vs.stream().mapToDouble(v -> v).toArray());
               return new MRFClassifier(mlp);
             },
             new FixedLengthListFactory<>(
-                    MultiLayerPerceptron.countWeights(p.getNumberOfFeatures(), new int[]{(p.getNumberOfClasses() + p.getNumberOfFeatures()) / 2}, p.getNumberOfClasses()),
+                    MultiLayerPerceptron.countWeights(
+                            p.getNumberOfFeatures(),
+                            new int[]{p.getNumberOfClasses(), p.getNumberOfFeatures()},
+                            p.getNumberOfClasses()
+                    ),
                     rnd -> rnd.nextDouble(-5d, 5d)
             ),
             30,
-            StopConditions.nOfFitnessEvaluations(nPop * nIterations), //fitness evaluation come sotto
+            StopConditions.nOfFitnessEvaluations(nFitnessEvaluation),
             10,
             1,
-            0.1,
+            0.35,
             false
     );
-//    solvers.put("baseline", p -> es);
+    solvers.put("baseline", es);
 
     solvers.put("prolog-enfdiv-all", p -> new StandardWithEnforcedDiversityEvolver(
             (new FunctionGraphMapper(BaseFunction.TANH).andThen(MRFClassifier::new)),
             new PrologGraphFactory(minFactoryDim, maxFactoryDim, ffnnOrigin, ffnnFactoryOperatorsAll, ffnnDomain, ffnnStructuralRules),
             nPop,
-            StopConditions.nOfIterations(nIterations),
+            StopConditions.nOfFitnessEvaluations(nFitnessEvaluation),
             ffnnAllOperatorsMap,
             new Tournament(nTournament),
             new Last(),
@@ -258,7 +266,7 @@ public class ClassificationComparison extends Worker {
             (new FunctionGraphMapper(BaseFunction.TANH).andThen(MRFClassifier::new)),
             new PrologGraphFactory(minFactoryDim, maxFactoryDim, ffnnOrigin, ffnnFactoryOperatorsSelection, ffnnDomain, ffnnStructuralRules),
             nPop,
-            StopConditions.nOfIterations(nIterations),
+            StopConditions.nOfFitnessEvaluations(nFitnessEvaluation),
             ffnnSelOperatorsMap,
             new Tournament(nTournament),
             new Last(),
@@ -274,7 +282,7 @@ public class ClassificationComparison extends Worker {
             (new FunctionGraphMapper(BaseFunction.TANH).andThen(MRFClassifier::new)),
             new PrologGraphFactory(minFactoryDim, maxFactoryDim, ffnnOrigin, ffnnFactoryOperatorsAll, ffnnDomain, ffnnStructuralRules),
             nPop,
-            StopConditions.nOfIterations(nIterations),
+            StopConditions.nOfFitnessEvaluations(nFitnessEvaluation),
             ffnnAllOperatorsMap,
             new Tournament(nTournament),
             new Last(),
@@ -290,8 +298,8 @@ public class ClassificationComparison extends Worker {
     //run
     for (int seed : seeds) {
       for (DatasetClassificationProblem problem : problems) {
-        for (Map.Entry<String, Function<DatasetClassificationProblem, IterativeSolver<? extends POSetPopulationState<?, MRFClassifier, Double>,
-                TotalOrderQualityBasedProblem<Classifier<double[], Integer>, Double>, Classifier<double[], Integer>>>> solverEntry :
+        for (Map.Entry<String, Function<DatasetClassificationProblem, ? extends IterativeSolver<? extends POSetPopulationState<?, ? extends Classifier<double[], Integer>, Double>,
+                TotalOrderQualityBasedProblem<? extends Classifier<double[], Integer>, Double>, ? extends Classifier<double[], Integer>>>> solverEntry :
                 solvers.entrySet()) {
           Map<String, Object> keys = Map.ofEntries(
                   Map.entry("seed", seed),
@@ -305,7 +313,7 @@ public class ClassificationComparison extends Worker {
             L.info(String.format("Starting %s", keys));
             ComparableQualityBasedProblem<Classifier<double[], Integer>, Double> p = () -> c -> problem.qualityFunction().apply(c).get(0);
             Collection<RealFunction> solutions = solver.solve(
-                    problem,
+                    p,
                     new Random(seed),
                     executorService,
                     listenerFactory.build(keys).deferred(executorService)
@@ -354,32 +362,22 @@ public class ClassificationComparison extends Worker {
     return operatorsMap;
   }
 
-  private PrologGraph getFfnnOrigin(int nInput, int nOutput) { //ORIGINAL AND NO HIDDEN
+  private PrologGraph getFfnnOrigin(int nInput, int nOutput) { //NO HIDDEN
     Random random = new Random();
     PrologGraph ffnn = new PrologGraph();
     LinkedHashMap<String, Object> node1 = new LinkedHashMap<>();
     node1.put("node_id", "first");
     node1.put("layer", 0);
     node1.put("bias", 0d);
-//    LinkedHashMap<String, Object> node2 = new LinkedHashMap<>();
-//    node2.put("node_id", "second");
-//    node2.put("layer", 1);
-//    node2.put("bias", random.nextDouble(-5.0, 5.0));
     LinkedHashMap<String, Object> node3 = new LinkedHashMap<>();
     node3.put("node_id", "third");
-    node3.put("layer", 1); //TODO: change to 2 if node2 exists
+    node3.put("layer", 1);
     node3.put("bias", 0d);
     LinkedHashMap<String, Object> edge1 = new LinkedHashMap<>();
     edge1.put("edge_id", "firstEdge");
     edge1.put("weight", random.nextDouble(-5.0, 5.0));
-//    LinkedHashMap<String, Object> edge2 = new LinkedHashMap<>();
-//    edge2.put("edge_id", "secondEdge");
-//    edge2.put("weight", random.nextDouble(-5.0, 5.0));
     ffnn.addNode(node1);
-//    ffnn.addNode(node2);
     ffnn.addNode(node3);
-//    ffnn.setArcValue(node1, node2, edge1);
-//    ffnn.setArcValue(node2, node3, edge2);
     ffnn.setArcValue(node1, node3, edge1);
 
     for (int i = 1; i < nInput; ++i) {
@@ -391,7 +389,7 @@ public class ClassificationComparison extends Worker {
       LinkedHashMap<String, Object> edge = new LinkedHashMap<>();
       edge.put("edge_id", "edge" + i);
       edge.put("weight", random.nextDouble(-5.0, 5.0));
-      ffnn.setArcValue(node, node3, edge); //node2 instead of 3
+      ffnn.setArcValue(node, node3, edge);
     }
     for (int i = 1; i < nOutput; ++i) {
       LinkedHashMap<String, Object> node = new LinkedHashMap<>();
@@ -402,52 +400,52 @@ public class ClassificationComparison extends Worker {
       LinkedHashMap<String, Object> edge = new LinkedHashMap<>();
       edge.put("edge_id", "edgeLast" + i);
       edge.put("weight", random.nextDouble(-5.0, 5.0));
-      ffnn.setArcValue(node1, node, edge); //node2 instead of 1
+      ffnn.setArcValue(node1, node, edge);
     }
     return ffnn;
   }
 
-//  private PrologGraph getFfnnOrigin(int nInput, int nOutput) { //BIG HIDDEN
-//    Random random = new Random();
-//    PrologGraph ffnn = new PrologGraph();
-//
-//    List<LinkedHashMap<String, Object>> hiddenLayer = new ArrayList<>();
-//
-//
-//    for (int i = 0; i < nInput; ++i) {
-//      LinkedHashMap<String, Object> input = new LinkedHashMap<>();
-//      input.put("node_id", "input" + i);
-//      input.put("layer", 0);
-//      input.put("bias", 0);
-//      ffnn.addNode(input);
-//
-//      LinkedHashMap<String, Object> hidden = new LinkedHashMap<>();
-//      hidden.put("node_id", "hidden" + i);
-//      hidden.put("layer", 1);
-//      hidden.put("bias", 0);
-//      ffnn.addNode(hidden);
-//      hiddenLayer.add(hidden);
-//
-//      LinkedHashMap<String, Object> edge = new LinkedHashMap<>();
-//      edge.put("edge_id", "edge" + i);
-//      edge.put("weight", random.nextDouble(-5.0, 5.0));
-//      ffnn.setArcValue(input, hidden, edge);
-//    }
-//
-//
-//    for (int i = 0; i < nOutput; ++i) {
-//      LinkedHashMap<String, Object> output = new LinkedHashMap<>();
-//      output.put("node_id", "last" + i);
-//      output.put("layer", 2);
-//      output.put("bias", 0);
-//      ffnn.addNode(output);
-//
-//      LinkedHashMap<String, Object> edge = new LinkedHashMap<>();
-//      edge.put("edge_id", "edgeLast" + i);
-//      edge.put("weight", random.nextDouble(-5.0, 5.0));
-//      ffnn.setArcValue(hiddenLayer.get(random.nextInt(hiddenLayer.size())), output, edge); //node2 instead of 1
-//    }
-//    return ffnn;
-//  }
+  private PrologGraph getFfnnOriginHiddenLayer(int nInput, int nOutput) { //BIG HIDDEN
+    Random random = new Random();
+    PrologGraph ffnn = new PrologGraph();
+
+    List<LinkedHashMap<String, Object>> hiddenLayer = new ArrayList<>();
+
+
+    for (int i = 0; i < nInput; ++i) {
+      LinkedHashMap<String, Object> input = new LinkedHashMap<>();
+      input.put("node_id", "input" + i);
+      input.put("layer", 0);
+      input.put("bias", 0);
+      ffnn.addNode(input);
+
+      LinkedHashMap<String, Object> hidden = new LinkedHashMap<>();
+      hidden.put("node_id", "hidden" + i);
+      hidden.put("layer", 1);
+      hidden.put("bias", 0);
+      ffnn.addNode(hidden);
+      hiddenLayer.add(hidden);
+
+      LinkedHashMap<String, Object> edge = new LinkedHashMap<>();
+      edge.put("edge_id", "edge" + i);
+      edge.put("weight", random.nextDouble(-5.0, 5.0));
+      ffnn.setArcValue(input, hidden, edge);
+    }
+
+
+    for (int i = 0; i < nOutput; ++i) {
+      LinkedHashMap<String, Object> output = new LinkedHashMap<>();
+      output.put("node_id", "last" + i);
+      output.put("layer", 2);
+      output.put("bias", 0);
+      ffnn.addNode(output);
+
+      LinkedHashMap<String, Object> edge = new LinkedHashMap<>();
+      edge.put("edge_id", "edgeLast" + i);
+      edge.put("weight", random.nextDouble(-5.0, 5.0));
+      ffnn.setArcValue(hiddenLayer.get(random.nextInt(hiddenLayer.size())), output, edge); //node2 instead of 1
+    }
+    return ffnn;
+  }
 
 }
