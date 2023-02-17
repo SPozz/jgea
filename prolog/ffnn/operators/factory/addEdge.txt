@@ -1,1 +1,1 @@
-findall(ID,node_id(ID),Nodes),random_member(N,Nodes),layer(N,L),LL is L+1,findall(ID2,layer(ID2,LL),NextLayerNodes),random_member(M,NextLayerNodes),( edge(N,M,_), true; gensym(edg,E), assert(edge_id(E)), assert(edge(N,M,E)),random(0.0,1.0,W), assert(weight(E,W))).
+findall(ID,node_id(ID),Nodes),random_member(N,Nodes),layer(N,L),LL is L+1,findall(ID2,layer(ID2,LL),NextLayerNodes),random_member(M,NextLayerNodes),( edge(N,M,_), true; gensym(edg,E), assert(edge_id(E)), assert(edge(N,M,E)),random(-5.0,5.0,W), assert(weight(E,W))).
