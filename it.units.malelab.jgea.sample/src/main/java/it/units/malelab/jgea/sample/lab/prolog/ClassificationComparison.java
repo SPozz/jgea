@@ -135,7 +135,7 @@ public class ClassificationComparison extends Worker {
     final int nPop = i(a("nPop", "70"));
     final int nTournament = 5;
     final int diversityMaxAttempts = 100;
-    final int nFitnessEvaluation = 70000;
+    final int nFitnessEvaluation = 75000;
     final int[] seeds = ri(a("seed", "0:10"));
 
     final int minFactoryDim = nInput + 2 * nOutput -1; //NO-HIDDEN
