@@ -72,7 +72,7 @@ public class ClassificationComparison extends Worker {
       ffnnRulesXor.add(0, "n_input(" + nInput + ").");
       ffnnRulesXor.add(0, "n_output(" + nOutput + ").");
       ffnnRulesXor.add(0, "max_size(" + maxSize + ").");
-      runSameDomain(ffnnRulesXor, xorProblem, nInput, nOutput, "ClassFinal-xor-10.csv");
+      runSameDomain(ffnnRulesXor, xorProblem, nInput, nOutput, "ClassFinal-Hidden-xor-10.csv");
     } catch (IOException any) {
       throw new UnsupportedOperationException("Error in XOR running");
     }
@@ -89,7 +89,7 @@ public class ClassificationComparison extends Worker {
       ffnnRulesIris.add(0, "n_input(" + nInput + ").");
       ffnnRulesIris.add(0, "n_output(" + nOutput + ").");
       ffnnRulesIris.add(0, "max_size(" + maxSize + ").");
-      runSameDomain(ffnnRulesIris, xorProblem, nInput, nOutput, "ClassFinal-iris-10.csv");
+      runSameDomain(ffnnRulesIris, xorProblem, nInput, nOutput, "ClassFinal-Hidden-iris-10.csv");
     } catch (IOException any) {
       throw new UnsupportedOperationException("Error in IRIS running");
     }
@@ -106,7 +106,7 @@ public class ClassificationComparison extends Worker {
       ffnnRulesLeaves.add(0, "n_input(" + nInput + ").");
       ffnnRulesLeaves.add(0, "n_output(" + nOutput + ").");
       ffnnRulesLeaves.add(0, "max_size(" + maxSize + ").");
-      runSameDomain(ffnnRulesLeaves, xorProblem, nInput, nOutput, "ClassFinal-leaves-10.csv");
+      runSameDomain(ffnnRulesLeaves, xorProblem, nInput, nOutput, "ClassFinal-Hidden-leaves-10.csv");
     } catch (IOException any) {
       throw new UnsupportedOperationException("Error in LEAVES running");
     }
@@ -123,7 +123,7 @@ public class ClassificationComparison extends Worker {
       ffnnRulesLeaves.add(0, "n_input(" + nInput + ").");
       ffnnRulesLeaves.add(0, "n_output(" + nOutput + ").");
       ffnnRulesLeaves.add(0, "max_size(" + maxSize + ").");
-      runSameDomain(ffnnRulesLeaves, xorProblem, nInput, nOutput, "ClassFinal-semileaves-10.csv");
+      runSameDomain(ffnnRulesLeaves, xorProblem, nInput, nOutput, "ClassFinal-Hidden-semileaves-10.csv");
     } catch (IOException any) {
       throw new UnsupportedOperationException("Error in leavesPortion running");
     }
@@ -138,13 +138,13 @@ public class ClassificationComparison extends Worker {
     final int nFitnessEvaluation = 75000;
     final int[] seeds = ri(a("seed", "0:10"));
 
-    final int minFactoryDim = nInput + 2 * nOutput -1; //NO-HIDDEN
-//    final int minFactoryDim = 2 * nInput + 2 * nOutput - 1; //HIDDEN
+//    final int minFactoryDim = nInput + 2 * nOutput -1; //NO-HIDDEN
+    final int minFactoryDim = 2 * nInput + 2 * nOutput - 1; //HIDDEN
     final int maxFactoryDim = 125;
 
     // Ffnn
-    final PrologGraph ffnnOrigin = getFfnnOrigin(nInput, nOutput); //NO-HIDDEN
-//    final PrologGraph ffnnOrigin =  getFfnnOriginHiddenLayer(nInput, nOutput); //HIDDEN
+//    final PrologGraph ffnnOrigin = getFfnnOrigin(nInput, nOutput); //NO-HIDDEN
+    final PrologGraph ffnnOrigin =  getFfnnOriginHiddenLayer(nInput, nOutput); //HIDDEN
     final List<String> ffnnDomain = Arrays.asList(
             ":- dynamic node_id/1.",
             ":- dynamic layer/2.",
