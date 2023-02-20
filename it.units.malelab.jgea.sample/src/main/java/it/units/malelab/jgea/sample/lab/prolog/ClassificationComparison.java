@@ -64,18 +64,18 @@ public class ClassificationComparison extends Worker {
     int nInput = 2;
     int nOutput = 2;
     int maxSize = 201;
-    try {
-      List<DatasetClassificationProblem> xorProblem = List.of(
-              new DatasetClassificationProblem("./datasets/xor.csv", nOutput, "y", 10, 0, metric, metric)
-      );
-      List<String> ffnnRulesXor = new ArrayList<>(ffnnBaseRules);
-      ffnnRulesXor.add(0, "n_input(" + nInput + ").");
-      ffnnRulesXor.add(0, "n_output(" + nOutput + ").");
-      ffnnRulesXor.add(0, "max_size(" + maxSize + ").");
-      runSameDomain(ffnnRulesXor, xorProblem, nInput, nOutput, "ClassFinal-Hidden-xor-10.csv");
-    } catch (IOException any) {
-      throw new UnsupportedOperationException("Error in XOR running");
-    }
+//    try {
+//      List<DatasetClassificationProblem> xorProblem = List.of(
+//              new DatasetClassificationProblem("./datasets/xor.csv", nOutput, "y", 10, 0, metric, metric)
+//      );
+//      List<String> ffnnRulesXor = new ArrayList<>(ffnnBaseRules);
+//      ffnnRulesXor.add(0, "n_input(" + nInput + ").");
+//      ffnnRulesXor.add(0, "n_output(" + nOutput + ").");
+//      ffnnRulesXor.add(0, "max_size(" + maxSize + ").");
+//      runSameDomain(ffnnRulesXor, xorProblem, nInput, nOutput, "ClassFinal-Hidden-xor-10.csv");
+//    } catch (IOException any) {
+//      throw new UnsupportedOperationException("Error in XOR running");
+//    }
 
     // Iris
     nInput = 4;
@@ -89,44 +89,44 @@ public class ClassificationComparison extends Worker {
       ffnnRulesIris.add(0, "n_input(" + nInput + ").");
       ffnnRulesIris.add(0, "n_output(" + nOutput + ").");
       ffnnRulesIris.add(0, "max_size(" + maxSize + ").");
-      runSameDomain(ffnnRulesIris, xorProblem, nInput, nOutput, "ClassFinal-Hidden-iris-10.csv");
+      runSameDomain(ffnnRulesIris, xorProblem, nInput, nOutput, "ClassFinal-iris-10.csv");
     } catch (IOException any) {
       throw new UnsupportedOperationException("Error in IRIS running");
     }
 
     // Leaves
-    nInput = 14;
-    nOutput = 30;
-    maxSize = 501;
-    try {
-      List<DatasetClassificationProblem> xorProblem = List.of(
-              new DatasetClassificationProblem("./datasets/leaves.csv", nOutput, "class", 10, 0, metric, metric)
-      );
-      List<String> ffnnRulesLeaves = new ArrayList<>(ffnnBaseRules);
-      ffnnRulesLeaves.add(0, "n_input(" + nInput + ").");
-      ffnnRulesLeaves.add(0, "n_output(" + nOutput + ").");
-      ffnnRulesLeaves.add(0, "max_size(" + maxSize + ").");
-      runSameDomain(ffnnRulesLeaves, xorProblem, nInput, nOutput, "ClassFinal-Hidden-leaves-10.csv");
-    } catch (IOException any) {
-      throw new UnsupportedOperationException("Error in LEAVES running");
-    }
+//    nInput = 14;
+//    nOutput = 30;
+//    maxSize = 501;
+//    try {
+//      List<DatasetClassificationProblem> xorProblem = List.of(
+//              new DatasetClassificationProblem("./datasets/leaves.csv", nOutput, "class", 10, 0, metric, metric)
+//      );
+//      List<String> ffnnRulesLeaves = new ArrayList<>(ffnnBaseRules);
+//      ffnnRulesLeaves.add(0, "n_input(" + nInput + ").");
+//      ffnnRulesLeaves.add(0, "n_output(" + nOutput + ").");
+//      ffnnRulesLeaves.add(0, "max_size(" + maxSize + ").");
+//      runSameDomain(ffnnRulesLeaves, xorProblem, nInput, nOutput, "ClassFinal-leaves-10.csv");
+//    } catch (IOException any) {
+//      throw new UnsupportedOperationException("Error in LEAVES running");
+//    }
 
     //Leaves with 10 classes only
-    nInput = 14;
-    nOutput = 10;
-    maxSize = 501;
-    try {
-      List<DatasetClassificationProblem> xorProblem = List.of(
-              new DatasetClassificationProblem("./datasets/leavesPortion.csv", nOutput, "class", 10, 0, metric, metric)
-      );
-      List<String> ffnnRulesLeaves = new ArrayList<>(ffnnBaseRules);
-      ffnnRulesLeaves.add(0, "n_input(" + nInput + ").");
-      ffnnRulesLeaves.add(0, "n_output(" + nOutput + ").");
-      ffnnRulesLeaves.add(0, "max_size(" + maxSize + ").");
-      runSameDomain(ffnnRulesLeaves, xorProblem, nInput, nOutput, "ClassFinal-Hidden-semileaves-10.csv");
-    } catch (IOException any) {
-      throw new UnsupportedOperationException("Error in leavesPortion running");
-    }
+//    nInput = 14;
+//    nOutput = 10;
+//    maxSize = 501;
+//    try {
+//      List<DatasetClassificationProblem> xorProblem = List.of(
+//              new DatasetClassificationProblem("./datasets/leavesPortion.csv", nOutput, "class", 10, 0, metric, metric)
+//      );
+//      List<String> ffnnRulesLeaves = new ArrayList<>(ffnnBaseRules);
+//      ffnnRulesLeaves.add(0, "n_input(" + nInput + ").");
+//      ffnnRulesLeaves.add(0, "n_output(" + nOutput + ").");
+//      ffnnRulesLeaves.add(0, "max_size(" + maxSize + ").");
+//      runSameDomain(ffnnRulesLeaves, xorProblem, nInput, nOutput, "ClassFinal-semileaves-10.csv");
+//    } catch (IOException any) {
+//      throw new UnsupportedOperationException("Error in leavesPortion running");
+//    }
 
 
   }
@@ -135,16 +135,16 @@ public class ClassificationComparison extends Worker {
     final int nPop = i(a("nPop", "70"));
     final int nTournament = 5;
     final int diversityMaxAttempts = 100;
-    final int nFitnessEvaluation = 75000;
+    final int nFitnessEvaluation = 50000;
     final int[] seeds = ri(a("seed", "0:10"));
 
-//    final int minFactoryDim = nInput + 2 * nOutput -1; //NO-HIDDEN
-    final int minFactoryDim = 2 * nInput + 2 * nOutput - 1; //HIDDEN
+    final int minFactoryDim = nInput + 2 * nOutput -1; //NO-HIDDEN
+//    final int minFactoryDim = 2 * nInput + 2 * nOutput - 1; //HIDDEN
     final int maxFactoryDim = 125;
 
     // Ffnn
-//    final PrologGraph ffnnOrigin = getFfnnOrigin(nInput, nOutput); //NO-HIDDEN
-    final PrologGraph ffnnOrigin =  getFfnnOriginHiddenLayer(nInput, nOutput); //HIDDEN
+    final PrologGraph ffnnOrigin = getFfnnOrigin(nInput, nOutput); //NO-HIDDEN
+//    final PrologGraph ffnnOrigin =  getFfnnOriginHiddenLayer(nInput, nOutput); //HIDDEN
     final List<String> ffnnDomain = Arrays.asList(
             ":- dynamic node_id/1.",
             ":- dynamic layer/2.",
