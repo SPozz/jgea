@@ -78,38 +78,38 @@ public class ClassificationComparison extends Worker {
 //    }
 
     // Iris
-    nInput = 4;
-    nOutput = 3;
-    maxSize = 201;
-    try {
-      List<DatasetClassificationProblem> xorProblem = List.of(
-              new DatasetClassificationProblem("./datasets/iris.csv", nOutput, "variety", 10, 0, metric, metric)
-      );
-      List<String> ffnnRulesIris = new ArrayList<>(ffnnBaseRules);
-      ffnnRulesIris.add(0, "n_input(" + nInput + ").");
-      ffnnRulesIris.add(0, "n_output(" + nOutput + ").");
-      ffnnRulesIris.add(0, "max_size(" + maxSize + ").");
-      runSameDomain(ffnnRulesIris, xorProblem, nInput, nOutput, "ClassFinal-iris-10.csv");
-    } catch (IOException any) {
-      throw new UnsupportedOperationException("Error in IRIS running");
-    }
-
-    // Leaves
-//    nInput = 14;
-//    nOutput = 30;
-//    maxSize = 501;
+//    nInput = 4;
+//    nOutput = 3;
+//    maxSize = 201;
 //    try {
 //      List<DatasetClassificationProblem> xorProblem = List.of(
-//              new DatasetClassificationProblem("./datasets/leaves.csv", nOutput, "class", 10, 0, metric, metric)
+//              new DatasetClassificationProblem("./datasets/iris.csv", nOutput, "variety", 10, 0, metric, metric)
 //      );
-//      List<String> ffnnRulesLeaves = new ArrayList<>(ffnnBaseRules);
-//      ffnnRulesLeaves.add(0, "n_input(" + nInput + ").");
-//      ffnnRulesLeaves.add(0, "n_output(" + nOutput + ").");
-//      ffnnRulesLeaves.add(0, "max_size(" + maxSize + ").");
-//      runSameDomain(ffnnRulesLeaves, xorProblem, nInput, nOutput, "ClassFinal-leaves-10.csv");
+//      List<String> ffnnRulesIris = new ArrayList<>(ffnnBaseRules);
+//      ffnnRulesIris.add(0, "n_input(" + nInput + ").");
+//      ffnnRulesIris.add(0, "n_output(" + nOutput + ").");
+//      ffnnRulesIris.add(0, "max_size(" + maxSize + ").");
+//      runSameDomain(ffnnRulesIris, xorProblem, nInput, nOutput, "ClassFinal-iris-10.csv");
 //    } catch (IOException any) {
-//      throw new UnsupportedOperationException("Error in LEAVES running");
+//      throw new UnsupportedOperationException("Error in IRIS running");
 //    }
+
+    // Leaves
+    nInput = 14;
+    nOutput = 30;
+    maxSize = 501;
+    try {
+      List<DatasetClassificationProblem> xorProblem = List.of(
+              new DatasetClassificationProblem("./datasets/leaves.csv", nOutput, "class", 10, 0, metric, metric)
+      );
+      List<String> ffnnRulesLeaves = new ArrayList<>(ffnnBaseRules);
+      ffnnRulesLeaves.add(0, "n_input(" + nInput + ").");
+      ffnnRulesLeaves.add(0, "n_output(" + nOutput + ").");
+      ffnnRulesLeaves.add(0, "max_size(" + maxSize + ").");
+      runSameDomain(ffnnRulesLeaves, xorProblem, nInput, nOutput, "ClassFinal-leaves-10.csv");
+    } catch (IOException any) {
+      throw new UnsupportedOperationException("Error in LEAVES running");
+    }
 
     //Leaves with 10 classes only
 //    nInput = 14;
