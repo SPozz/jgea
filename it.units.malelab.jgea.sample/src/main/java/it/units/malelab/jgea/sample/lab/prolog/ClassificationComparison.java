@@ -95,38 +95,38 @@ public class ClassificationComparison extends Worker {
 //    }
 
     // Leaves
-    nInput = 14;
-    nOutput = 30;
-    maxSize = 501;
-    try {
-      List<DatasetClassificationProblem> xorProblem = List.of(
-              new DatasetClassificationProblem("./datasets/leaves.csv", nOutput, "class", 10, 0, metric, metric)
-      );
-      List<String> ffnnRulesLeaves = new ArrayList<>(ffnnBaseRules);
-      ffnnRulesLeaves.add(0, "n_input(" + nInput + ").");
-      ffnnRulesLeaves.add(0, "n_output(" + nOutput + ").");
-      ffnnRulesLeaves.add(0, "max_size(" + maxSize + ").");
-      runSameDomain(ffnnRulesLeaves, xorProblem, nInput, nOutput, "ClassFinal-leaves-10.csv");
-    } catch (IOException any) {
-      throw new UnsupportedOperationException("Error in LEAVES running");
-    }
-
-    //Leaves with 10 classes only
 //    nInput = 14;
-//    nOutput = 10;
+//    nOutput = 30;
 //    maxSize = 501;
 //    try {
 //      List<DatasetClassificationProblem> xorProblem = List.of(
-//              new DatasetClassificationProblem("./datasets/leavesPortion.csv", nOutput, "class", 10, 0, metric, metric)
+//              new DatasetClassificationProblem("./datasets/leaves.csv", nOutput, "class", 10, 0, metric, metric)
 //      );
 //      List<String> ffnnRulesLeaves = new ArrayList<>(ffnnBaseRules);
 //      ffnnRulesLeaves.add(0, "n_input(" + nInput + ").");
 //      ffnnRulesLeaves.add(0, "n_output(" + nOutput + ").");
 //      ffnnRulesLeaves.add(0, "max_size(" + maxSize + ").");
-//      runSameDomain(ffnnRulesLeaves, xorProblem, nInput, nOutput, "ClassFinal-semileaves-10.csv");
+//      runSameDomain(ffnnRulesLeaves, xorProblem, nInput, nOutput, "ClassFinal-leaves-10.csv");
 //    } catch (IOException any) {
-//      throw new UnsupportedOperationException("Error in leavesPortion running");
+//      throw new UnsupportedOperationException("Error in LEAVES running");
 //    }
+
+    //Leaves with 10 classes only
+    nInput = 14;
+    nOutput = 10;
+    maxSize = 501;
+    try {
+      List<DatasetClassificationProblem> xorProblem = List.of(
+              new DatasetClassificationProblem("./datasets/leavesPortion.csv", nOutput, "class", 10, 0, metric, metric)
+      );
+      List<String> ffnnRulesLeaves = new ArrayList<>(ffnnBaseRules);
+      ffnnRulesLeaves.add(0, "n_input(" + nInput + ").");
+      ffnnRulesLeaves.add(0, "n_output(" + nOutput + ").");
+      ffnnRulesLeaves.add(0, "max_size(" + maxSize + ").");
+      runSameDomain(ffnnRulesLeaves, xorProblem, nInput, nOutput, "ClassFinal-semileaves-10.csv");
+    } catch (IOException any) {
+      throw new UnsupportedOperationException("Error in leavesPortion running");
+    }
 
 
   }
