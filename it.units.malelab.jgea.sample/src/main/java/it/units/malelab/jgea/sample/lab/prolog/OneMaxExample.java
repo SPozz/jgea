@@ -65,9 +65,9 @@ public class OneMaxExample extends Worker {
     int nPop = i(a("nPop", "100"));
     int nTournament = 5;
     int maxDiversityAttempts = 100;
-    int maxIterations = i(a("nIterations", "100"));
-    int[] seeds = ri(a("seed", "0:1"));
-    int size = i(a("size", "200"));
+    int maxIterations = i(a("nIterations", "250"));
+    int[] seeds = ri(a("seed", "0:30"));
+    int size = i(a("size", "200")); //200, 1000, 5000
 
     Random r = new Random(1);
     QualityBasedProblem<BitString, Double> p = new OneMax();
@@ -83,27 +83,27 @@ public class OneMaxExample extends Worker {
                     kFunctions
             );
 
-//    listenerFactory = ListenerFactory.all(List.of(
-//            listenerFactory,
-//            new CSVPrinter<>(functions, kFunctions, new File("./prolog/results/TESTING-onemax" + size + ".csv"))
-//    ));
+    listenerFactory = ListenerFactory.all(List.of(
+            listenerFactory,
+            new CSVPrinter<>(functions, kFunctions, new File("./prolog/results/OneMaxAnalysis-" + size + ".csv"))
+    ));
 
 
     List<IterativeSolver<? extends POSetPopulationState<?, BitString, Double>, QualityBasedProblem<BitString, Double>
             , BitString>> solvers = new ArrayList<>();
     Function<Long, Double> constantScheduleNull = x -> 0.0d;
     Function<Long, Double> constantScheduleHigh = x -> 0.05d;                         // original: 0.0025
-    Function<Long, Double> constantScheduleLow = x -> 0.01d;                          // original: 0.001
-    Function<Long, Double> stepScheduleInit = x -> x < maxIterations / 2 ? 0.01 : 0;  // original 0.01
-    Function<Long, Double> stepScheduleEnd = x -> x > maxIterations / 2 ? 0.01 : 0;   // original 0.01
-    List<Function<Long, Double>> schedules = Arrays.asList(constantScheduleHigh, constantScheduleLow, stepScheduleInit, stepScheduleEnd, constantScheduleNull);
+    Function<Long, Double> constantScheduleMedium = x -> 0.01d;                       // original: 0.001
+    Function<Long, Double> constantScheduleLow = x -> 0.001d;                         // original: 0.001
+    Function<Long, Double> stepScheduleInit = x -> x < maxIterations / 2 ? 0.01 : 0;  // original: 0.01
+    Function<Long, Double> stepScheduleEnd = x -> x > maxIterations / 2 ? 0.01 : 0;   // original: 0.01
+    List<Function<Long, Double>> schedules = Arrays.asList(constantScheduleHigh, constantScheduleMedium, constantScheduleLow, stepScheduleInit, stepScheduleEnd, constantScheduleNull);
 
-    solvers.add(new StandardWithEnforcedDiversityEvolver<POSetPopulationState<BitString, BitString, Double>,
-            QualityBasedProblem<BitString, Double>, BitString, BitString, Double>(
+    solvers.add(new StandardWithEnforcedDiversityEvolver<>(
             Function.identity(),
             new BitStringFactory(size),
             nPop,
-            StopConditions.targetFitness(0d).or(StopConditions.nOfIterations(maxIterations)),
+            StopConditions.nOfIterations(maxIterations),
             Map.of(new UniformCrossover<>(new BitStringFactory(size)), 1d, new BitFlipMutation(0.01d), 1d),
             new Tournament(nTournament),
             new Last(),
@@ -130,7 +130,7 @@ public class OneMaxExample extends Worker {
                       Function.identity(),
                       new BitStringFactory(size),
                       nPop,
-                      StopConditions.targetFitness(0d).or(StopConditions.nOfIterations(maxIterations)),
+                      StopConditions.nOfIterations(maxIterations), //or target fitness 0 ...
                       operatorsTreeMap,
                       new Tournament(nTournament),
                       new Last(),
