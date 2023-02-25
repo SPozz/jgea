@@ -65,9 +65,9 @@ public class OneMaxExample extends Worker {
     int nPop = i(a("nPop", "100"));
     int nTournament = 5;
     int maxDiversityAttempts = 100;
-    int maxIterations = i(a("nIterations", "70"));
+    int maxIterations = i(a("nIterations", "500"));
     int[] seeds = ri(a("seed", "0:30"));
-    int size = i(a("size", "200")); //200, 1000, 5000
+    int size = i(a("size", "5000")); //200, 1000, 5000
 
     Random r = new Random(1);
     QualityBasedProblem<BitString, Double> p = new OneMax();
