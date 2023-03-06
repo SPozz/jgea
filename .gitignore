@@ -36,3 +36,9 @@ build/
 target/
 .flattened-pom.xml
 /it.units.malelab.jgea.core/src/main/java/it/units/malelab/jgea/core/representation/graph/prolog/analysis/
+/it.units.malelab.jgea.core/src/main/java/it/units/malelab/jgea/core/representation/graph/prolog/analysis/
+/it.units.malelab.jgea.core/src/main/java/it/units/malelab/jgea/core/representation/graph/prolog/analysis/BasicGraphsAnalysis.java
+/it.units.malelab.jgea.core/src/main/java/it/units/malelab/jgea/core/representation/graph/prolog/analysis/FfnnAnalysis.java
+/it.units.malelab.jgea.core/src/main/java/it/units/malelab/jgea/core/representation/graph/prolog/analysis/FsmAnalysis.java
+/it.units.malelab.jgea.core/src/main/java/it/units/malelab/jgea/core/representation/graph/prolog/analysis/TreeAnalysis.java
+/it.units.malelab.jgea.core/src/main/java/it/units/malelab/jgea/core/representation/graph/prolog/analysis/TwitterAnalysis.java
