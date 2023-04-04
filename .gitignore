@@ -41,4 +41,6 @@ target/
 /it.units.malelab.jgea.core/src/main/java/it/units/malelab/jgea/core/representation/graph/prolog/analysis/FsmAnalysis.java
 /it.units.malelab.jgea.core/src/main/java/it/units/malelab/jgea/core/representation/graph/prolog/analysis/TreeAnalysis.java
 /it.units.malelab.jgea.core/src/main/java/it/units/malelab/jgea/core/representation/graph/prolog/analysis/TwitterAnalysis.java
+/it.units.malelab.jgea.core/src/main/java/it/units/malelab/jgea/core/representation/graph/prolog/Analysis.java
+/it.units.malelab.jgea.core/src/main/java/it/units/malelab/jgea/core/representation/graph/prolog/AnalysisUtils.java
 /prolog/results/timeExecution/
